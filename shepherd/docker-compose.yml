@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  vast_mock:
+    container_name: fake_vast
+    command: tail -F /dev/null
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile.fake_vast
