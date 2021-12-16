@@ -11,9 +11,10 @@ docker run --runtime=nvidia -ti pitbull
 
 ## Vast.ai
 1. In `Instance Configuration`, choose custom image and paste: `michalhuras/pitbull`
-2. Go to `Instances`
-3. Click "connect"
-4. Connect with instance via ssh
+2. Rent a machine
+3. Go to `Instances`
+4. Click "connect"
+5. Connect with instance via ssh
 
 ## Running btcrecovery
 Once inside the container, run:
