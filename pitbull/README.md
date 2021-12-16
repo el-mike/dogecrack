@@ -10,7 +10,7 @@ docker run --runtime=nvidia -ti pitbull
 ```
 
 ## Vast.ai
-1. In `Instance Configuration`, choose custom image and paste: `michalhuras/pitbull`
+1. In `Instance Configuration`, choose custom image and paste: `michalhuras/pitbull:1.0`
 2. Rent a machine
 3. Go to `Instances`
 4. Click "connect"
