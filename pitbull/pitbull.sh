@@ -3,43 +3,43 @@
 passFileName='pass.txt'
 
 download_google_drive() {
-  gdown $1 -O $passFileName
+  gdown  https://drive.google.com/uc?id=$1 -O $passFileName
 }
 
 download() {
   wget $1
 }
 
-while getopts f:w:g flag
+while getopts f:w:g: flag
 do
     case "${flag}" in
         f) fileUrl=${OPTARG};;
+        g) googleFileId=${OPTARG};;
         w) walletString=${OPTARG};;
-        g) usingGoogleDrive=1;;
     esac
 done
 
-echo "File URL: $fileUrl"
 echo "Wallet string: $walletString"
 
-if [[ -z $fileUrl ]]
+if [[ -z $fileUrl && -z $googleFileId ]]
 then
-  echo "File URL missing!"
+  echo "Passlist source missing"
   exit 1
 fi
 
 if [[ -z $walletString ]]
 
 then
-  echo "Wallet string missing!"
+  echo "Wallet string missing"
   exit 1
 fi
 
-if [[ $usingGoogleDrive -eq 1 ]]
+if [[ $googleFileId ]]
 then
-  echo "Using Google Drive"
-  download_google_drive $fileUrl
+  echo "GoogleDrive file source - using gdown..."
+  download_google_drive $googleFileId
 else 
+  echo "Using wget..."
   download $fileUrl
 fi
 
