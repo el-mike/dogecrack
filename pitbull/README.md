@@ -1,6 +1,6 @@
 # Btcrecovery-based password cracker
 
-## Running locally
+## Local
 
 Requires NVIDIA container runtime: [Installation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
 
@@ -9,7 +9,13 @@ docker build -t pitbull .
 docker run --runtime=nvidia -ti pitbull
 ```
 
-## Running btcrecovery:
+## Vast.ai
+1. In `Instance Configuration`, choose custom image and paste: `michalhuras/pitbull`
+2. Go to `Instances`
+3. Click "connect"
+4. Connect with instance via ssh
+
+## Running btcrecovery
 Once inside the container, run:
 ```bash
 pitbull -f $FILE_URL -w $WALLET_STRING
