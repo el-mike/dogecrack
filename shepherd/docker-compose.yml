@@ -6,4 +6,4 @@ services:
     tty: true
     build:
       context: .
-      dockerfile: Dockerfile.fake_vast
+      dockerfile: fake_vast.Dockerfile
