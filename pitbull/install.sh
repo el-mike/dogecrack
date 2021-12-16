@@ -1,6 +1,5 @@
 #!/bin/bash
 
-apt update
 apt -y install locales
 apt -y install wget
 apt -y install python3 python3-pip nano mc git python3-bsddb3

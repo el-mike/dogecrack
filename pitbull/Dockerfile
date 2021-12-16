@@ -4,12 +4,12 @@ WORKDIR /app
 
 COPY . .
 
-RUN chmod +x ./install.sh && cp ./pitbull.sh pitbull && chmod +x ./pitbull && \
+RUN apt update && chmod +x ./install.sh && cp ./pitbull.sh pitbull && chmod +x ./pitbull && \
   # Adds pitbull executable to PATH, so client can run it from any directory.
   # Since bash init depends on using login/non-login shell, we put it two files,
   # to handle both cases.
-  echo "export PATH=/app:${PATH}" >> /etc/bash.bashrc && \
-  echo "export PATH=/app:${PATH}" >> /etc/profile && \
+  echo "export PATH=/app:${PATH}" >> ~/.profile && \
+  echo "export PATH=/app:${PATH}" >> ~/.bashrc && \
   ./install.sh
 
  
