@@ -7,8 +7,7 @@ RUN apt update && apt -y install openssh-server tmux && \
   echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
   # Set root password for SSH to 12345
   echo 'root:12345' | chpasswd && \
-  # Start SSH service.
-  /etc/init.d/ssh start && \
-  chsh -s /usr/bin/tmux root
+ chsh -s /usr/bin/tmux root
 
-ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
+# Start SSH service and wait on bash process.
+ENTRYPOINT service ssh start && /bin/bash

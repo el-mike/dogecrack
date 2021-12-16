@@ -1,8 +1,7 @@
 version: "3.9"
 services:
-  vast_mock:
+  fake_vast:
     container_name: fake_vast
-    command: tail -F /dev/null
     tty: true
     build:
       context: .
