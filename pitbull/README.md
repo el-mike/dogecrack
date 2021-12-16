@@ -5,11 +5,11 @@
 Requires NVIDIA container runtime: [Installation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
 
 ```
-cd pitbull/
 docker build -t pitbull .
 docker run --runtime=nvidia -ti pitbull
 ```
 
+## Running btcrecovery:
 Once inside the container, run:
 ```bash
 pitbull -f $FILE_URL -w $WALLET_STRING
