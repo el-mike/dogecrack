@@ -1,5 +1,7 @@
 #!/bin/bash
 
-id=$(docker ps | grep "fake_vast" | awk '{ print $1 }')
+source $(dirname "$0")/utils.sh
+
+id=$(get_fake_vast_container_id)
 
 docker exec -it $id bash

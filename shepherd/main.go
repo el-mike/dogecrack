@@ -1,12 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"log"
 	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/joho/godotenv"
-	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 func main() {
@@ -15,30 +16,34 @@ func main() {
 		return
 	}
 
-	sshPassword := os.Getenv("SSH_PASSWORD")
 	sshUser := os.Getenv("SSH_USER")
+	sshPassword := os.Getenv("SSH_PASSWORD")
+	sshDirPath := os.Getenv("SSH_DIR")
+	sshIp := getVastIp()
 
-	hostKeyCb, err := knownhosts.New("~/.ssh/known_hosts")
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	sshHost := "172.20.0.2:22"
-
-	sshConfig := &ssh.ClientConfig{
-		User:            sshUser,
-		HostKeyCallback: hostKeyCb,
-		Auth: []ssh.AuthMethod{
-			ssh.Password(sshPassword),
-		},
-	}
-
-	conn, err := ssh.Dial("tcp", sshHost, sshConfig)
+	client, err := NewVastClient(sshUser, sshPassword, sshDirPath, sshIp)
 	if err != nil {
 		log.Fatal(err.Error())
 		return
 	}
 
-	defer conn.Close()
+	defer client.conn.Close()
+}
+
+func getVastIp() string {
+	cmd := exec.Command("./scripts/get_fake_vast_ip.sh")
+
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	err := cmd.Run()
+	if err != nil {
+		panic(err)
+	}
+
+	// Sice echo command retirns a newline at the end, we want to
+	// make sure ip is correctly trimmed.
+	ip := strings.Trim(out.String(), "\n")
+
+	return ip
 }

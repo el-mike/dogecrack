@@ -1,7 +1,8 @@
 #!/bin/bash
 
-id=$(docker ps | grep "fake_vast" | awk '{ print $1 }')
-ip=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $id)
+source $(dirname "$0")/utils.sh
+
+ip=$(get_fake_vast_container_ip)
 
 # ssh complains about re-connecting to this host after rebuilding an image,
 # therefore we remove this entry.

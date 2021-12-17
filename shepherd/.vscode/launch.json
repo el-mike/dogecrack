@@ -10,9 +10,6 @@
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceRoot}",
-      "env": {
-          "POSTGRES_HOST": "localhost"
-      },
       "args": []
   }
   ]
