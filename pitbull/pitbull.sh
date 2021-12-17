@@ -1,6 +1,7 @@
 #!/bin/bash
 
 passFileName='pass.txt'
+outFileName='out_btcrecover.txt'
 
 download_google_drive() {
   gdown  https://drive.google.com/uc?id=$1 -O $passFileName
@@ -44,4 +45,10 @@ else
 fi
 
 
-python3 /app/btcrecover/btcrecover.py --dsw --data-extract-string $walletString --passwordlist ./pass.txt --enable-gpu
+python3 /app/btcrecover/btcrecover.py --dsw \
+  --data-extract-string $walletString \
+  --passwordlist ./pass.txt \
+  --enable-gpu \
+  &> $outFileName & # runs the process 
+
+

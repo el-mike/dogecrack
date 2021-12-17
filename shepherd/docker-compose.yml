@@ -3,6 +3,7 @@ services:
   fake_vast:
     container_name: fake_vast
     tty: true
+    runtime: nvidia
     build:
       context: ./vast
       dockerfile: fake_vast.Dockerfile

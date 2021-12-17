@@ -1,8 +1,9 @@
-FROM michalhuras/pitbull:1.0
+FROM michalhuras/pitbull:2.0
+#FROM michalhuras/pitbull:dev_local
 
 WORKDIR /app
 
-RUN apt update && apt -y install openssh-server tmux && \
+RUN apt update && apt -y install openssh-server && \
   # Allow login as root via SSH
   echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
   # Set root password for SSH to 12345

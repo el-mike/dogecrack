@@ -20,6 +20,10 @@ func main() {
 	sshPassword := os.Getenv("SSH_PASSWORD")
 	sshDirPath := os.Getenv("SSH_DIR")
 
+	vastApiSecret := os.Getenv("VAST_API_SECRET")
+
+	// walletString := os.Getenv("WALLET_STRING")
+
 	path, err := filepath.Abs(".")
 	if err != nil {
 		panic(err)
@@ -40,7 +44,7 @@ func main() {
 
 	defer client.Close()
 
-	manager := vast.NewVastManager()
+	manager := vast.NewVastManager(vastApiSecret)
 
 	s := server.NewServer(manager, client)
 
