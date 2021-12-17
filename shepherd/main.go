@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/el-mike/dogecrack/shepherd/server"
 	"github.com/el-mike/dogecrack/shepherd/vast"
 	"github.com/joho/godotenv"
 )
@@ -39,7 +40,13 @@ func main() {
 
 	defer client.Close()
 
-	if err := client.GetUser(); err != nil {
-		log.Fatal(err)
-	}
+	manager := vast.NewVastManager()
+
+	s := server.NewServer(manager, client)
+
+	s.Run()
+
+	// if err := client.GetUser(); err != nil {
+	// 	log.Fatal(err)
+	// }
 }
