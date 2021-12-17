@@ -5,7 +5,7 @@ Runs Pitbull-based Docker container with running open-ssh server inside. Allows 
 
 ```bash
 cd shepherd/
-chmod +x ./scripts/connect_fake_vast.sh
+chmod +x ./vast/scripts/connect_fake_vast.sh
 docker-compose up
-./scripts/connect_fake_vast.sh # password '12345'
+./vast/scripts/connect_fake_vast.sh # password '12345'
 ```
