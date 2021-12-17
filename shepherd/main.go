@@ -16,6 +16,14 @@ func main() {
 		return
 	}
 
+	// cmd := exec.Command("ssh", "root@172.20.0.2")
+	// out, err := cmd.Output()
+	// if err != nil {
+	// 	fmt.Print(err.Error())
+	// }
+
+	// fmt.Print(string(out))
+
 	sshUser := os.Getenv("SSH_USER")
 	sshPassword := os.Getenv("SSH_PASSWORD")
 	sshDirPath := os.Getenv("SSH_DIR")
@@ -23,11 +31,20 @@ func main() {
 
 	client, err := NewVastClient(sshUser, sshPassword, sshDirPath, sshIp)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal(err)
 		return
 	}
 
-	defer client.conn.Close()
+	err = client.Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer client.Close()
+
+	if err := client.GetUser(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func getVastIp() string {

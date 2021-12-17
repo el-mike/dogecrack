@@ -9,4 +9,6 @@ ip=$(get_fake_vast_container_ip)
 # TODO: investigate.
 ssh-keygen -f "/home/elmike/.ssh/known_hosts" -R "$ip"
 
+echo root@$ip
+
 ssh root@$ip
