@@ -28,4 +28,7 @@ chmod +x ./vast/scripts/connect_fake_vast.sh
 ```
 
 ### Mongodb
-Mongodb instance. Default root username/password are the ones set in `.env` file. 
+Mongodb instance. Default root username/password are the ones set in `.env` file. To log in locally, run:
+```bash
+mongosh -u $mongoUser -p $mongoPassword
+```

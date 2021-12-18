@@ -33,7 +33,12 @@ func (vm *VastManager) Sync() ([]provider.ProviderInstance, error) {
 
 // RunInstance - ProviderInstanceManager implementation.
 func (vm *VastManager) RunInstance(fileUrl, wallet string) (provider.ProviderInstance, error) {
-	return nil, nil
+	instance, err := vm.cli.StartInstance(111)
+	if err != nil {
+		return nil, err
+	}
+
+	return instance, nil
 }
 
 // CheckInstance - ProviderInstanceManager implementation.

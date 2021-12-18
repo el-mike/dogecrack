@@ -24,17 +24,22 @@ type VastInstance struct {
 	DockerImage string `json:"image_uuid"`
 }
 
-// PitbullId - PitbullInstance implementation.
+// ProviderName - ProviderInstance implementation.
+func (vi *VastInstance) ProviderName() string {
+	return "Vast"
+}
+
+// PitbullId - ProviderInstance implementation.
 func (vi *VastInstance) PitbullId() string {
 	return vi.pitbullId
 }
 
-// ProviderId - PitbullInstance implementation.
+// ProviderId - ProviderInstance implementation.
 func (vi *VastInstance) ProviderId() int {
 	return vi.VastId
 }
 
-// PitbullStatus - PitbullInstance implementation.
+// PitbullStatus - ProviderInstance implementation.
 func (vi *VastInstance) PitbullStatus() provider.InstanceStatus {
 	if vi.Status == "loading" {
 		return provider.Starting

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+
+	"github.com/el-mike/dogecrack/shepherd/vast/mocks"
 )
 
 // VastCLIClient - facade for vast CLI operations.
@@ -35,6 +37,17 @@ func (vc *VastCLIClient) GetInstances() ([]*VastInstance, error) {
 	}
 
 	return instances, nil
+}
+
+// StartInstance - starts new Vast.ai instance. Waits for starting process to be over.
+func (vc *VastCLIClient) StartInstance(offerId int) (*VastInstance, error) {
+	var instance *VastInstance
+
+	if err := json.Unmarshal([]byte(mocks.MockInstanceJSON), &instance); err != nil {
+		return nil, err
+	}
+
+	return instance, nil
 }
 
 // run - runs single command.

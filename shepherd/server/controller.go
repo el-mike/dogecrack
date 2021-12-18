@@ -1,8 +1,10 @@
 package server
 
 import (
-	"fmt"
+	"encoding/json"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/el-mike/dogecrack/shepherd/config"
 	"github.com/el-mike/dogecrack/shepherd/generator"
@@ -17,6 +19,8 @@ type Controller struct {
 
 	pitbullManager    *pitbull.PitbullManager
 	passwordGenerator *generator.PasswordGenerator
+
+	logger *log.Logger
 }
 
 // NewController - returns new Controller instance.
@@ -25,6 +29,7 @@ func NewController(manager *pitbull.PitbullManager) *Controller {
 		appConfig:         config.GetAppConfig(),
 		pitbullManager:    manager,
 		passwordGenerator: generator.NewPasswordGenerator(),
+		logger:            log.New(os.Stderr, "", 0),
 	}
 }
 
@@ -46,12 +51,29 @@ func (ct *Controller) Crack(
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+
+		ct.logger.Println(err)
+		return
 	}
 
 	instance, err := ct.pitbullManager.RunInstance(generatorResult.FileUrl, ct.appConfig.WalletString)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+
+		ct.logger.Println(err)
+		return
 	}
 
-	fmt.Print(instance)
+	response, err := json.Marshal(instance)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+
+		ct.logger.Println(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+
+	w.Write(response)
 }

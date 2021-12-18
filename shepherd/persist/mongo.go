@@ -20,7 +20,7 @@ func GetMongoClient() *mongo.Client {
 // GetDatabase - helper function for getting Shepherd's database.
 func GetDatabase() *mongo.Database {
 	if mongoClient != nil {
-		mongoClient.Database(DatabaseName)
+		return mongoClient.Database(DatabaseName)
 	}
 
 	return nil
