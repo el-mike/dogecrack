@@ -2,35 +2,20 @@ package main
 
 import (
 	"context"
-	"log"
-	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/el-mike/dogecrack/shepherd/config"
 	"github.com/el-mike/dogecrack/shepherd/persist"
 	"github.com/el-mike/dogecrack/shepherd/server"
 	"github.com/el-mike/dogecrack/shepherd/vast"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-		return
+	appConfig, err := config.NewAppConfig()
+	if err != nil {
+		panic(err)
 	}
-
-	sshUser := os.Getenv("SSH_USER")
-	sshPassword := os.Getenv("SSH_PASSWORD")
-	sshDirPath := os.Getenv("SSH_DIR")
-
-	vastApiSecret := os.Getenv("VAST_API_SECRET")
-
-	// walletString := os.Getenv("WALLET_STRING")
-
-	mongoUser := os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	mongoPassword := os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
-	mongoHost := os.Getenv("MONGO_HOST")
-	mongoPort := os.Getenv("MONGO_PORT")
 
 	path, err := filepath.Abs(".")
 	if err != nil {
@@ -39,7 +24,7 @@ func main() {
 
 	sshIp := vast.GetFakeVastIp(path)
 
-	client, err := vast.NewVastClient(sshUser, sshPassword, sshDirPath, sshIp)
+	client, err := vast.NewVastClient(appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, sshIp)
 	if err != nil {
 		panic(err)
 	}
@@ -51,12 +36,12 @@ func main() {
 
 	defer client.Close()
 
-	manager := vast.NewVastManager(vastApiSecret)
+	manager := vast.NewVastManager(appConfig.VastApiSecret)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	mongoClient, err := persist.InitMongo(ctx, mongoUser, mongoPassword, mongoHost, mongoPort)
+	mongoClient, err := persist.InitMongo(ctx, appConfig.MongoUser, appConfig.MongoPassword, appConfig.MongoHost, appConfig.MongoPort)
 	if err != nil {
 		panic(err)
 	}
@@ -69,8 +54,4 @@ func main() {
 
 	s := server.NewServer(manager, client)
 	s.Run()
-
-	// if err := client.GetUser(); err != nil {
-	// 	log.Fatal(err)
-	// }
 }
