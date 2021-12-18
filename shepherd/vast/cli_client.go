@@ -7,20 +7,20 @@ import (
 	"os/exec"
 )
 
-// VastCLI - facade for vast CLI operations.
-type VastCLI struct {
+// VastCLIClient - facade for vast CLI operations.
+type VastCLIClient struct {
 	apiSecret string
 }
 
 // NewVastCli - returns new VastCli instance.
-func NewVastCLI(apiSecret string) *VastCLI {
-	return &VastCLI{
+func NewVastCLI(apiSecret string) *VastCLIClient {
+	return &VastCLIClient{
 		apiSecret: apiSecret,
 	}
 }
 
 // GetInstances - returns current instances.
-func (vc *VastCLI) GetInstances() ([]*VastInstance, error) {
+func (vc *VastCLIClient) GetInstances() ([]*VastInstance, error) {
 	result, err := vc.run("show", "instances")
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func (vc *VastCLI) GetInstances() ([]*VastInstance, error) {
 }
 
 // run - runs single command.
-func (vc *VastCLI) run(cmdArgs ...string) ([]byte, error) {
+func (vc *VastCLIClient) run(cmdArgs ...string) ([]byte, error) {
 	// We append apiKey and output format args.
 	cmdArgs = append(cmdArgs, "--api-key", vc.apiSecret, "--raw")
 
