@@ -2,9 +2,10 @@ FROM nvidia/opencl:runtime-ubuntu18.04
 
 WORKDIR /app
 
-COPY . .
+COPY install.sh pitbull.sh status.sh output.sh ./
 
-RUN apt update && chmod +x ./install.sh && cp ./pitbull.sh pitbull && chmod +x ./pitbull && \
+RUN apt update && cp ./pitbull.sh pitbull && \
+  chmod +x ./install.sh ./status.sh ./output.sh ./pitbull && \
   # Adds pitbull executable to PATH, so client can run it from any directory.
   # Since bash init depends on using login/non-login shell, we put it two files,
   # to handle both cases.

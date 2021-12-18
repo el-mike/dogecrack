@@ -10,7 +10,7 @@ docker run --runtime=nvidia -ti pitbull
 ```
 
 ## Vast.ai
-1. In `Instance Configuration`, choose custom image and paste: `michalhuras/pitbull:2.0`
+1. In `Instance Configuration`, choose custom image and paste: `michalhuras/pitbull:3.0`
 2. Rent a machine
 3. Go to `Instances`
 4. Click "connect"
@@ -19,9 +19,18 @@ docker run --runtime=nvidia -ti pitbull
 ## Running btcrecovery
 Once inside the container, run:
 ```bash
-pitbull -f $FILE_URL -w $WALLET_STRING
-# or
-pitbull -g $GOOGLE_FILE_ID -w $WALLET_STRING
+# Options
+# [-w $WALLET_STRING] - wallet data extract string.
+# [-f $FILE_URL] - passwordlist file that will be downloaded and tested.
+# [-g $GOOGLE_FILE_ID] - Google Drive file id, can be used instead of $FILE_URL when
+#   using GoogleDrive as password storage
+# [-d] - runs in detached mode. You can safely close the terminal session (or log out from SSH)
+#   while using it. Please note that you won't be able to track loading indicator anymore (it uses pipe buffer which is not flushed to the output with '\n'). 
+
+#Example: 
+pitbull -g $GOOGLE_FILE_ID -w $WALLET_STRING -d
+
+# Downloads a Google Drive file with given ID, and runs btcrecover for $WALLET_STRING in detached mode.
 ```
 You can run it from anywhere in the container. Note that the file specfied in arguments will be saved in the same directory you're currently in.
 
