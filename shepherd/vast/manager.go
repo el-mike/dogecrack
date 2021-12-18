@@ -1,8 +1,6 @@
 package vast
 
-import (
-	"github.com/el-mike/dogecrack/shepherd/common"
-)
+import "github.com/el-mike/dogecrack/shepherd/provider"
 
 // VastManager - entity responsible for managing Vast.ai machine instances.
 // Please note that it depends on vast.ai CLI (vast) being added to os PATH.
@@ -18,13 +16,13 @@ func NewVastManager(apiSecret string) *VastManager {
 }
 
 // Sync - ProviderInstanceManager implementation.
-func (vm *VastManager) Sync() ([]common.ProviderInstance, error) {
+func (vm *VastManager) Sync() ([]provider.ProviderInstance, error) {
 	instances, err := vm.cli.GetInstances()
 	if err != nil {
 		return nil, err
 	}
 
-	providerInstances := make([]common.ProviderInstance, len(instances))
+	providerInstances := make([]provider.ProviderInstance, len(instances))
 
 	for _, instance := range instances {
 		providerInstances = append(providerInstances, instance)
@@ -34,11 +32,11 @@ func (vm *VastManager) Sync() ([]common.ProviderInstance, error) {
 }
 
 // RunInstance - ProviderInstanceManager implementation.
-func (vm *VastManager) RunInstance(fileUrl, wallet string) (common.ProviderInstance, error) {
+func (vm *VastManager) RunInstance(fileUrl, wallet string) (provider.ProviderInstance, error) {
 	return nil, nil
 }
 
 // CheckInstance - ProviderInstanceManager implementation.
-func (vm *VastManager) CheckInstance(instance common.ProviderInstance) (common.InstanceStatus, string, error) {
-	return common.Finished, "", nil
+func (vm *VastManager) CheckInstance(instance provider.ProviderInstance) (provider.InstanceStatus, string, error) {
+	return provider.Finished, "", nil
 }

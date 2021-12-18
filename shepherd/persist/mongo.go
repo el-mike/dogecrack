@@ -8,11 +8,22 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+const DatabaseName = "shepherd"
+
 var mongoClient *mongo.Client
 
 // GetMongoClient - singleton implementation for mongoClient.
 func GetMongoClient() *mongo.Client {
 	return mongoClient
+}
+
+// GetDatabase - helper function for getting Shepherd's database.
+func GetDatabase() *mongo.Database {
+	if mongoClient != nil {
+		mongoClient.Database(DatabaseName)
+	}
+
+	return nil
 }
 
 // InitMongo - inits MongoDB instance connection.

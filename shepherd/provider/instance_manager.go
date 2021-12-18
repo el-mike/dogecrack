@@ -1,4 +1,16 @@
-package common
+package provider
+
+// InstanceStatus - common status enum.
+type InstanceStatus int8
+
+const (
+	Starting InstanceStatus = iota
+	Running
+	Interrupted
+	Failed
+	Finished
+	Success
+)
 
 // ProviderInstanceManager - entity responsible for managing actual, provider's instances.
 type ProviderInstanceManager interface {
