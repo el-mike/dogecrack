@@ -18,6 +18,7 @@ func NewServer(manager pitbull.PitbullManager, client pitbull.PitbullClient) *Se
 	controller := NewController(manager, client)
 
 	router.HandleFunc("/health", controller.GetHealth).Methods("GET")
+	router.HandleFunc("/crack", controller.Crack).Methods("POST")
 
 	http.Handle("/", router)
 

@@ -7,6 +7,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var appConfig *AppConfig
+
+// GetAppConfig - singleton implementation for app config.
+func GetAppConfig() *AppConfig {
+	return appConfig
+}
+
 // AppConfig - application config container.
 type AppConfig struct {
 	SSHUser     string
@@ -30,20 +37,22 @@ func NewAppConfig() (*AppConfig, error) {
 		return nil, err
 	}
 
-	appConfig := &AppConfig{}
+	config := &AppConfig{}
 
-	appConfig.SSHUser = os.Getenv("SSH_USER")
-	appConfig.SSHPassword = os.Getenv("SSH_PASSWORD")
-	appConfig.SSHDirPath = os.Getenv("SSH_DIR")
+	config.SSHUser = os.Getenv("SSH_USER")
+	config.SSHPassword = os.Getenv("SSH_PASSWORD")
+	config.SSHDirPath = os.Getenv("SSH_DIR")
 
-	appConfig.VastApiSecret = os.Getenv("VAST_API_SECRET")
+	config.VastApiSecret = os.Getenv("VAST_API_SECRET")
 
-	appConfig.WalletString = os.Getenv("WALLET_STRING")
+	config.WalletString = os.Getenv("WALLET_STRING")
 
-	appConfig.MongoUser = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	appConfig.MongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
-	appConfig.MongoHost = os.Getenv("MONGO_HOST")
-	appConfig.MongoPort = os.Getenv("MONGO_PORT")
+	config.MongoUser = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
+	config.MongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
+	config.MongoHost = os.Getenv("MONGO_HOST")
+	config.MongoPort = os.Getenv("MONGO_PORT")
 
-	return appConfig, nil
+	appConfig = config
+
+	return config, nil
 }
