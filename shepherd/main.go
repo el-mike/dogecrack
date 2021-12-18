@@ -38,6 +38,8 @@ func main() {
 
 	manager := vast.NewVastManager(appConfig.VastApiSecret)
 
+	go manager.Sync()
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 

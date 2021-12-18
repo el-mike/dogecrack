@@ -16,9 +16,12 @@ type VastOffer struct {
 }
 
 type VastInstance struct {
-	pitbullId string
-	Status    string `json:"intended_status"`
-	VastId    string `json:"id"`
+	pitbullId   string
+	Status      string `json:"actual_status"`
+	VastId      int    `json:"id"`
+	SSHHost     string `json:"ssh_host"`
+	SSHPort     int    `json:"ssh_port"`
+	DockerImage string `json:"image_uuid"`
 }
 
 // PitbullId - PitbullInstance implementation.
@@ -27,13 +30,13 @@ func (vi *VastInstance) PitbullId() string {
 }
 
 // ProviderId - PitbullInstance implementation.
-func (vi *VastInstance) ProviderId() string {
+func (vi *VastInstance) ProviderId() int {
 	return vi.VastId
 }
 
 // PitbullStatus - PitbullInstance implementation.
 func (vi *VastInstance) PitbullStatus() pitbull.PitbullStatus {
-	if vi.Status == "starting" {
+	if vi.Status == "loading" {
 		return pitbull.Starting
 	}
 

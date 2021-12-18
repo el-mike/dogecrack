@@ -8,6 +8,7 @@ const (
 	Interrupted
 	Failed
 	Finished
+	Success
 )
 
 // PitbullInstance - representation of a single Pitbull instance.
@@ -15,7 +16,7 @@ type PitbullInstance interface {
 	// PitbullId - id for internal use, set by Shepherd application.
 	PitbullId() string
 	// ProviderId - id of actual machine/instance of given provider.
-	ProviderId() string
+	ProviderId() int
 	// PitbullStatus - current instance's status as defined in Shepherd application.
 	PitbullStatus() PitbullStatus
 }
