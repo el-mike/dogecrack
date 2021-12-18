@@ -1,11 +1,31 @@
 # Pitbull instance manager
 
-## Fake vast.ai SSH server
-Runs Pitbull-based Docker container with running open-ssh server inside. Allows to easily test Vast.ai communication without renting actual instances.
+## Development
+1. Go to root directory `shepherd/`
+2. Add .env file to the root directory:
+```
+SSH_USER=
+SSH_PASSWORD=
+SSH_DIR=
+
+VAST_API_SECRET=
+
+WALLET_STRING=
+
+MONGO_INITDB_ROOT_USERNAME=
+MONGO_INITDB_ROOT_PASSWORD=
+
+```
+3. Run `go install`
+4. Run `docker-compose up -d`
+
+### Fake vast.ai SSH server
+Pitbull-based Docker container with running open-ssh server inside. Allows to easily test Vast.ai communication without renting actual instances.
 
 ```bash
-cd shepherd/
 chmod +x ./vast/scripts/connect_fake_vast.sh
-docker-compose up
 ./vast/scripts/connect_fake_vast.sh # password '12345'
 ```
+
+### Mongodb
+Mongodb instance. Default root username/password are the ones set in `.env` file. 
