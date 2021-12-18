@@ -34,7 +34,9 @@ pitbull -g $GOOGLE_FILE_ID -w $WALLET_STRING -d
 ```
 You can run it from anywhere in the container. Note that the file specfied in arguments will be saved in the same directory you're currently in.
 
-Btcrecover is run as a background process with output redirected to `./out_btcrecover.txt` (in your current directory), so running `pitbull` will detach from your console as soon as passlist file is downloaded. Note that it does not write the loading indicator that is usually displayed when running it attached to terminal (loading indicator are not "commited" to files as they do not end with newline).
+Btcrecover's output is written to `./out_btcrecover.txt` (in your current directory). Note that it does not write the loading indicator and some other "temporary" info that is usually displayed when running it attached to terminal (those informations are not "commited" to output as they do not end with newline).
+
+If you are using `-d` flag, running `pitbull` will detach from your console as soon as passlist file is downloaded.
 
 ### Status
 There is a helper script:
