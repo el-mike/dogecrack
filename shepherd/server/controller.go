@@ -13,19 +13,17 @@ type ControllerFn func(w http.ResponseWriter, r *http.Request)
 
 // Controller - instance responsible for handling API requests.
 type Controller struct {
-	appConfig      *config.AppConfig
-	pitbullManager pitbull.PitbullManager
-	pitbullClient  pitbull.PitbullClient
+	appConfig *config.AppConfig
 
+	pitbullManager    *pitbull.PitbullManager
 	passwordGenerator *generator.PasswordGenerator
 }
 
 // NewController - returns new Controller instance.
-func NewController(manager pitbull.PitbullManager, client pitbull.PitbullClient) *Controller {
+func NewController(manager *pitbull.PitbullManager) *Controller {
 	return &Controller{
 		appConfig:         config.GetAppConfig(),
 		pitbullManager:    manager,
-		pitbullClient:     client,
 		passwordGenerator: generator.NewPasswordGenerator(),
 	}
 }

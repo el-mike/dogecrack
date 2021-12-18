@@ -12,10 +12,10 @@ type Server struct {
 	router *mux.Router
 }
 
-func NewServer(manager pitbull.PitbullManager, client pitbull.PitbullClient) *Server {
+func NewServer(manager *pitbull.PitbullManager) *Server {
 	router := mux.NewRouter()
 
-	controller := NewController(manager, client)
+	controller := NewController(manager)
 
 	router.HandleFunc("/health", controller.GetHealth).Methods("GET")
 	router.HandleFunc("/crack", controller.Crack).Methods("POST")

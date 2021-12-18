@@ -3,7 +3,7 @@ package vast
 import (
 	"time"
 
-	"github.com/el-mike/dogecrack/shepherd/pitbull"
+	"github.com/el-mike/dogecrack/shepherd/common"
 )
 
 type VastOffer struct {
@@ -35,14 +35,14 @@ func (vi *VastInstance) ProviderId() int {
 }
 
 // PitbullStatus - PitbullInstance implementation.
-func (vi *VastInstance) PitbullStatus() pitbull.PitbullStatus {
+func (vi *VastInstance) PitbullStatus() common.InstanceStatus {
 	if vi.Status == "loading" {
-		return pitbull.Starting
+		return common.Starting
 	}
 
 	if vi.Status == "running" {
-		return pitbull.Running
+		return common.Running
 	}
 
-	return pitbull.Finished
+	return common.Finished
 }

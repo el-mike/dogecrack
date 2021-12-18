@@ -7,6 +7,7 @@ import (
 
 	"github.com/el-mike/dogecrack/shepherd/config"
 	"github.com/el-mike/dogecrack/shepherd/persist"
+	"github.com/el-mike/dogecrack/shepherd/pitbull"
 	"github.com/el-mike/dogecrack/shepherd/server"
 	"github.com/el-mike/dogecrack/shepherd/vast"
 )
@@ -36,9 +37,7 @@ func main() {
 
 	defer client.Close()
 
-	manager := vast.NewVastManager(appConfig.VastApiSecret)
-
-	go manager.Sync()
+	vastManager := vast.NewVastManager(appConfig.VastApiSecret)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -54,6 +53,10 @@ func main() {
 		}
 	}()
 
-	s := server.NewServer(manager, client)
+	pitbullManager := pitbull.NewPitbullManager(vastManager)
+
+	go pitbullManager.SyncInstances()
+
+	s := server.NewServer(pitbullManager)
 	s.Run()
 }

@@ -1,9 +1,7 @@
 package vast
 
 import (
-	"fmt"
-
-	"github.com/el-mike/dogecrack/shepherd/pitbull"
+	"github.com/el-mike/dogecrack/shepherd/common"
 )
 
 // VastManager - entity responsible for managing Vast.ai machine instances.
@@ -19,21 +17,28 @@ func NewVastManager(apiSecret string) *VastManager {
 	}
 }
 
-func (vm *VastManager) Sync() ([]pitbull.PitbullInstance, error) {
+// Sync - ProviderInstanceManager implementation.
+func (vm *VastManager) Sync() ([]common.ProviderInstance, error) {
 	instances, err := vm.cli.GetInstances()
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Print(instances)
+	providerInstances := make([]common.ProviderInstance, len(instances))
 
+	for _, instance := range instances {
+		providerInstances = append(providerInstances, instance)
+	}
+
+	return providerInstances, nil
+}
+
+// RunInstance - ProviderInstanceManager implementation.
+func (vm *VastManager) RunInstance(fileUrl, wallet string) (common.ProviderInstance, error) {
 	return nil, nil
 }
 
-func (vm *VastManager) RunInstance(fileUrl, wallet string) (pitbull.PitbullInstance, error) {
-	return nil, nil
-}
-
-func (vm *VastManager) CheckInstance(instance pitbull.PitbullInstance) (pitbull.PitbullStatus, string, error) {
-	return pitbull.Finished, "", nil
+// CheckInstance - ProviderInstanceManager implementation.
+func (vm *VastManager) CheckInstance(instance common.ProviderInstance) (common.InstanceStatus, string, error) {
+	return common.Finished, "", nil
 }
