@@ -1,5 +1,5 @@
-# FROM michalhuras/pitbull:2.0
-FROM michalhuras/pitbull:dev_local
+FROM michalhuras/pitbull:3.0
+# FROM michalhuras/pitbull:dev_local
 
 WORKDIR /app
 
