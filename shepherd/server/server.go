@@ -18,6 +18,7 @@ func NewServer(manager *pitbull.PitbullManager) *Server {
 	controller := NewController(manager)
 
 	router.HandleFunc("/health", controller.GetHealth).Methods("GET")
+	router.HandleFunc("/activeInstances", controller.GetActiveInstances).Methods("GET")
 	router.HandleFunc("/crack", controller.Crack).Methods("POST")
 
 	http.Handle("/", router)
@@ -30,5 +31,3 @@ func NewServer(manager *pitbull.PitbullManager) *Server {
 func (s *Server) Run() {
 	log.Fatal(http.ListenAndServe(":8080", s.router))
 }
-
-func NoopHandler() {}

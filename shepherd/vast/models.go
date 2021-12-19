@@ -6,6 +6,8 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/provider"
 )
 
+const ProviderName = "vast"
+
 type VastOffer struct {
 	ID        int           `json:"id"`
 	GPUName   string        `json:"gpu_name"`
@@ -26,7 +28,7 @@ type VastInstance struct {
 
 // ProviderName - ProviderInstance implementation.
 func (vi *VastInstance) ProviderName() string {
-	return "Vast"
+	return ProviderName
 }
 
 // PitbullId - ProviderInstance implementation.

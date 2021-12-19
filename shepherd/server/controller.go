@@ -41,6 +41,34 @@ func (ct *Controller) GetHealth(
 	w.WriteHeader(http.StatusOK)
 }
 
+// GetActiveInstances - returns currently active instances. That includes all instances with
+// status different than "FINISHED".
+func (ct *Controller) GetActiveInstances(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	instances, err := ct.pitbullManager.GetActiveInstances()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+
+		ct.logger.Println(err)
+		return
+	}
+
+	response, err := json.Marshal(&instances)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+
+		ct.logger.Println(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+
+	w.Write(response)
+}
+
 // Crack - runs single cracking run, based on given basePassword and rules.
 // It runs password generation and schedules Pitbull instance spin up.
 func (ct *Controller) Crack(

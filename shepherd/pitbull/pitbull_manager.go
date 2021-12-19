@@ -22,6 +22,7 @@ func NewPitbullManager(providerInstanceManager provider.ProviderInstanceManager)
 	}
 }
 
+// SyncInstances - checks and syncs given provider's instances with internal representation.
 func (pm *PitbullManager) SyncInstances() error {
 	instances, err := pm.providerInstanceManager.Sync()
 	if err != nil {
@@ -37,6 +38,10 @@ func (pm *PitbullManager) SyncInstances() error {
 	}
 
 	return nil
+}
+
+func (pm *PitbullManager) GetActiveInstances() ([]*models.PitbullInstance, error) {
+	return pm.instanceRepository.GetActiveInstances()
 }
 
 func (pm *PitbullManager) RunInstance(fileUrl, walletString string) (*models.PitbullInstance, error) {

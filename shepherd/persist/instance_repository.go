@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/models"
+	"github.com/el-mike/dogecrack/shepherd/provider"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -43,7 +45,22 @@ func (ir *InstanceRepository) SaveInstance(pitbull *models.PitbullInstance) erro
 func (ir *InstanceRepository) GetByProviderId() {}
 
 func (ir *InstanceRepository) GetActiveInstances() ([]*models.PitbullInstance, error) {
-	// collection := ir.db.Collection(instancesCollection)
+	collection := ir.db.Collection(instancesCollection)
 
-	return nil, nil
+	filter := bson.D{
+		{"status", bson.D{{"$ne", provider.Finished}}},
+	}
+
+	cursor, err := collection.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, err
+	}
+
+	var results []*models.PitbullInstance
+
+	if err := cursor.All(context.TODO(), &results); err != nil {
+		return nil, err
+	}
+
+	return results, nil
 }
