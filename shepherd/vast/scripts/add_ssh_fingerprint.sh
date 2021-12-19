@@ -3,7 +3,13 @@
 # $1 - host IP
 # $2 - ssh config file path
 
-echo $1
-echo $2
+figerprintExists=$(ssh-keygen -F $1)
 
-ssh-keyscan -H $1 >> $2
+if [[ -z $figerprintExists ]]
+then
+  echo "Adding fingerprint for host $1"
+  ssh-keyscan -H $1 >> $2
+else
+  echo "Host already added"
+fi
+
