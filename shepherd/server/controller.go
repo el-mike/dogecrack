@@ -64,10 +64,7 @@ func (ct *Controller) GetActiveInstances(
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-
-	w.Write(response)
+	ct.handleJSONResponse(w, response)
 }
 
 // GetInstance - returns an instance with given ID.
@@ -144,8 +141,8 @@ func (ct *Controller) handleError(w http.ResponseWriter, status int, err error) 
 
 // handleJSONResponse - helper function for returning success response as JSON.
 func (ct *Controller) handleJSONResponse(w http.ResponseWriter, response []byte) {
+	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
 
 	w.Write(response)
 }
