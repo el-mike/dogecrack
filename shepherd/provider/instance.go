@@ -19,8 +19,6 @@ type ProviderInstance interface {
 	ProviderName() string
 	// ProviderId - id of actual machine/instance of given provider.
 	ProviderId() int
-	// PitbullId - id for internal use, set by Shepherd application.
-	PitbullId() string
 	// PitbullStatus - returns status value as defined internally.
 	PitbullStatus() InstanceStatus
 }

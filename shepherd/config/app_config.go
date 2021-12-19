@@ -20,6 +20,8 @@ type AppConfig struct {
 	SSHPassword string
 	SSHDirPath  string
 
+	PitbullImage string
+
 	VastApiSecret string
 
 	MongoUser     string
@@ -42,6 +44,8 @@ func NewAppConfig() (*AppConfig, error) {
 	config.SSHUser = os.Getenv("SSH_USER")
 	config.SSHPassword = os.Getenv("SSH_PASSWORD")
 	config.SSHDirPath = os.Getenv("SSH_DIR")
+
+	config.PitbullImage = os.Getenv("PITBULL_IMAGE")
 
 	config.VastApiSecret = os.Getenv("VAST_API_SECRET")
 

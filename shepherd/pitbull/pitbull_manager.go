@@ -47,7 +47,33 @@ func (pm *PitbullManager) GetActiveInstances() ([]*models.PitbullInstance, error
 
 // GetInstanceById - returns a PitbullInstance with given id.
 func (pm *PitbullManager) GetInstanceById(id string) (*models.PitbullInstance, error) {
-	return pm.instanceRepository.GetInstanceById(id)
+	instance, err := pm.instanceRepository.GetInstanceById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	providerInstanceId := instance.ProviderInstance.ProviderId()
+
+	providerInstance, err := pm.providerInstanceManager.GetInstance(providerInstanceId)
+	if err != nil {
+		// If given instance could not be found on given provider's side, that means
+		// it has been terminated - therefore, we want to mark related PitbullInstance
+		// as Finished.
+		if _, ok := err.(*provider.InstanceNotFound); ok {
+			instance.Status = provider.Finished
+		} else {
+			return nil, err
+		}
+		// Otherwise, we override current ProviderInstance with new data.
+	} else {
+		instance.ProviderInstance = providerInstance
+	}
+
+	if err := pm.instanceRepository.UpdateInstance(instance); err != nil {
+		return nil, err
+	}
+
+	return instance, nil
 }
 
 // RunInstance - runs single pitbull instance.
@@ -59,7 +85,7 @@ func (pm *PitbullManager) RunInstance(fileUrl, walletString string) (*models.Pit
 
 	pitbull := models.NewPitbullInstance(instance)
 
-	if err := pm.instanceRepository.SaveInstance(pitbull); err != nil {
+	if err := pm.instanceRepository.CreateInstance(pitbull); err != nil {
 		return nil, err
 	}
 

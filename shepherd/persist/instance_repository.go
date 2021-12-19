@@ -47,8 +47,8 @@ func (ir *InstanceRepository) GetInstanceById(id string) (*models.PitbullInstanc
 	return instance, nil
 }
 
-// SaveInstance - saves a new Pitbull instance to the DB.
-func (ir *InstanceRepository) SaveInstance(pitbull *models.PitbullInstance) error {
+// CreateInstance - saves a new Pitbull instance to the DB.
+func (ir *InstanceRepository) CreateInstance(pitbull *models.PitbullInstance) error {
 	collection := ir.db.Collection(instancesCollection)
 
 	pitbull.CreatedAt = time.Now()
@@ -60,6 +60,21 @@ func (ir *InstanceRepository) SaveInstance(pitbull *models.PitbullInstance) erro
 	}
 
 	pitbull.ID = result.InsertedID.(primitive.ObjectID)
+
+	return nil
+}
+
+func (ir *InstanceRepository) UpdateInstance(pitbull *models.PitbullInstance) error {
+	collection := ir.db.Collection(instancesCollection)
+
+	pitbull.UpdatedAt = time.Now()
+
+	updatePayload := bson.D{{Key: "$set", Value: pitbull}}
+
+	_, err := collection.UpdateByID(context.TODO(), pitbull.ID, updatePayload)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

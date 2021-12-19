@@ -8,6 +8,6 @@ type ProviderInstanceManager interface {
 	// RunInstance - runs single instance.
 	RunInstance(fileUrl, wallet string) (ProviderInstance, error)
 
-	// CheckInstance - returns the current status and output of Pitbull instance.
-	CheckInstance(instance ProviderInstance) (InstanceStatus, string, error)
+	// GetInstance - returns active(rented) instance with given ID.
+	GetInstance(instanceId int) (ProviderInstance, error)
 }

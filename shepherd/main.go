@@ -44,7 +44,7 @@ func main() {
 
 	defer client.Close()
 
-	vastManager := vast.NewVastManager(appConfig.VastApiSecret)
+	vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
