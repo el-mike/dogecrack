@@ -40,10 +40,17 @@ func (pm *PitbullManager) SyncInstances() error {
 	return nil
 }
 
+// GetActiveInstances - returns all active PitbullInstances.
 func (pm *PitbullManager) GetActiveInstances() ([]*models.PitbullInstance, error) {
 	return pm.instanceRepository.GetActiveInstances()
 }
 
+// GetInstanceById - returns a PitbullInstance with given id.
+func (pm *PitbullManager) GetInstanceById(id string) (*models.PitbullInstance, error) {
+	return pm.instanceRepository.GetInstanceById(id)
+}
+
+// RunInstance - runs single pitbull instance.
 func (pm *PitbullManager) RunInstance(fileUrl, walletString string) (*models.PitbullInstance, error) {
 	instance, err := pm.providerInstanceManager.RunInstance(fileUrl, walletString)
 	if err != nil {

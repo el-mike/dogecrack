@@ -25,6 +25,28 @@ func NewInstanceRepository() *InstanceRepository {
 	}
 }
 
+// GetInstanceById - returns an instance with given id.
+func (ir *InstanceRepository) GetInstanceById(id string) (*models.PitbullInstance, error) {
+	collection := ir.db.Collection(instancesCollection)
+
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	filter := bson.M{"_id": objectId}
+
+	result := collection.FindOne(context.TODO(), filter)
+
+	instance := &models.PitbullInstance{}
+
+	if err := result.Decode(instance); err != nil {
+		return nil, err
+	}
+
+	return instance, nil
+}
+
 // SaveInstance - saves a new Pitbull instance to the DB.
 func (ir *InstanceRepository) SaveInstance(pitbull *models.PitbullInstance) error {
 	collection := ir.db.Collection(instancesCollection)
@@ -42,8 +64,8 @@ func (ir *InstanceRepository) SaveInstance(pitbull *models.PitbullInstance) erro
 	return nil
 }
 
-func (ir *InstanceRepository) GetByProviderId() {}
-
+// GetActiveInstances - returns all instances that are active, i.e. their status is different
+// than FINISHED (4).
 func (ir *InstanceRepository) GetActiveInstances() ([]*models.PitbullInstance, error) {
 	collection := ir.db.Collection(instancesCollection)
 

@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -69,6 +70,34 @@ func (ct *Controller) GetActiveInstances(
 	w.Write(response)
 }
 
+// GetInstance - returns an instance with given ID.
+func (ct *Controller) GetInstance(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	id := r.URL.Query().Get("id")
+
+	if id == "" {
+		ct.handleError(w, http.StatusBadRequest, fmt.Errorf("Instance id was not provided"))
+		return
+	}
+
+	instance, err := ct.pitbullManager.GetInstanceById(id)
+	if err != nil {
+		ct.handleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response, err := json.Marshal(instance)
+	if err != nil {
+		ct.handleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.handleJSONResponse(w, response)
+
+}
+
 // Crack - runs single cracking run, based on given basePassword and rules.
 // It runs password generation and schedules Pitbull instance spin up.
 func (ct *Controller) Crack(
@@ -78,28 +107,43 @@ func (ct *Controller) Crack(
 	generatorResult, err := ct.passwordGenerator.Generate("testPassword1", []string{})
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
-		ct.logger.Println(err)
+		ct.handleError(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	instance, err := ct.pitbullManager.RunInstance(generatorResult.FileUrl, ct.appConfig.WalletString)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
-		ct.logger.Println(err)
+		ct.handleError(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	response, err := json.Marshal(instance)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
-		ct.logger.Println(err)
+		ct.handleError(w, http.StatusInternalServerError, err)
 		return
 	}
 
+	ct.handleJSONResponse(w, response)
+}
+
+// handleInternalError - helper function for returning error as JSON.
+func (ct *Controller) handleError(w http.ResponseWriter, status int, err error) {
+	w.WriteHeader(http.StatusInternalServerError)
+
+	ct.logger.Println(err)
+
+	apiError := NewApiError(status, err)
+
+	errorResponse, err := json.Marshal(apiError)
+	if err != nil {
+		// Do nothing - status 500 will be returned anyway.
+	}
+
+	w.Write(errorResponse)
+}
+
+// handleJSONResponse - helper function for returning success response as JSON.
+func (ct *Controller) handleJSONResponse(w http.ResponseWriter, response []byte) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 
