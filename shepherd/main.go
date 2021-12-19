@@ -18,12 +18,19 @@ func main() {
 		panic(err)
 	}
 
-	path, err := filepath.Abs(".")
+	rootPath, err := filepath.Abs(".")
 	if err != nil {
 		panic(err)
 	}
 
-	sshIp := vast.GetFakeVastIp(path)
+	sshIp, err := vast.GetFakeVastIp(rootPath)
+	if err != nil {
+		panic(err)
+	}
+
+	if err := vast.AddSSHFingerprint(rootPath, sshIp, appConfig.SSHDirPath); err != nil {
+		panic(err)
+	}
 
 	client, err := vast.NewVastClient(appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, sshIp)
 	if err != nil {

@@ -1,7 +1,6 @@
 package pitbull
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/el-mike/dogecrack/shepherd/models"
@@ -30,8 +29,6 @@ func (pm *PitbullManager) SyncInstances() error {
 
 		return err
 	}
-
-	fmt.Print(instances)
 
 	var pitbulls []*models.PitbullInstance
 

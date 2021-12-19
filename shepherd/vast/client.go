@@ -26,7 +26,9 @@ type VastClient struct {
 
 // NewVastClient  - returns new VastClient instance. Does NOT start up a connection.
 func NewVastClient(user, password, sshDirPath, ipAddress string) (*VastClient, error) {
-	hostKeyCb, err := knownhosts.New(sshDirPath + "/known_hosts")
+	knownHostsPath := sshDirPath + "/known_hosts"
+
+	hostKeyCb, err := knownhosts.New(knownHostsPath)
 	if err != nil {
 		return nil, err
 	}
