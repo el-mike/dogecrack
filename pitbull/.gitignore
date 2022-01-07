@@ -1,4 +1,7 @@
 ./pitbull
 **/pass.*
-**/out_btcrecover.txt
-btcrecover/**/*
+resources/**/*
+test.sh
+btcrecover_out
+out
+progress_view.txt
