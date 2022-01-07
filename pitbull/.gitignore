@@ -1,7 +1,8 @@
 ./pitbull
 **/pass.*
 resources/**/*
-test.sh
+test_win.sh
+test_loose.sh
 btcrecover_out
 out
 progress_view.txt

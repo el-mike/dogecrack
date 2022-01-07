@@ -2,11 +2,13 @@
 
 dirname=$(dirname "$0")
 
-passFileName='pass.txt'
+passlistFileName='passlist.txt'
 outFileName='out_btcrecover.txt'
 
+pipe='btcrecover_out'
+
 download_google_drive() {
-  gdown  https://drive.google.com/uc?id=$1 -O $passFileName
+  gdown  https://drive.google.com/uc?id=$1 -O $passlistFileName
 }
 
 download() {
@@ -27,6 +29,7 @@ done
 
 echo "Wallet string: $walletString"
 
+# Input args validation
 if [[ -z $fileUrl && -z $googleFileId ]]
 then
   echo "Passlist source missing"
@@ -34,11 +37,13 @@ then
 fi
 
 if [[ -z $walletString ]]
-
 then
   echo "Wallet string missing"
   exit 1
 fi
+
+# Output pipe setup
+mkfifo "$pipe"
 
 if [[ $googleFileId ]]
 then
@@ -55,13 +60,13 @@ then
   
   python3 $dirname/btcrecover/btcrecover.py --dsw \
     --data-extract-string $walletString \
-    --passwordlist ./pass.txt \
+    --passwordlist $passlistFileName \
     --enable-gpu \
     &> $outFileName & # runs the process 
 else
   python3 $dirname/btcrecover/btcrecover.py --dsw \
     --data-extract-string $walletString \
-    --passwordlist ./pass.txt \
+    --passwordlist $passlistFileName \
     --enable-gpu \
     2>&1 | tee $outFileName
 fi
