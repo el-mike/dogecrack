@@ -1,72 +1,82 @@
 #!/bin/bash
 
+# This script downloads given passlist file (into passlist.txt) and runs btcrevcover with it.
+# It's the main functionality of Pitbull tool.
+# It will run as a foreground process, and output progress to TTY. Some additional logs
+# may be redirected to stderr (warnings, errors).
+
 dirname=$(dirname "$0")
 
 passlistFileName='passlist.txt'
-outFileName='out_btcrecover.txt'
-
 pipe='btcrecover_out'
 
-download_google_drive() {
-  gdown  https://drive.google.com/uc?id=$1 -O $passlistFileName
+# Checks if given file URL is hosted on Google Drive.
+is_google_drive_file() {
+  local regex='.*drive.google.com.*'
+
+  if [[ $1 =~ $regex ]]; then
+    echo 1
+  else
+    echo 0
+  fi
 }
 
+# Downloads a file from Google Drive using gdown.
+# We are using custom tools, as Google Drive performs additional checks while
+# accessing and downloading files.
+download_from_google_drive() {
+  gdown  $1 -O $passlistFileName
+}
+
+# Downloads a file using wget.
 download() {
   wget $1
 }
 
-detachedMode=0
 
-while getopts f:w:g:d flag
+while getopts f:w: flag
 do
     case "${flag}" in
         f) fileUrl=${OPTARG};;
-        g) googleFileId=${OPTARG};;
         w) walletString=${OPTARG};;
-        d) detachedMode=1;;
     esac
 done
 
 echo "Wallet string: $walletString"
 
-# Input args validation
-if [[ -z $fileUrl && -z $googleFileId ]]
-then
+# Input args validation.
+if [[ -z $fileUrl ]]; then
   echo "Passlist source missing"
   exit 1
 fi
 
-if [[ -z $walletString ]]
-then
+if [[ -z $walletString ]]; then
   echo "Wallet string missing"
   exit 1
 fi
 
-# Output pipe setup
-mkfifo "$pipe"
+isGoogleDriveFile=$(is_google_drive_file "$fileUrl")
 
-if [[ $googleFileId ]]
-then
+# Downloadind passlist file.
+if [[ $isGoogleDriveFile -eq 1 ]]; then
   echo "GoogleDrive file source - using gdown..."
-  download_google_drive $googleFileId
+  download_from_google_drive $fileUrl
 else 
   echo "Using wget..."
   download $fileUrl
 fi
 
-if [[ $detachedMode -eq 1 ]]
-then
-  echo "Running in detached mode..."
-  
-  python3 $dirname/btcrecover/btcrecover.py --dsw \
-    --data-extract-string $walletString \
-    --passwordlist $passlistFileName \
-    --enable-gpu \
-    &> $outFileName & # runs the process 
-else
-  python3 $dirname/btcrecover/btcrecover.py --dsw \
-    --data-extract-string $walletString \
-    --passwordlist $passlistFileName \
-    --enable-gpu \
-    2>&1 | tee $outFileName
+# Output capture setup.
+# If pipe exists, remove it - it ensures that no other agent is
+# reading from the output pipe.
+if [ -p $pipe ]; then
+  rm "$pipe"
 fi
+
+mkfifo "$pipe" && ./output_reader.sh &
+
+script -f -c "python3 $dirname/resources/btcrecover/btcrecover.py --dsw \
+  --data-extract-string $walletString \
+  --passwordlist $passlistFileName \
+  --enable-gpu" \
+  $pipe

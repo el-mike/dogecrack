@@ -22,8 +22,6 @@ Once inside the container, run:
 # Options
 # [-w $WALLET_STRING] - wallet data extract string.
 # [-f $FILE_URL] - passwordlist file that will be downloaded and tested.
-# [-g $GOOGLE_FILE_ID] - Google Drive file id, can be used instead of $FILE_URL when
-#   using GoogleDrive as password storage
 # [-d] - runs in detached mode. You can safely close the terminal session (or log out from SSH)
 #   while using it. Please note that you won't be able to track loading indicator anymore (it uses pipe buffer which is not flushed to the output with '\n'). 
 

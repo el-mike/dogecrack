@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This scripts reads the named pipe that pitbull writes into, and tries to
+# This script reads the named pipe that pitbull writes into, and tries to
 # recreate the  output.
 # As ETA counting, progress bar and couple other output informations is meant for
 # the user to see, we need to use some tricks to capture the output that
@@ -21,8 +21,7 @@ ord() {
 is_counting_line() {
   local regex='.*ETA.*counting.*'
 
-  if [[ $1 =~ $regex ]]
-  then
+  if [[ $1 =~ $regex ]]; then
     echo 1
   else
     echo 0
@@ -35,8 +34,7 @@ is_counting_line() {
 is_progress_bar_line() {
   local regex='\[.*\].*ETA.*'
 
-  if [[ $1 =~ $regex ]]
-  then
+  if [[ $1 =~ $regex ]]; then
     echo 1
   else
     echo 0
@@ -56,8 +54,7 @@ do
   # rmeove the last line of view file.
   # Since btcrecover can run for hours, printing every progress flush would
   # make the view file very big. Additionaly, it keeps the progress view clean and readable.
-  if [[ $eta_counting_step -eq 1 || $progress_bar_step -eq 1 ]]
-  then
+  if [[ $eta_counting_step -eq 1 || $progress_bar_step -eq 1 ]]; then
     # Remove last line of the file.
     sed -i '$ d' $viewFile
   fi

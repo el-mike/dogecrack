@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cat ./out_btcrecover.txt
+cat ./progress_view.txt
