@@ -34,7 +34,9 @@ fi
 # Output capture setup.
 # If pipe exists, remove it - it ensures that no other agent is
 # reading from the output pipe.
-if [ -p $pipe ]; then
+# For some reason, "-p" (testing for named pipe exactly) does not work sometimes,
+# therefore we use "-e" instead. 
+if [[ -e $pipe ]]; then
   rm "$pipe"
 fi
 
