@@ -10,30 +10,6 @@ dirname=$(dirname "$0")
 passlistFileName='passlist.txt'
 pipe='btcrecover_out'
 
-# Checks if given file URL is hosted on Google Drive.
-is_google_drive_file() {
-  local regex='.*drive.google.com.*'
-
-  if [[ $1 =~ $regex ]]; then
-    echo 1
-  else
-    echo 0
-  fi
-}
-
-# Downloads a file from Google Drive using gdown.
-# We are using custom tools, as Google Drive performs additional checks while
-# accessing and downloading files.
-download_from_google_drive() {
-  gdown  $1 -O $passlistFileName
-}
-
-# Downloads a file using wget.
-download() {
-  wget $1
-}
-
-
 while getopts f:w: flag
 do
     case "${flag}" in
@@ -55,17 +31,6 @@ if [[ -z $walletString ]]; then
   exit 1
 fi
 
-isGoogleDriveFile=$(is_google_drive_file "$fileUrl")
-
-# Downloadind passlist file.
-if [[ $isGoogleDriveFile -eq 1 ]]; then
-  echo "GoogleDrive file source - using gdown..."
-  download_from_google_drive $fileUrl
-else 
-  echo "Using wget..."
-  download $fileUrl
-fi
-
 # Output capture setup.
 # If pipe exists, remove it - it ensures that no other agent is
 # reading from the output pipe.
@@ -73,10 +38,8 @@ if [ -p $pipe ]; then
   rm "$pipe"
 fi
 
-mkfifo "$pipe" && ./output_reader.sh &
+mkfifo "$pipe" && ./capture_output.sh &
 
-script -f -c "python3 $dirname/resources/btcrecover/btcrecover.py --dsw \
-  --data-extract-string $walletString \
-  --passwordlist $passlistFileName \
-  --enable-gpu" \
+script -f -c "$dirname/download_passlist.sh $fileUrl $passlistFileName && \
+  $dirname/run_btcrecover.sh $walletString $passlistFileName" \
   $pipe

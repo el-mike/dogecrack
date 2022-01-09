@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script reads the named pipe that pitbull writes into, and tries to
-# recreate the  output.
+# recreate the output.
 # As ETA counting, progress bar and couple other output informations is meant for
 # the user to see, we need to use some tricks to capture the output that
 # is being constantly overwritten by \r (carriage return) character.
@@ -14,6 +14,19 @@ viewFile='progress_view.txt'
 
 ord() {
   LC_CTYPE=C printf '\n%d' "'$1"
+}
+
+# Checks if given line is a progress bar from gdown tool.
+# Regex tests for progress bar with "| |" at the start and end,
+# and for "B/s" download speed suffix.
+is_gdown_progress_bar_line() {
+  local regex='.*\|.*\|.*B/s.*'
+
+  if [[ $1 =~ $regex ]]; then
+    echo 1
+  else
+    echo 0
+  fi
 }
 
 # Checks if given line is ETA progress line.
@@ -47,6 +60,7 @@ delimiter=$'\r'
 
 while read -r -d $delimiter line
 do
+  gdown_progress_bar_step=$(is_gdown_progress_bar_line "$line")
   eta_counting_step=$(is_counting_line "$line")
   progress_bar_step=$(is_progress_bar_line "$line")
 
@@ -54,7 +68,7 @@ do
   # rmeove the last line of view file.
   # Since btcrecover can run for hours, printing every progress flush would
   # make the view file very big. Additionaly, it keeps the progress view clean and readable.
-  if [[ $eta_counting_step -eq 1 || $progress_bar_step -eq 1 ]]; then
+  if [[ $gdown_progress_bar_step -eq 1 || $eta_counting_step -eq 1 || $progress_bar_step -eq 1 ]]; then
     # Remove last line of the file.
     sed -i '$ d' $viewFile
   fi

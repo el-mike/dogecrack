@@ -1,5 +1,6 @@
 ./pitbull
 **/pass.*
+btcrecover/**/*
 resources/**/*
 test_win.sh
 test_loose.sh
