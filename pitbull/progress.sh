@@ -12,6 +12,8 @@ lastLine=$(tail -1 "$viewFile")
 progress_bar_step=$(is_progress_bar_line "$lastLine")
 
 if [[ $progress_bar_step -eq 1 ]]; then
+  # Regex searches from the beginning of the line till "[" character,
+  # which is the first character of the visual progress bar "widget". 
   regex='^(.*)\['
 
   if [[ $lastLine =~ $regex ]]; then
