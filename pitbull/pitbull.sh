@@ -1,9 +1,11 @@
 #!/bin/bash
 
-# This script downloads given passlist file (into passlist.txt) and runs btcrevcover with it.
-# It's the main functionality of Pitbull tool.
-# It will run as a foreground process, and output progress to TTY. Some additional logs
-# may be redirected to stderr (warnings, errors).
+# This is the main script of Pitbull tool. It's responsible for reading arguments
+# and running the scripts in proper mode.
+# By default, Pitbull will start new terminal session with tmux, under the name "pitbull".
+# 
+# Output will be redirected to "progress_view.txt" file via named pipe (btcrecover_out), but you can always
+# re-attach terminal session with `tmux a -t "pitbull"` to see the live progress.
 
 dirname=$(dirname "$0")
 
@@ -18,8 +20,6 @@ do
     esac
 done
 
-echo "Wallet string: $walletString"
-
 # Input args validation.
 if [[ -z $fileUrl ]]; then
   echo "Passlist source missing"
@@ -31,17 +31,4 @@ if [[ -z $walletString ]]; then
   exit 1
 fi
 
-# Output capture setup.
-# If pipe exists, remove it - it ensures that no other agent is
-# reading from the output pipe.
-# For some reason, "-p" (testing for named pipe exactly) does not work sometimes,
-# therefore we use "-e" instead. 
-if [[ -e $pipe ]]; then
-  rm "$pipe"
-fi
-
-mkfifo "$pipe" && ./capture_output.sh &
-
-script -f -c "$dirname/download_passlist.sh $fileUrl $passlistFileName && \
-  $dirname/run_btcrecover.sh $walletString $passlistFileName" \
-  $pipe
+tmux new-session -d -s "pitbull" "./run_pitbull.sh $fileUrl $passlistFileName $walletString"
