@@ -47,7 +47,7 @@ There is a helper script:
 It prints current status based on pitbull output. It can return following statuses:
 * `SUCCESS` - happens when btcrecover stops and phrase 'Password found' is found in the output. Exit Code: `0`
 * `RUNNING` - happens when process is still running (i.e. pitbull process is still active). Exit Code: `50`
-* `FINISHED: $additionalInfo` - any other case. Exit Code: `51`
+* `FINISHED` - any other case. Exit Code: `51`
 
 When status script returns `SUCCESS` or `FINISHED`, check the [Output](#output) to see the btcrecover's results.
 
