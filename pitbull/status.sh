@@ -16,7 +16,6 @@ successCheck=$(cat ./progress_view.txt | grep 'Password found')
 if [[ $successCheck ]]
 then
   echo $SUCCESS_STATUS
-
   exit $SUCCESS_CODE
 fi
 
@@ -31,7 +30,6 @@ runningCheck=$(ps l | grep '[p]itbull')
 if [[ $runningCheck ]]
 then
   echo $RUNNING_STATUS
-
   exit $RUNNING_CODE
 fi
 
