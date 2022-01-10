@@ -54,10 +54,24 @@ When status script returns `SUCCESS` or `FINISHED`, check the [Output](#output) 
 Refer to the script itself for additional info.
 
 ### Output
-You can use
+Run:
 ```bash
-$pitbullDir/output.sh
+./output.sh
 # or
-cat $pitbullDir/progress_view.txt
+cat ./progress_view.txt
 ```
 To get current output.
+
+### Progress
+Run:
+```bash
+$pitbullDir/progress.sh
+```
+To get btcrecover progress, in form of `done of to_be_done`. It's the begginging of btcrecover's progress indicator output line.
+
+### Kill
+Run:
+```bash
+./kill.sh
+```
+To kill the entire terminal Pitbull was run in.
