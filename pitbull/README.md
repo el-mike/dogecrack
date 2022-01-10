@@ -22,36 +22,42 @@ Once inside the container, run:
 # Options
 # [-w $WALLET_STRING] - wallet data extract string.
 # [-f $FILE_URL] - passwordlist file that will be downloaded and tested.
-# [-d] - runs in detached mode. You can safely close the terminal session (or log out from SSH)
-#   while using it. Please note that you won't be able to track loading indicator anymore (it uses pipe buffer which is not flushed to the output with '\n'). 
 
 #Example: 
-pitbull -g $GOOGLE_FILE_ID -w $WALLET_STRING -d
+pitbull -f $FILE_URL -w $WALLET_STRING
 
-# Downloads a Google Drive file with given ID, and runs btcrecover for $WALLET_STRING in detached mode.
+# Downloads a given file, and runs btcrecover for $WALLET_STRING.
 ```
 You can run it from anywhere in the container. Note that the file specfied in arguments will be saved in the same directory you're currently in.
 
-Btcrecover's output is written to `./out_btcrecover.txt` (in your current directory). Note that it does not write the loading indicator and some other "temporary" info that is usually displayed when running it attached to terminal (those informations are not "commited" to output as they do not end with newline).
+Pitbull runs a new terminal session with tmux, under the name "pitbull". Thanks to that, you can safely close the terminal session you started the Pitbull in (including logging out from SSH), and the process will continue to run without interruption. 
+You can easily re-attach to pitbull session with:
+```bash
+tmux a -t "pitbull"
+```
+To see the live progress.
 
-If you are using `-d` flag, running `pitbull` will detach from your console as soon as passlist file is downloaded.
+Btcrecover's output is continuously written to `progress_view.txt` file (including loading indicators). Refer to [Output](#output) to see how you can access it.
 
 ### Status
 There is a helper script:
 ```bash
 /app/status.sh
 ```
-It prints current status based on btcrecover output. It can returns couple of things:
-* `SUCCESS: Password found: 'password'` - happens when btcrecover stops and word 'found' is found in the output. Returns the last line that should contain the found password. Exit Code: `0`
-* `RUNNING: $processInfo` - happens when process is still running. Returns info from `ps`. Exit Code: `50`
-* `INTERRUPTED: $lineInfo` - happens when btcrecover process is interrupted (`kill -2 $PID` for example). Contains passlist file line that was last executed. Exit Code: `51`
-* `FINISHED: $additionalInfo` - any other case. Exit Code: `52`
+It prints current status based on pitbull output. It can return following statuses:
+* `SUCCESS` - happens when btcrecover stops and phrase 'Password found' is found in the output. Exit Code: `0`
+* `RUNNING` - happens when process is still running (i.e. pitbull process is still active). Exit Code: `50`
+* `FINISHED: $additionalInfo` - any other case. Exit Code: `51`
+
+When status script returns `SUCCESS` or `FINISHED`, check the [Output](#output) to see the btcrecover's results.
 
 Refer to the script itself for additional info.
 
 ### Output
 You can use
 ```bash
-/app/output.sh
+$pitbullDir/output.sh
+# or
+cat $pitbullDir/progress_view.txt
 ```
-To print current output.
+To get current output.
