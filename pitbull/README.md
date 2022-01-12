@@ -42,7 +42,7 @@ Btcrecover's output is continuously written to `progress_view.txt` file (includi
 ### Status
 There is a helper script:
 ```bash
-/app/status.sh
+$pitbullDir/status.sh
 ```
 It prints current status based on pitbull output. It can return following statuses:
 * `SUCCESS` - happens when btcrecover stops and phrase 'Password found' is found in the output. Exit Code: `0`
