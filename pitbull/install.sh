@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script installs all necessary dependencies and does some basic setup.
+
 apt -y install locales
 apt -y install wget
 apt -y install python3 python3-pip nano mc git python3-bsddb3

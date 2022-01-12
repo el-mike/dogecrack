@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Returns the directory the script exists in, no matter where it was called from.
+dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd $dirname
+
 SUCCESS_CODE=0
 SUCCESS_STATUS="SUCCESS"
 
@@ -10,7 +14,9 @@ RUNNING_STATUS="RUNNING"
 FINISHED_CODE=51
 FINISHED_STATUS="FINISHED"
 
-# If btcrecover succeeded, last line contains: 'Password found: password'
+# If btcrecover succeeded, last line contains: 'Password found: password'.
+# We grep the entire file though, to be sure that it works in case of some
+# unnecessary ouput is added to the end of the file.
 successCheck=$(cat ./progress_view.txt | grep 'Password found')
 
 if [[ $successCheck ]]

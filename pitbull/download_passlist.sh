@@ -19,11 +19,13 @@ is_google_drive_file() {
 # Downloads a file from Google Drive using gdown.
 # We are using custom tools, as Google Drive performs additional checks while
 # accessing and downloading files.
+# It saves file in current working directory (that should be set in pitbull.sh).
 download_from_google_drive() {
   gdown  $1 -O $passlistFileName
 }
 
 # Downloads a file using wget.
+# It saves file in current working directory (that should be set in pitbull.sh).
 download() {
   wget $1
 }

@@ -11,8 +11,6 @@ fileUrl=$1
 passlistFileName=$2
 walletString=$3
 
-dirname=$(dirname "$0")
-
 pipe='btcrecover_out'
 
 # Output capture setup.
@@ -26,6 +24,6 @@ fi
 
 mkfifo "$pipe" && ./capture_output.sh &
 
-script -f -c "$dirname/download_passlist.sh $fileUrl $passlistFileName && \
-  $dirname/run_btcrecover.sh $walletString $passlistFileName" \
+script -f -c "./download_passlist.sh $fileUrl $passlistFileName && \
+  ./run_btcrecover.sh $walletString $passlistFileName" \
   $pipe
