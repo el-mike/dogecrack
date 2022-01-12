@@ -56,9 +56,9 @@ Refer to the script itself for additional info.
 ### Output
 Run:
 ```bash
-./output.sh
+$pitbullDir/output.sh
 # or
-cat ./progress_view.txt
+cat $pitbullDir/progress_view.txt
 ```
 To get current output.
 
