@@ -72,6 +72,6 @@ To get btcrecover progress, in form of `done of to_be_done`. It's the begginging
 ### Kill
 Run:
 ```bash
-./kill.sh
+$pitbullDir/kill.sh
 ```
 To kill the entire terminal Pitbull was run in.
