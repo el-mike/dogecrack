@@ -13,9 +13,9 @@ import (
 const CONN_PROTOCOL = "tcp"
 const SSH_PORT = 22
 
-// VastClient - Vast.ai SSH connection client. Encapsulates all the operations
+// VastSSHClient - Vast.ai SSH connection client. Encapsulates all the operations
 // we can perform on Vast.ai instance.
-type VastClient struct {
+type VastSSHClient struct {
 	user      string
 	password  string
 	ipAddress string
@@ -25,7 +25,7 @@ type VastClient struct {
 }
 
 // NewVastClient  - returns new VastClient instance. Does NOT start up a connection.
-func NewVastClient(user, password, sshDirPath, ipAddress string) (*VastClient, error) {
+func NewVastClient(user, password, sshDirPath, ipAddress string) (*VastSSHClient, error) {
 	knownHostsPath := sshDirPath + "/known_hosts"
 
 	hostKeyCb, err := knownhosts.New(knownHostsPath)
@@ -33,7 +33,7 @@ func NewVastClient(user, password, sshDirPath, ipAddress string) (*VastClient, e
 		return nil, err
 	}
 
-	client := &VastClient{
+	client := &VastSSHClient{
 		user:      user,
 		password:  password,
 		hostKeyCb: hostKeyCb,
@@ -44,7 +44,7 @@ func NewVastClient(user, password, sshDirPath, ipAddress string) (*VastClient, e
 }
 
 // Connect - starts a SSH connection.
-func (vs *VastClient) Connect() error {
+func (vs *VastSSHClient) Connect() error {
 	config := &ssh.ClientConfig{
 		User:            vs.user,
 		HostKeyCallback: vs.hostKeyCb,
@@ -66,16 +66,16 @@ func (vs *VastClient) Connect() error {
 }
 
 // Close - closes the connection.
-func (vs *VastClient) Close() error {
+func (vs *VastSSHClient) Close() error {
 	return vs.conn.Close()
 }
 
 // GetUser - prints current user to stdout.
-func (vs *VastClient) GetUser() error {
+func (vs *VastSSHClient) GetUser() error {
 	return vs.run("whoami", 10)
 }
 
-func (vs *VastClient) run(cmd string, timeout int) error {
+func (vs *VastSSHClient) run(cmd string, timeout int) error {
 	session, err := vs.conn.NewSession()
 	if err != nil {
 		return err
