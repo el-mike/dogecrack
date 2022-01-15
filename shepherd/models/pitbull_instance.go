@@ -88,9 +88,16 @@ func (pi *PitbullInstance) SetProgress(rawProgress string) error {
 	if pi.Progress == nil {
 		pi.Progress = &ProgressInfo{}
 	}
+
+	// If the command returned "Progress not found" line, we want to do nothing -
+	// it means that brcrecover did not started yet.
+	if strings.Contains(rawProgress, "Progress not found") {
+		return nil
+	}
+
 	parts := strings.Split(rawProgress, "of")
 
-	if parts == nil || parts[0] == "" || parts[1] == "" {
+	if parts == nil || len(parts) < 2 || parts[0] == "" || parts[1] == "" {
 		return errors.New("Progress malformed: " + rawProgress)
 	}
 
