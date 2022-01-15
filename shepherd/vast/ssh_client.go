@@ -46,22 +46,12 @@ func NewVastSSHClient(user, password, sshDirPath, ipAddress string, port int) (*
 
 // GetPitbullStatus - runs Pitbull's status command and returns the output.
 func (vs *VastSSHClient) GetPitbullStatus() (string, error) {
-	output, err := vs.run("/app/status.sh")
-	if err != nil {
-		return "", err
-	}
-
-	return output, nil
+	return vs.run("/app/status.sh")
 }
 
 // GetPitbullStatus - runs Pitbull's progress command and returns the output.
 func (vs *VastSSHClient) GetPitbullProgress() (string, error) {
-	output, err := vs.run("/app/progress.sh")
-	if err != nil {
-		return "", err
-	}
-
-	return output, nil
+	return vs.run("/app/progress.sh")
 }
 
 // Connect - starts a SSH connection.

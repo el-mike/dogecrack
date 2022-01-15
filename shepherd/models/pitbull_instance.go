@@ -86,10 +86,13 @@ func (pi *PitbullInstance) SetStatus(rawStatus string) {
 // ProgressInfo struct.
 func (pi *PitbullInstance) SetProgress(rawProgress string) error {
 	if pi.Progress == nil {
-		pi.Progress = &ProgressInfo{}
+		pi.Progress = &ProgressInfo{
+			Checked: 0,
+			Total:   0,
+		}
 	}
 
-	// If the command returned "Progress not found" line, we want to do nothing -
+	// If the command returned "Progress not found" line, we want to just reset the values -
 	// it means that brcrecover did not started yet.
 	if strings.Contains(rawProgress, "Progress not found") {
 		return nil
