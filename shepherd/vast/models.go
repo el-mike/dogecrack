@@ -1,7 +1,7 @@
 package vast
 
 import (
-	"github.com/el-mike/dogecrack/shepherd/provider"
+	"github.com/el-mike/dogecrack/shepherd/host"
 )
 
 const ProviderName = "vast"
@@ -29,25 +29,25 @@ type VastInstance struct {
 	DockerImage string `json:"image_uuid"`
 }
 
-// ProviderName - ProviderInstance implementation.
+// ProviderName - HostInstance implementation.
 func (vi *VastInstance) ProviderName() string {
 	return ProviderName
 }
 
-// ProviderId - ProviderInstance implementation.
+// ProviderId - HostInstance implementation.
 func (vi *VastInstance) ProviderId() int {
 	return vi.ID
 }
 
-// PitbullStatus - ProviderInstance implementation.
-func (vi *VastInstance) PitbullStatus() provider.InstanceStatus {
+// HostStatus - HostInstance implementation.
+func (vi *VastInstance) HostStatus() host.HostStatus {
 	if vi.Status == "loading" {
-		return provider.Starting
+		return host.Starting
 	}
 
 	if vi.Status == "running" {
-		return provider.Running
+		return host.Running
 	}
 
-	return provider.Finished
+	return host.Finished
 }

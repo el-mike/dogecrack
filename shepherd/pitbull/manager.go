@@ -3,28 +3,30 @@ package pitbull
 import (
 	"log"
 
+	"github.com/el-mike/dogecrack/shepherd/host"
 	"github.com/el-mike/dogecrack/shepherd/models"
 	"github.com/el-mike/dogecrack/shepherd/persist"
-	"github.com/el-mike/dogecrack/shepherd/provider"
 )
+
+// Host i HostManager zamiast HostInstance i HostInstanceManager
 
 // PitbullManager - main managing entity responsible for Pitbull instances.
 type PitbullManager struct {
-	providerInstanceManager provider.ProviderInstanceManager
-	instanceRepository      *persist.InstanceRepository
+	hostManager        host.HostManager
+	instanceRepository *persist.PitbullInstanceRepository
 }
 
 // NewPitbullManager - returns new Shepherd instance.
-func NewPitbullManager(providerInstanceManager provider.ProviderInstanceManager) *PitbullManager {
+func NewPitbullManager(hostManager host.HostManager) *PitbullManager {
 	return &PitbullManager{
-		providerInstanceManager: providerInstanceManager,
-		instanceRepository:      persist.NewInstanceRepository(),
+		hostManager:        hostManager,
+		instanceRepository: persist.NewPitbullInstanceRepository(),
 	}
 }
 
 // SyncInstances - checks and syncs given provider's instances with internal representation.
 func (pm *PitbullManager) SyncInstances() error {
-	instances, err := pm.providerInstanceManager.Sync()
+	instances, err := pm.hostManager.Sync()
 	if err != nil {
 		log.Fatal("Instances sync failed!")
 
@@ -52,21 +54,21 @@ func (pm *PitbullManager) GetInstanceById(id string) (*models.PitbullInstance, e
 		return nil, err
 	}
 
-	providerInstanceId := instance.ProviderInstance.ProviderId()
+	providerInstanceId := instance.HostInstance.ProviderId()
 
-	providerInstance, err := pm.providerInstanceManager.GetInstance(providerInstanceId)
+	providerInstance, err := pm.hostManager.GetInstance(providerInstanceId)
 	if err != nil {
 		// If given instance could not be found on given provider's side, that means
 		// it has been terminated - therefore, we want to mark related PitbullInstance
 		// as Finished.
-		if _, ok := err.(*provider.InstanceNotFound); ok {
-			instance.Status = provider.Finished
+		if _, ok := err.(*host.HostInstanceNotFound); ok {
+			instance.Status = models.Finished
 		} else {
 			return nil, err
 		}
 		// Otherwise, we override current ProviderInstance with new data.
 	} else {
-		instance.ProviderInstance = providerInstance
+		instance.HostInstance = providerInstance
 	}
 
 	if err := pm.instanceRepository.UpdateInstance(instance); err != nil {
@@ -78,7 +80,7 @@ func (pm *PitbullManager) GetInstanceById(id string) (*models.PitbullInstance, e
 
 // RunInstance - runs single pitbull instance.
 func (pm *PitbullManager) RunInstance(fileUrl, walletString string) (*models.PitbullInstance, error) {
-	instance, err := pm.providerInstanceManager.RunInstance(fileUrl, walletString)
+	instance, err := pm.hostManager.RunInstance(fileUrl, walletString)
 	if err != nil {
 		return nil, err
 	}

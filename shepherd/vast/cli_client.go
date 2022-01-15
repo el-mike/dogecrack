@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"strconv"
 
-	"github.com/el-mike/dogecrack/shepherd/provider"
+	"github.com/el-mike/dogecrack/shepherd/host"
 )
 
 const (
@@ -73,7 +73,7 @@ func (vc *VastCLIClient) GetInstance(instanceId int) (*VastInstance, error) {
 		}
 	}
 
-	return nil, provider.NewInstanceNotFound(instanceId)
+	return nil, host.NewHostInstanceNotFound(instanceId)
 }
 
 // GetOfferByCriteria - returns first offer matching the criteria.

@@ -1,7 +1,7 @@
 package vast
 
 import (
-	"github.com/el-mike/dogecrack/shepherd/provider"
+	"github.com/el-mike/dogecrack/shepherd/host"
 )
 
 // VastManager - entity responsible for managing Vast.ai machine instances.
@@ -18,13 +18,13 @@ func NewVastManager(apiSecret, pitbullImage string) *VastManager {
 }
 
 // Sync - ProviderInstanceManager implementation.
-func (vm *VastManager) Sync() ([]provider.ProviderInstance, error) {
+func (vm *VastManager) Sync() ([]host.HostInstance, error) {
 	instances, err := vm.cli.GetInstances()
 	if err != nil {
 		return nil, err
 	}
 
-	providerInstances := make([]provider.ProviderInstance, len(instances))
+	providerInstances := make([]host.HostInstance, len(instances))
 
 	for _, instance := range instances {
 		providerInstances = append(providerInstances, instance)
@@ -34,7 +34,7 @@ func (vm *VastManager) Sync() ([]provider.ProviderInstance, error) {
 }
 
 // RunInstance - ProviderInstanceManager implementation.
-func (vm *VastManager) RunInstance(fileUrl, wallet string) (provider.ProviderInstance, error) {
+func (vm *VastManager) RunInstance(fileUrl, wallet string) (host.HostInstance, error) {
 	offer, err := vm.cli.GetOfferByCriteria(CheapOfferFilter)
 	if err != nil {
 		return nil, err
@@ -54,6 +54,6 @@ func (vm *VastManager) RunInstance(fileUrl, wallet string) (provider.ProviderIns
 }
 
 // CheckInstance - ProviderInstanceManager implementation.
-func (vm *VastManager) GetInstance(instanceId int) (provider.ProviderInstance, error) {
+func (vm *VastManager) GetInstance(instanceId int) (host.HostInstance, error) {
 	return vm.cli.GetInstance(instanceId)
 }

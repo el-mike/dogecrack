@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/el-mike/dogecrack/shepherd/host"
 	"github.com/el-mike/dogecrack/shepherd/models"
-	"github.com/el-mike/dogecrack/shepherd/provider"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,21 +13,21 @@ import (
 
 const instancesCollection = "instances"
 
-// InstanceRepository - MongoDB repository for handling Pitbull instances.
-type InstanceRepository struct {
+// PitbullInstanceRepository - MongoDB-backed repository for handling Pitbull instances.
+type PitbullInstanceRepository struct {
 	db *mongo.Database
 }
 
-// NewInstanceRepository - returns new InstanceRepository.
-func NewInstanceRepository() *InstanceRepository {
-	return &InstanceRepository{
+// NewPitbullInstanceRepository - returns new InstanceRepository.
+func NewPitbullInstanceRepository() *PitbullInstanceRepository {
+	return &PitbullInstanceRepository{
 		db: GetDatabase(),
 	}
 }
 
 // GetInstanceById - returns an instance with given id.
-func (ir *InstanceRepository) GetInstanceById(id string) (*models.PitbullInstance, error) {
-	collection := ir.db.Collection(instancesCollection)
+func (pir *PitbullInstanceRepository) GetInstanceById(id string) (*models.PitbullInstance, error) {
+	collection := pir.db.Collection(instancesCollection)
 
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -48,8 +48,8 @@ func (ir *InstanceRepository) GetInstanceById(id string) (*models.PitbullInstanc
 }
 
 // CreateInstance - saves a new Pitbull instance to the DB.
-func (ir *InstanceRepository) CreateInstance(pitbull *models.PitbullInstance) error {
-	collection := ir.db.Collection(instancesCollection)
+func (pir *PitbullInstanceRepository) CreateInstance(pitbull *models.PitbullInstance) error {
+	collection := pir.db.Collection(instancesCollection)
 
 	pitbull.CreatedAt = time.Now()
 	pitbull.UpdatedAt = time.Now()
@@ -64,8 +64,8 @@ func (ir *InstanceRepository) CreateInstance(pitbull *models.PitbullInstance) er
 	return nil
 }
 
-func (ir *InstanceRepository) UpdateInstance(pitbull *models.PitbullInstance) error {
-	collection := ir.db.Collection(instancesCollection)
+func (pir *PitbullInstanceRepository) UpdateInstance(pitbull *models.PitbullInstance) error {
+	collection := pir.db.Collection(instancesCollection)
 
 	pitbull.UpdatedAt = time.Now()
 
@@ -79,13 +79,13 @@ func (ir *InstanceRepository) UpdateInstance(pitbull *models.PitbullInstance) er
 	return nil
 }
 
-// GetActiveInstances - returns all instances that are active, i.e. their status is different
+// GetActiveInstances - returns all instances that are active, i.e. thepir status is different
 // than FINISHED (4).
-func (ir *InstanceRepository) GetActiveInstances() ([]*models.PitbullInstance, error) {
-	collection := ir.db.Collection(instancesCollection)
+func (pir *PitbullInstanceRepository) GetActiveInstances() ([]*models.PitbullInstance, error) {
+	collection := pir.db.Collection(instancesCollection)
 
 	filter := bson.D{
-		{"status", bson.D{{"$ne", provider.Finished}}},
+		{"status", bson.D{{"$ne", host.Finished}}},
 	}
 
 	cursor, err := collection.Find(context.TODO(), filter)
