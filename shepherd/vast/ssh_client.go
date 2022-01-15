@@ -4,28 +4,28 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"time"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 const CONN_PROTOCOL = "tcp"
-const SSH_PORT = 22
 
 // VastSSHClient - Vast.ai SSH connection client. Encapsulates all the operations
 // we can perform on Vast.ai instance.
 type VastSSHClient struct {
 	user      string
 	password  string
-	ipAddress string
 	hostKeyCb ssh.HostKeyCallback
+
+	ipAddress string
+	port      int
 
 	conn *ssh.Client
 }
 
-// NewVastClient  - returns new VastClient instance. Does NOT start up a connection.
-func NewVastClient(user, password, sshDirPath, ipAddress string) (*VastSSHClient, error) {
+// NewVastSSHClient  - returns new VastClient instance. Does NOT start up a connection.
+func NewVastSSHClient(user, password, sshDirPath, ipAddress string, port int) (*VastSSHClient, error) {
 	knownHostsPath := sshDirPath + "/known_hosts"
 
 	hostKeyCb, err := knownhosts.New(knownHostsPath)
@@ -38,13 +38,34 @@ func NewVastClient(user, password, sshDirPath, ipAddress string) (*VastSSHClient
 		password:  password,
 		hostKeyCb: hostKeyCb,
 		ipAddress: ipAddress,
+		port:      port,
 	}
 
 	return client, nil
 }
 
+// GetPitbullStatus - runs Pitbull's status command and returns the output.
+func (vs *VastSSHClient) GetPitbullStatus() (string, error) {
+	output, err := vs.run("/app/status.sh")
+	if err != nil {
+		return "", err
+	}
+
+	return output, nil
+}
+
+// GetPitbullStatus - runs Pitbull's progress command and returns the output.
+func (vs *VastSSHClient) GetPitbullProgress() (string, error) {
+	output, err := vs.run("/app/progress.sh")
+	if err != nil {
+		return "", err
+	}
+
+	return output, nil
+}
+
 // Connect - starts a SSH connection.
-func (vs *VastSSHClient) Connect() error {
+func (vs *VastSSHClient) connect() error {
 	config := &ssh.ClientConfig{
 		User:            vs.user,
 		HostKeyCallback: vs.hostKeyCb,
@@ -53,7 +74,7 @@ func (vs *VastSSHClient) Connect() error {
 		},
 	}
 
-	host := vs.ipAddress + ":" + fmt.Sprint(SSH_PORT)
+	host := vs.ipAddress + ":" + fmt.Sprint(vs.port)
 
 	conn, err := ssh.Dial(CONN_PROTOCOL, host, config)
 	if err != nil {
@@ -66,19 +87,19 @@ func (vs *VastSSHClient) Connect() error {
 }
 
 // Close - closes the connection.
-func (vs *VastSSHClient) Close() error {
+func (vs *VastSSHClient) close() error {
 	return vs.conn.Close()
 }
 
-// GetUser - prints current user to stdout.
-func (vs *VastSSHClient) GetUser() error {
-	return vs.run("whoami", 10)
-}
+func (vs *VastSSHClient) run(cmd string) (string, error) {
+	if err := vs.connect(); err != nil {
+		return "", err
+	}
+	defer vs.close()
 
-func (vs *VastSSHClient) run(cmd string, timeout int) error {
 	session, err := vs.conn.NewSession()
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	defer session.Close()
@@ -87,30 +108,28 @@ func (vs *VastSSHClient) run(cmd string, timeout int) error {
 
 	sessionStdOut, err := session.StdoutPipe()
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	sessionStdIn, err := session.StdinPipe()
+	err = session.Run(cmd)
 	if err != nil {
-		return err
-	}
-
-	go fmt.Fprintf(sessionStdIn, cmd+"\n")
-	err = session.Shell()
-	if err != nil {
-		return err
-	}
-
-	go func() {
-		scanner := bufio.NewScanner(sessionStdOut)
-
-		for scanner.Scan() {
-			output := scanner.Text()
-			fmt.Printf("%s\n", output)
+		// If the error was an ExitError, we probably want to proceed, as some
+		// Pitbull scripts return custom exit codes.
+		if err, ok := err.(*ssh.ExitError); !ok {
+			return "", err
 		}
-	}()
+	}
 
-	time.Sleep(time.Duration(timeout) * time.Second)
+	scanner := bufio.NewScanner(sessionStdOut)
 
-	return nil
+	output := ""
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		output += line
+
+		fmt.Println(line)
+	}
+
+	return output, nil
 }

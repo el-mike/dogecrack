@@ -32,19 +32,7 @@ func main() {
 		panic(err)
 	}
 
-	client, err := vast.NewVastClient(appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, sshIp)
-	if err != nil {
-		panic(err)
-	}
-
-	err = client.Connect()
-	if err != nil {
-		panic(err)
-	}
-
-	defer client.Close()
-
-	vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage)
+	vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage, appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

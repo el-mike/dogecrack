@@ -69,7 +69,7 @@ func (pm *PitbullManager) GetInstanceById(id string) (*models.PitbullInstance, e
 		pitbullInstance.HostInstance = hostInstance
 	}
 
-	if err := pm.pitbullInstanceRepository.UpdateInstance(pitbullInstance); err != nil {
+	if err := pm.UpdateInstance(pitbullInstance); err != nil {
 		return nil, err
 	}
 
@@ -90,4 +90,29 @@ func (pm *PitbullManager) RunInstance(fileUrl, walletString string) (*models.Pit
 	}
 
 	return pitbullInstance, nil
+}
+
+// UpdateInstance - updates Pitbull instance status and progress.
+func (pm *PitbullManager) UpdateInstance(pitbullInstance *models.PitbullInstance) error {
+	statusRaw, err := pm.hostManager.GetPitbullStatus(pitbullInstance.HostInstance)
+	if err != nil {
+		return err
+	}
+
+	progressRaw, err := pm.hostManager.GetPitbullProgress(pitbullInstance.HostInstance)
+	if err != nil {
+		return err
+	}
+
+	pitbullInstance.SetStatus(statusRaw)
+
+	if err := pitbullInstance.SetProgress(progressRaw); err != nil {
+		return err
+	}
+
+	if err := pm.pitbullInstanceRepository.UpdateInstance(pitbullInstance); err != nil {
+		return err
+	}
+
+	return nil
 }

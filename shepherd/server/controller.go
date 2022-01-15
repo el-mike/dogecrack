@@ -125,6 +125,7 @@ func (ct *Controller) Crack(
 
 // handleInternalError - helper function for returning error as JSON.
 func (ct *Controller) handleError(w http.ResponseWriter, status int, err error) {
+	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusInternalServerError)
 
 	ct.logger.Println(err)
