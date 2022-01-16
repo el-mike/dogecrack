@@ -7,6 +7,10 @@
 # By having the actual run call in separated file, we can easily modify the way
 # Pitbull will be run (for example in detached TTY created with tmux).
 
+# Returns the directory the script exists in, no matter where it was called from.
+dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd $dirname
+
 fileUrl=$1
 passlistFileName=$2
 walletString=$3
@@ -18,11 +22,11 @@ pipe='btcrecover_out'
 # reading from the output pipe.
 # For some reason, "-p" (testing for named pipe exactly) does not work sometimes,
 # therefore we use "-e" instead. 
-if [[ -e $pipe ]]; then
+if [ -e "./$pipe" ]; then
   rm "$pipe"
 fi
 
-mkfifo "$pipe" && ./capture_output.sh &
+mkfifo "./$pipe" && ./capture_output.sh &
 
 script -f -c "./download_passlist.sh $fileUrl $passlistFileName && \
   ./run_btcrecover.sh $walletString $passlistFileName" \
