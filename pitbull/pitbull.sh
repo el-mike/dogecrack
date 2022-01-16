@@ -9,7 +9,6 @@
 # 
 # pitbull.sh is an "entry script" - calling any other script directly may no work properly.
 
-
 # Returns the directory the script exists in, no matter where it was called from.
 # It's needed for referencing other scripts and saving files in consistent way.
 dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -18,26 +17,57 @@ dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # pitbul.sh exists in.
 cd $dirname
 
+runCommand='run'
+statusCommand='status'
+progressCommand='progress'
+outputCommand='output'
+killCommand='kill'
+
 passlistFileName='passlist.txt'
 pipe='btcrecover_out'
 
-while getopts f:w: flag
-do
-    case "${flag}" in
-        f) fileUrl=${OPTARG};;
-        w) walletString=${OPTARG};;
-    esac
-done
+# command - describes the operation an user agent wants to perform. Available commands
+# are listed above.
+command=$1
 
-# Input args validation.
-if [[ -z $fileUrl ]]; then
-  echo "Passlist source missing"
+if [[ "$command" == "$statusCommand"  ]]; then
+  ./status.sh
+  exit $?
+elif [[ "$command" == "$progressCommand"  ]]; then
+  ./progress.sh
+  exit $?
+elif [[ "$command" == "$outputCommand"  ]]; then
+  ./output.sh
+  exit $?
+elif [[ "$command" == "$killCommand" ]]; then
+  ./kill.sh
+  exit $?
+elif [[ "$command" == "$runCommand"  ]]; then
+  # Since we are "starting" with positional argument (command), we need to shift
+  # it one place to get the optional params properly.
+  shift 1
+
+  while getopts f:w: flag
+  do
+      case "${flag}" in
+          f) fileUrl=${OPTARG};;
+          w) walletString=${OPTARG};;
+      esac
+  done
+  # Input args validation.
+  if [[ -z $fileUrl ]]; then
+    echo "Passlist source missing"
+    exit 1
+  fi
+
+  if [[ -z $walletString ]]; then
+    echo "Wallet string missing"
+    exit 1
+  fi
+
+  tmux new-session -d -s "pitbull" "./run_pitbull.sh $fileUrl $passlistFileName $walletString"
+else
+  echo "Command: '$command' not recognized"
   exit 1
 fi
 
-if [[ -z $walletString ]]; then
-  echo "Wallet string missing"
-  exit 1
-fi
-
-tmux new-session -d -s "pitbull" "./run_pitbull.sh $fileUrl $passlistFileName $walletString"

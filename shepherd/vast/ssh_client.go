@@ -10,6 +10,7 @@ import (
 )
 
 const CONN_PROTOCOL = "tcp"
+const CONTAINER_PITBULL_PATH = "/app"
 
 // VastSSHClient - Vast.ai SSH connection client. Encapsulates all the operations
 // we can perform on Vast.ai instance.
@@ -46,12 +47,12 @@ func NewVastSSHClient(user, password, sshDirPath, ipAddress string, port int) (*
 
 // GetPitbullStatus - runs Pitbull's status command and returns the output.
 func (vs *VastSSHClient) GetPitbullStatus() (string, error) {
-	return vs.run("/app/status.sh")
+	return vs.run(CONTAINER_PITBULL_PATH + "/status.sh")
 }
 
 // GetPitbullStatus - runs Pitbull's progress command and returns the output.
 func (vs *VastSSHClient) GetPitbullProgress() (string, error) {
-	return vs.run("/app/progress.sh")
+	return vs.run(CONTAINER_PITBULL_PATH + "/progress.sh")
 }
 
 // Connect - starts a SSH connection.

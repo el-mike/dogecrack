@@ -16,19 +16,23 @@ docker run --runtime=nvidia -ti pitbull
 4. Click "connect"
 5. Connect with instance via ssh
 
-## Running btcrecovery
-Once inside the container, run:
+## Pitbull tool
+Once inside the container, you can use pitbull tool from any directory (`pitbull` is added to PATH). Pitbull offers several commands that you can use to manage and monitor btcrecover process.
+Usage:
 ```bash
-# Options
-# [-w $WALLET_STRING] - wallet data extract string.
-# [-f $FILE_URL] - passwordlist file that will be downloaded and tested.
-
-#Example: 
-pitbull -f $FILE_URL -w $WALLET_STRING
-
-# Downloads a given file, and runs btcrecover for $WALLET_STRING.
+pitbull <command> [<args>]
 ```
-You can run it from anywhere in the container. Note that the file specfied in arguments will be saved in directory  that holds `pitbull.sh` file.
+Sections below describes available commands.
+
+### Running
+```bash
+pitbull run [-f <file-url>] [-w <wallet-string>]
+# Example:
+pitbull run -f https://my-file-storage.com/myFileId -w myExampleWalletExtractString
+```
+
+Downloads a given file, and runs btcrecover for `myExampleWalletExtractString`.
+Note that the file specfied in arguments will be saved in directory  that holds `pitbull.sh` file.
 
 Pitbull runs a new terminal session with tmux, under the name "pitbull". Thanks to that, you can safely close the terminal session you started the Pitbull in (including logging out from SSH), and the process will continue to run without interruption. 
 You can easily re-attach to pitbull session with:
@@ -40,23 +44,22 @@ To see the live progress.
 Btcrecover's output is continuously written to `progress_view.txt` file (including loading indicators). Refer to [Output](#output) to see how you can access it.
 
 ### Status
-There is a helper script:
 ```bash
-$pitbullDir/status.sh
+pitbull status
 ```
 It prints current status based on pitbull output. It can return following statuses:
-* `SUCCESS` - happens when btcrecover stops and phrase 'Password found' is found in the output. Exit Code: `0`
-* `RUNNING` - happens when process is still running (i.e. pitbull process is still active). Exit Code: `50`
-* `FINISHED` - any other case. Exit Code: `51`
+* `WAITING` - happens when container has been set up, but pitbull has not been run yet.
+* `RUNNING` - happens when process is still running (i.e. pitbull process is still active).
+* `SUCCESS` - happens when btcrecover stops and phrase 'Password found' is found in the output.
+* `FINISHED` - any other case.
 
 When status script returns `SUCCESS` or `FINISHED`, check the [Output](#output) to see the btcrecover's results.
 
 Refer to the script itself for additional info.
 
 ### Output
-Run:
 ```bash
-$pitbullDir/output.sh
+pitbull output
 # or
 cat $pitbullDir/progress_view.txt
 ```
@@ -65,13 +68,13 @@ To get current output.
 ### Progress
 Run:
 ```bash
-$pitbullDir/progress.sh
+pitbull progress
 ```
 To get btcrecover progress, in form of `done of to_be_done`. It's the begginging of btcrecover's progress indicator output line. If the recovery process itself has not started yet, this command will return `Progress not found: $lastLine`, where `$lastLine` is the last line of `progress_view.txt` output file.
 
 ### Kill
 Run:
 ```bash
-$pitbullDir/kill.sh
+pitbull kill
 ```
 To kill the entire terminal Pitbull was run in.
