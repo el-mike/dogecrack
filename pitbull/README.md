@@ -34,7 +34,7 @@ pitbull run -f https://my-file-storage.com/myFileId -w myExampleWalletExtractStr
 Downloads a given file, and runs btcrecover for `myExampleWalletExtractString`.
 Note that the file specfied in arguments will be saved in directory  that holds `pitbull.sh` file.
 
-Pitbull runs a new terminal session with tmux, under the name "pitbull". Thanks to that, you can safely close the terminal session you started the Pitbull in (including logging out from SSH), and the process will continue to run without interruption. 
+Pitbull runs a new terminal session with tmux, under the name "pitbull". Because of that, you can safely close the terminal session you started the Pitbull in (including logging out from SSH), and the process will continue to run without interruption. 
 You can easily re-attach to pitbull session with:
 ```bash
 tmux a -t "pitbull"
