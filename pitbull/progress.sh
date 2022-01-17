@@ -7,9 +7,16 @@
 dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $dirname
 
-viewFile='progress_view.txt'
-
 source ./helpers.sh
+
+viewFile='progress_view.txt'
+errorMessage='NO_PROGRESS_AVAILABLE'
+
+# If progress_view.txt does not exist, we return fallback message.
+if [ ! -f "./$viewFile" ]; then
+  echo $errorMessage
+  exit 0
+fi
 
 lastLine=$(tail -1 "$viewFile")
 
@@ -28,5 +35,5 @@ if [[ $progress_bar_step -eq 1 ]]; then
   fi
 
 else
-  echo "Progress not found: $lastLine"
+  echo $errorMessage
 fi

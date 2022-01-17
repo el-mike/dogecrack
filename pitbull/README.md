@@ -70,7 +70,7 @@ Run:
 ```bash
 pitbull progress
 ```
-To get btcrecover progress, in form of `done of to_be_done`. It's the begginging of btcrecover's progress indicator output line. If the recovery process itself has not started yet, this command will return `Progress not found: $lastLine`, where `$lastLine` is the last line of `progress_view.txt` output file.
+To get btcrecover progress, in form of `done of to_be_done`. It's the begginging of btcrecover's progress indicator output line. Note that it only works when btcrecovery process itself is currently running. If btcrecover has not started yet or already finished, this command will return `NO_PROGRESS_AVAILABLE`.
 
 ### Kill
 Run:
