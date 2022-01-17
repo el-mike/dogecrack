@@ -118,8 +118,6 @@ func (vs *VastSSHClient) run(cmd string) (string, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		output += line
-
-		fmt.Println(line)
 	}
 
 	return output, nil

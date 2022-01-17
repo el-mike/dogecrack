@@ -92,9 +92,9 @@ func (pi *PitbullInstance) SetProgress(rawProgress string) error {
 		}
 	}
 
-	// If the command returned "Progress not found" line, we want to just reset the values -
-	// it means that brcrecover did not started yet.
-	if strings.Contains(rawProgress, "Progress not found") {
+	// If the command returned "NO_PROGRESS_AVAILABLE, and Pitbull is either WAITING or FINISHED,
+	// we don't want to change the progress.
+	if strings.Contains(rawProgress, "NO_PROGRESS_AVAILABLE") {
 		return nil
 	}
 

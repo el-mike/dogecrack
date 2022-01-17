@@ -19,18 +19,22 @@ type Controller struct {
 	appConfig *config.AppConfig
 
 	pitbullManager    *pitbull.PitbullManager
+	pitbullMonitor    *pitbull.PitbullMonitor
 	passwordGenerator *generator.PasswordGenerator
 
-	logger *log.Logger
+	errorLogger *log.Logger
 }
 
 // NewController - returns new Controller instance.
 func NewController(manager *pitbull.PitbullManager) *Controller {
 	return &Controller{
-		appConfig:         config.GetAppConfig(),
+		appConfig: config.GetAppConfig(),
+
 		pitbullManager:    manager,
+		pitbullMonitor:    pitbull.NewPitbullMonitor(manager),
 		passwordGenerator: generator.NewPasswordGenerator(),
-		logger:            log.New(os.Stderr, "", 0),
+
+		errorLogger: log.New(os.Stderr, "[Controller][Error]: ", log.Ldate|log.Ltime),
 	}
 }
 
@@ -52,7 +56,7 @@ func (ct *Controller) GetActiveInstances(
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 
-		ct.logger.Println(err)
+		ct.errorLogger.Println(err)
 		return
 	}
 
@@ -60,7 +64,7 @@ func (ct *Controller) GetActiveInstances(
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 
-		ct.logger.Println(err)
+		ct.errorLogger.Println(err)
 		return
 	}
 
@@ -114,6 +118,8 @@ func (ct *Controller) Crack(
 		return
 	}
 
+	ct.pitbullMonitor.RunMonitoring(instance.ID.Hex())
+
 	response, err := json.Marshal(instance)
 	if err != nil {
 		ct.handleError(w, http.StatusInternalServerError, err)
@@ -128,7 +134,7 @@ func (ct *Controller) handleError(w http.ResponseWriter, status int, err error) 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusInternalServerError)
 
-	ct.logger.Println(err)
+	ct.errorLogger.Println(err)
 
 	apiError := NewApiError(status, err)
 
