@@ -18,22 +18,28 @@ if [ ! -f "./$viewFile" ]; then
   exit 0
 fi
 
-lastLine=$(tail -1 "$viewFile")
+while read -r line
+do
+  progress_bar_step=$(is_progress_bar_line "$line")
 
-progress_bar_step=$(is_progress_bar_line "$lastLine")
+  if [[ $progress_bar_step -eq 1 ]]; then
+    # Regex searches from the beginning of the line till "[" character,
+    # which is the first character of the visual progress bar "widget". 
+    regex='^(.*)\['
 
-if [[ $progress_bar_step -eq 1 ]]; then
-  # Regex searches from the beginning of the line till "[" character,
-  # which is the first character of the visual progress bar "widget". 
-  regex='^(.*)\['
+    if [[ $line =~ $regex ]]; then
+      match=${BASH_REMATCH[0]}
+      progress=${match::-2}
 
-  if [[ $lastLine =~ $regex ]]; then
-    match=${BASH_REMATCH[0]}
-    progress=${match::-2}
+      echo "$progress"
 
-    echo "$progress"
+      exit 0
+    fi
   fi
+# "tac" reads a file in reverse. Additionally, we use command/process substitution
+# to read the output of "tac".
+done < <(tac "./$viewFile")
 
-else
-  echo $errorMessage
-fi
+# If script have not exited yet (progress was not found in the whole loop),
+# return an error message.
+echo $errorMessage
