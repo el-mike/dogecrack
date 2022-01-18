@@ -70,7 +70,8 @@ Run:
 ```bash
 pitbull progress
 ```
-To get btcrecover progress, in form of `done of to_be_done`. It's the begginging of btcrecover's progress indicator output line. Note that it only works when btcrecovery process itself is currently running. If btcrecover has not started yet or already finished, this command will return `NO_PROGRESS_AVAILABLE`.
+To get btcrecover progress, in form of `done of to_be_done`. It's the begginging of btcrecover's progress indicator output line. This command returns last recorded progress (last progress indicator line saved to file), so if the process is finished, `progress` command will output how many passwords were tried before btcrecover ended. If no progress is available (btcrecover has not started yet, or some error happened before it started) `progress` will return `NO_PROGRESS_AVAILABLE`.
+This command should be use in tandem with `status` - for example, if status is `FINISHED`, but `done` is less than `to_be_done`, we know some error happened, before all passwords were checked. If they are equal, and status is still `FINISHED`, that simply means that all of the passwords were checked, but no correct one has been found. 
 
 ### Kill
 Run:
