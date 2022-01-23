@@ -21,10 +21,13 @@ MONGO_INITDB_ROOT_PASSWORD=
 
 ### Fake vast.ai SSH server
 Pitbull-based Docker container with running open-ssh server inside. Allows to easily test Vast.ai communication without renting actual instances.
+docker-compose runs two instances of fake vast.ai server, therefore you need to specify `<number>` to connect with proper instance.
 
 ```bash
 chmod +x ./vast/scripts/connect_fake_vast.sh
-./vast/scripts/connect_fake_vast.sh # password '12345'
+
+./vast/scripts/connect_fake_vast.sh <number>
+# password '12345'
 ```
 
 ### Mongodb

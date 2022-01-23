@@ -1,7 +1,15 @@
 version: "3.9"
 services:
-  shepherd_fake_vast:
-    container_name: shepherd_fake_vast
+  fake_vast_1:
+    container_name: fake_vast_1
+    tty: true
+    runtime: nvidia
+    build:
+      context: ./vast
+      dockerfile: fake_vast.Dockerfile
+
+  fake_vast_2:
+    container_name: fake_vast_2
     tty: true
     runtime: nvidia
     build:

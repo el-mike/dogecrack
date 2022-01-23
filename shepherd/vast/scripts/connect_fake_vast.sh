@@ -2,7 +2,9 @@
 
 source $(dirname "$0")/utils.sh
 
-ip=$(get_fake_vast_container_ip)
+instanceNumber=$1
+
+ip=$(get_fake_vast_container_ip $1)
 
 # ssh complains about re-connecting to this host after rebuilding an image,
 # therefore we remove this entry.
