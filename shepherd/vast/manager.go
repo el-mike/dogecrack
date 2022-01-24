@@ -9,7 +9,7 @@ import (
 // VastManager - entity responsible for managing Vast.ai machine instances.
 // Please note that it depends on vast.ai CLI (vast) being added to os PATH.
 type VastManager struct {
-	cli *VastCLIClient
+	cli VastClient
 
 	sshUser     string
 	sshPassword string
@@ -19,7 +19,8 @@ type VastManager struct {
 // NewVastManager - returns new VastManager instance.
 func NewVastManager(apiSecret, pitbullImage, sshUser, sshPassword, sshDir string) *VastManager {
 	return &VastManager{
-		cli: NewVastCLI(apiSecret, pitbullImage),
+		// cli: NewVastCLI(apiSecret, pitbullImage),
+		cli: NewVastCLIClientMock(),
 
 		sshUser:     sshUser,
 		sshPassword: sshPassword,
@@ -45,26 +46,19 @@ func (vm *VastManager) Sync() ([]host.HostInstance, error) {
 
 // RunInstance - HostManager implementation.
 func (vm *VastManager) RunInstance(fileUrl, wallet string) (host.HostInstance, error) {
-	// offer, err := vm.cli.GetOfferByCriteria(CheapOfferFilter)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	offer, err := vm.cli.GetOfferByCriteria(CheapOfferFilter)
+	if err != nil {
+		return nil, err
+	}
 
-	// createResponse, err := vm.cli.StartInstance(offer.ID)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	createResponse, err := vm.cli.StartInstance(offer.ID)
+	if err != nil {
+		return nil, err
+	}
 
-	// instance, err := vm.cli.GetInstance(createResponse.InstanceId)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	instance := &VastInstance{
-		ID:      1,
-		SSHPort: 22,
-		SSHHost: "172.19.0.4",
-		Status:  "running",
+	instance, err := vm.cli.GetInstance(createResponse.InstanceId)
+	if err != nil {
+		return nil, err
 	}
 
 	return instance, nil
@@ -72,14 +66,7 @@ func (vm *VastManager) RunInstance(fileUrl, wallet string) (host.HostInstance, e
 
 // CheckInstance - HostManager implementation.
 func (vm *VastManager) GetInstance(instanceId int) (host.HostInstance, error) {
-	// return vm.cli.GetInstance(instanceId)
-
-	return &VastInstance{
-		ID:      1,
-		SSHPort: 22,
-		SSHHost: "172.19.0.4",
-		Status:  "running",
-	}, nil
+	return vm.cli.GetInstance(instanceId)
 }
 
 // GetPitbullStatus - HostManager implementation.

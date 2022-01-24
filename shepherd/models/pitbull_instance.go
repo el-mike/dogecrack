@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -20,6 +21,13 @@ const (
 	Finished
 	Success
 )
+
+var pitbullStatusNames = map[PitbullStatus]string{
+	Waiting:  "WAITING",
+	Running:  "RUNNING",
+	Finished: "FINISHED",
+	Success:  "SUCCESS",
+}
 
 // ProgressInfo - helper struct describing Pitbull progress.
 type ProgressInfo struct {
@@ -121,6 +129,20 @@ func (pi *PitbullInstance) SetProgress(rawProgress string) error {
 	pi.Progress.Total = int64(total)
 
 	return nil
+}
+
+// FormattedStatus - returns status in human-readable format.
+func (pi *PitbullInstance) FormattedStatus() string {
+	return pitbullStatusNames[pi.Status]
+}
+
+// FormattedProgress - returns progress in human-readable format.
+func (pi *PitbullInstance) FormattedProgress() string {
+	if pi.Progress == nil || pi.Progress.Total == 0 {
+		return ""
+	}
+
+	return fmt.Sprintf("%d / %d\n", pi.Progress.Checked, pi.Progress.Total)
 }
 
 // UnmarshalBSON - Unmarshaler interface implementation.

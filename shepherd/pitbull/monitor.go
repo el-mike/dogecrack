@@ -30,8 +30,18 @@ func (pm *PitbullMonitor) RunMonitoring(instanceId string) {
 	c := cron.New()
 
 	c.AddFunc("* * * * *", func() {
-		if _, err := pm.monitorJob(instanceId); err != nil {
+		instance, err := pm.monitorJob(instanceId)
+		if err != nil {
 			pm.errorLogger.Println(err)
+			c.Stop()
+		}
+
+		if instance.Status == models.Finished ||
+			instance.Status == models.Success {
+			pm.infoLogger.Println(instanceId + " finished!")
+			pm.infoLogger.Println("Last status: " + instance.FormattedStatus())
+			pm.infoLogger.Println("Last progress: " + instance.FormattedProgress())
+
 			c.Stop()
 		}
 
@@ -47,8 +57,8 @@ func (pm *PitbullMonitor) monitorJob(instanceId string) (*models.PitbullInstance
 		return nil, err
 	}
 
-	pm.infoLogger.Println(instance.Status)
-	pm.infoLogger.Printf("%d / %d\n", instance.Progress.Checked, instance.Progress.Total)
+	pm.infoLogger.Println(instance.FormattedStatus())
+	pm.infoLogger.Printf(instance.FormattedProgress())
 
 	return instance, nil
 }
