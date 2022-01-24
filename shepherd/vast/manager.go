@@ -17,10 +17,10 @@ type VastManager struct {
 }
 
 // NewVastManager - returns new VastManager instance.
-func NewVastManager(apiSecret, pitbullImage, sshUser, sshPassword, sshDir string) *VastManager {
+func NewVastManager(apiSecret, pitbullImage, sshUser, sshPassword, sshDir, rootDir string) *VastManager {
 	return &VastManager{
 		// cli: NewVastCLI(apiSecret, pitbullImage),
-		cli: NewVastCLIClientMock(),
+		cli: NewVastCLIClientMock(rootDir),
 
 		sshUser:     sshUser,
 		sshPassword: sshPassword,

@@ -1,27 +1,133 @@
 package vast
 
-type VastCLIClientMock struct{}
+import (
+	"errors"
+	"fmt"
+	"math/rand"
+	"time"
+)
 
-func NewVastCLIClientMock() *VastCLIClientMock {
-	return &VastCLIClientMock{}
+type fakeInstance struct {
+	id             int
+	ipAddress      string
+	preStartChecks int
 }
 
-// GetInstances - returns current instances.
-func (vc *VastCLIClientMock) GetInstances() ([]*VastInstance, error) {
-	return nil, nil
+var fakeInstancesLimit = 2
+var preStartChecksLimit = 3
+
+var fakeVastOneId = 1111
+var fakeVastTwoId = 2222
+
+type instancesState []*fakeInstance
+
+type VastCLIClientMock struct {
+	rootDir string
+
+	state instancesState
 }
 
-// StartInstance - starts new Vast.ai instance. Waits for starting process to be over.
-func (vc *VastCLIClientMock) StartInstance(offerId int) (*VastCreateResponse, error) {
-	return nil, nil
-}
-
-// GetInstance - returns single, existing (rented) instance based on passed id.
-func (vc *VastCLIClientMock) GetInstance(instanceId int) (*VastInstance, error) {
-	return nil, nil
+func NewVastCLIClientMock(rootDir string) *VastCLIClientMock {
+	return &VastCLIClientMock{
+		rootDir: rootDir,
+		state:   instancesState{},
+	}
 }
 
 // GetOfferByCriteria - returns first offer matching the criteria.
 func (vc *VastCLIClientMock) GetOfferByCriteria(criteria string) (*VastOffer, error) {
-	return nil, nil
+	vc.simulateRequest()
+
+	return &VastOffer{
+		ID: 1111,
+	}, nil
+}
+
+// GetInstance - returns single, existing (rented) instance based on passed id.
+func (vc *VastCLIClientMock) GetInstance(instanceId int) (*VastInstance, error) {
+	vc.simulateRequest()
+
+	var instance *VastInstance
+
+	for _, fakeInstance := range vc.state {
+		if fakeInstance.id == instanceId {
+			var status string
+
+			if fakeInstance.preStartChecks < preStartChecksLimit {
+				fakeInstance.preStartChecks += 1
+
+				status = "loading"
+			} else {
+				status = "running"
+			}
+
+			instance = &VastInstance{
+				ID:          fakeInstance.id,
+				SSHHost:     fakeInstance.ipAddress,
+				SSHPort:     22,
+				Status:      status,
+				DockerImage: "michalhuras/pitbull:6.0",
+			}
+
+			break
+		}
+
+	}
+
+	return instance, nil
+}
+
+// StartInstance - starts new Vast.ai instance. Waits for starting process to be over.
+func (vc *VastCLIClientMock) StartInstance(offerId int) (*VastCreateResponse, error) {
+	vc.simulateRequest()
+
+	if len(vc.state) >= fakeInstancesLimit {
+		return nil, errors.New(fmt.Sprintf("There are only %d fake instances available", fakeInstancesLimit))
+	}
+
+	var id int
+	var ipAddress string
+	var err error
+
+	if len(vc.state) == 0 {
+		id = fakeVastOneId
+
+		ipAddress, err = GetFakeVastIp(vc.rootDir, 1)
+		if err != nil {
+			return nil, err
+		}
+
+	} else if len(vc.state) == 1 {
+		id = fakeVastTwoId
+
+		ipAddress, err = GetFakeVastIp(vc.rootDir, 2)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	vc.state = append(vc.state, &fakeInstance{
+		id:             id,
+		ipAddress:      ipAddress,
+		preStartChecks: 0,
+	})
+
+	return &VastCreateResponse{
+		Success:    true,
+		InstanceId: id,
+	}, nil
+}
+
+// GetInstances - returns current instances.
+func (vc *VastCLIClientMock) GetInstances() ([]*VastInstance, error) {
+	vc.simulateRequest()
+
+	instances := []*VastInstance{}
+
+	return instances, nil
+}
+
+func (vc *VastCLIClientMock) simulateRequest() {
+	timeout := rand.Intn(10) * int(time.Second)
+	time.Sleep(time.Duration(timeout))
 }

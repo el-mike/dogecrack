@@ -23,7 +23,7 @@ func main() {
 		panic(err)
 	}
 
-	sshIp, err := vast.GetFakeVastIp(rootPath)
+	sshIp, err := vast.GetFakeVastIp(rootPath, 1)
 	if err != nil {
 		panic(err)
 	}
@@ -32,7 +32,7 @@ func main() {
 		panic(err)
 	}
 
-	vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage, appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath)
+	vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage, appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, rootPath)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

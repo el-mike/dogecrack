@@ -3,12 +3,13 @@ package vast
 import (
 	"bytes"
 	"os/exec"
+	"strconv"
 	"strings"
 )
 
 // GetFakeVastIp - returns an ID of fake_vast container when running locally.
-func GetFakeVastIp(rootDir string) (string, error) {
-	cmd := exec.Command(rootDir + "/vast/scripts/get_fake_vast_ip.sh")
+func GetFakeVastIp(rootDir string, fakeVastId int) (string, error) {
+	cmd := exec.Command(rootDir+"/vast/scripts/get_fake_vast_ip.sh", strconv.Itoa(fakeVastId))
 
 	var out bytes.Buffer
 	cmd.Stdout = &out
