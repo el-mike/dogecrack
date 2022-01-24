@@ -100,7 +100,7 @@ func (ct *Controller) GetInstance(
 }
 
 // Crack - runs single cracking run, based on given basePassword and rules.
-// It runs password generation and schedules Pitbull instance spin up.
+// It runs password generation and schedules Pitbull instance spin up and monitoring.
 func (ct *Controller) Crack(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -127,6 +127,37 @@ func (ct *Controller) Crack(
 	}
 
 	ct.handleJSONResponse(w, response)
+}
+
+// RunCommand - runs a given command on Pitbull's host instance specified by
+// passed ID.
+func (ct *Controller) RunCommand(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	id := r.URL.Query().Get("id")
+
+	if id == "" {
+		ct.handleError(w, http.StatusBadRequest, fmt.Errorf("Instance id was not provided"))
+		return
+	}
+
+	var payload struct {
+		Cmd string `json:"cmd"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		ct.handleError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	output, err := ct.pitbullManager.RunHostCommand(id, payload.Cmd)
+	if err != nil {
+		ct.handleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.handleJSONResponse(w, []byte(output))
 }
 
 // handleInternalError - helper function for returning error as JSON.

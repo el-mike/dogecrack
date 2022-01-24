@@ -45,14 +45,25 @@ func NewVastSSHClient(user, password, sshDirPath, ipAddress string, port int) (*
 	return client, nil
 }
 
+// RunPitbull - runs Pitbull process for given fileUrl and walletString.
+func (vs *VastSSHClient) RunPitbull(fileUrl, walletString string) (string, error) {
+	return vs.run("pitbull run -f " + fileUrl + " -w " + walletString)
+}
+
 // GetPitbullStatus - runs Pitbull's status command and returns the output.
 func (vs *VastSSHClient) GetPitbullStatus() (string, error) {
-	return vs.run(CONTAINER_PITBULL_PATH + "/status.sh")
+	// return vs.run("pitbull status")
+	return vs.run("cat /etc/bashrc")
 }
 
 // GetPitbullStatus - runs Pitbull's progress command and returns the output.
 func (vs *VastSSHClient) GetPitbullProgress() (string, error) {
-	return vs.run(CONTAINER_PITBULL_PATH + "/progress.sh")
+	return vs.run("pitbull progress")
+}
+
+// GetPitbullOutput - runs Pitbull's output command and returns the output.
+func (vs *VastSSHClient) GetPitbullOutput() (string, error) {
+	return vs.run("pitbull output")
 }
 
 // Connect - starts a SSH connection.

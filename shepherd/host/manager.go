@@ -19,4 +19,7 @@ type HostManager interface {
 	// GetPitbullProgress - returns Pitbull's progress command output for a host instance
 	// with given ID.
 	GetPitbullProgress(instance HostInstance) (string, error)
+
+	//RunDirectCommand - runs given command directly on a host instance.
+	RunDirectCommand(instance HostInstance, cmd string) (string, error)
 }

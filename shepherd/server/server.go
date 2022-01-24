@@ -20,6 +20,7 @@ func NewServer(manager *pitbull.PitbullManager) *Server {
 	router.HandleFunc("/health", controller.GetHealth).Methods("GET")
 	router.HandleFunc("/getActiveInstances", controller.GetActiveInstances).Methods("GET")
 	router.HandleFunc("/getInstance", controller.GetInstance).Methods("GET")
+	router.HandleFunc("/runCommand", controller.RunCommand).Methods("POST")
 	router.HandleFunc("/crack", controller.Crack).Methods("POST")
 
 	http.Handle("/", router)

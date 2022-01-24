@@ -116,3 +116,20 @@ func (pm *PitbullManager) UpdateInstance(pitbullInstance *models.PitbullInstance
 
 	return nil
 }
+
+// RunCommand - runs a command on Pitbull's host.
+func (pm *PitbullManager) RunHostCommand(id, cmd string) (string, error) {
+	pitbullInstance, err := pm.pitbullInstanceRepository.GetInstanceById(id)
+	if err != nil {
+		return "", err
+	}
+
+	hostInstanceId := pitbullInstance.HostInstance.ProviderId()
+
+	hostInstance, err := pm.hostManager.GetInstance(hostInstanceId)
+	if err != nil {
+		return "", err
+	}
+
+	return pm.hostManager.RunDirectCommand(hostInstance, cmd)
+}

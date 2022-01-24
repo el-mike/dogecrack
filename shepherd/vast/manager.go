@@ -63,7 +63,7 @@ func (vm *VastManager) RunInstance(fileUrl, wallet string) (host.HostInstance, e
 	instance := &VastInstance{
 		ID:      1,
 		SSHPort: 22,
-		SSHHost: "172.19.0.2",
+		SSHHost: "172.19.0.4",
 		Status:  "running",
 	}
 
@@ -77,7 +77,7 @@ func (vm *VastManager) GetInstance(instanceId int) (host.HostInstance, error) {
 	return &VastInstance{
 		ID:      1,
 		SSHPort: 22,
-		SSHHost: "172.19.0.2",
+		SSHHost: "172.19.0.4",
 		Status:  "running",
 	}, nil
 }
@@ -100,6 +100,16 @@ func (vm *VastManager) GetPitbullProgress(instance host.HostInstance) (string, e
 	}
 
 	return sshClient.GetPitbullProgress()
+}
+
+// RunDirectCommand - runs given command directly on underlying host instance.
+func (vm *VastManager) RunDirectCommand(instance host.HostInstance, cmd string) (string, error) {
+	sshClient, err := vm.getSSHClient(instance)
+	if err != nil {
+		return "", err
+	}
+
+	return sshClient.run(cmd)
 }
 
 // getSSHClient - helper function for getting sshClient instance.

@@ -25,11 +25,11 @@ func NewPitbullMonitor(pitbullManager *PitbullManager) *PitbullMonitor {
 }
 
 func (pm *PitbullMonitor) RunMonitoring(instanceId string) {
+	pm.infoLogger.Println("---Monitor: <start>: " + instanceId + " ---")
+
 	c := cron.New()
 
 	c.AddFunc("* * * * *", func() {
-		pm.infoLogger.Println("---Monitor: <start>---")
-
 		if _, err := pm.monitorJob(instanceId); err != nil {
 			pm.errorLogger.Println(err)
 			c.Stop()
