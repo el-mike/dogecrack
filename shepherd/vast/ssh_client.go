@@ -52,8 +52,7 @@ func (vs *VastSSHClient) RunPitbull(fileUrl, walletString string) (string, error
 
 // GetPitbullStatus - runs Pitbull's status command and returns the output.
 func (vs *VastSSHClient) GetPitbullStatus() (string, error) {
-	// return vs.run("pitbull status")
-	return vs.run("cat /etc/bashrc")
+	return vs.run("pitbull status")
 }
 
 // GetPitbullStatus - runs Pitbull's progress command and returns the output.
