@@ -51,24 +51,12 @@ func (vc *VastCLIClientMock) GetInstance(instanceId int) (*VastInstance, error) 
 
 	for _, fakeInstance := range vc.state {
 		if fakeInstance.id == instanceId {
-			var status string
 
 			if fakeInstance.preStartChecks < preStartChecksLimit {
 				fakeInstance.preStartChecks += 1
-
-				status = "loading"
-			} else {
-				status = "running"
 			}
 
-			instance = &VastInstance{
-				ID:          fakeInstance.id,
-				SSHHost:     fakeInstance.ipAddress,
-				SSHPort:     22,
-				Status:      status,
-				DockerImage: "michalhuras/pitbull:6.0",
-			}
-
+			instance = vc.buildVastInstance(fakeInstance)
 			break
 		}
 
@@ -124,10 +112,32 @@ func (vc *VastCLIClientMock) GetInstances() ([]*VastInstance, error) {
 
 	instances := []*VastInstance{}
 
+	for _, fakeInstance := range vc.state {
+		instances = append(instances, vc.buildVastInstance(fakeInstance))
+	}
+
 	return instances, nil
 }
 
 func (vc *VastCLIClientMock) simulateRequest() {
 	timeout := rand.Intn(10) * int(time.Second)
 	time.Sleep(time.Duration(timeout))
+}
+
+func (vc *VastCLIClientMock) buildVastInstance(fakeInstance *fakeInstance) *VastInstance {
+	var status string
+
+	if fakeInstance.preStartChecks < preStartChecksLimit {
+		status = "loading"
+	} else {
+		status = "running"
+	}
+
+	return &VastInstance{
+		ID:          fakeInstance.id,
+		SSHHost:     fakeInstance.ipAddress,
+		SSHPort:     22,
+		Status:      status,
+		DockerImage: "michalhuras/pitbull:6.0",
+	}
 }
