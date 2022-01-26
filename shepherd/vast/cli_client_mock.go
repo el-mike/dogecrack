@@ -59,7 +59,10 @@ func (vc *VastCLIClientMock) GetInstance(instanceId int) (*VastInstance, error) 
 			instance = vc.buildVastInstance(fakeInstance)
 			break
 		}
+	}
 
+	if instance == nil {
+		return nil, errors.New(fmt.Sprintf("Instance: %d could not be found", instanceId))
 	}
 
 	return instance, nil
@@ -106,6 +109,22 @@ func (vc *VastCLIClientMock) StartInstance(offerId int) (*VastCreateResponse, er
 	}, nil
 }
 
+func (vc *VastCLIClientMock) DestroyInstance(instanceId int) error {
+	if len(vc.state) == 0 {
+		return nil
+	}
+
+	result := instancesState{}
+
+	for _, instance := range vc.state {
+		if instance.id != instanceId {
+			result = append(result, instance)
+		}
+	}
+
+	return nil
+}
+
 // GetInstances - returns current instances.
 func (vc *VastCLIClientMock) GetInstances() ([]*VastInstance, error) {
 	vc.simulateRequest()
@@ -120,7 +139,7 @@ func (vc *VastCLIClientMock) GetInstances() ([]*VastInstance, error) {
 }
 
 func (vc *VastCLIClientMock) simulateRequest() {
-	timeout := rand.Intn(10) * int(time.Second)
+	timeout := rand.Intn(3) * int(time.Second)
 	time.Sleep(time.Duration(timeout))
 }
 

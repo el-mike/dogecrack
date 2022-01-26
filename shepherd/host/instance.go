@@ -1,5 +1,7 @@
 package host
 
+import "fmt"
+
 // HostStatus - enum describing the status of the Pitbull's host machine.
 type HostStatus int8
 
@@ -8,6 +10,17 @@ const (
 	Running
 	Finished
 )
+
+var hostStatusNames = map[HostStatus]string{
+	Starting: "STARTING",
+	Running:  "RUNNING",
+	Finished: "FINISHED",
+}
+
+// Formatted - returns HostStatus in human-readable format.
+func (hs HostStatus) Formatted() string {
+	return fmt.Sprintf("%s (%d)", hostStatusNames[hs], hs)
+}
 
 // HostInstance - representation of a single machine instance as returned
 // by given provider.

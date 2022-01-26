@@ -19,7 +19,7 @@ type Controller struct {
 	appConfig *config.AppConfig
 
 	pitbullManager    *pitbull.PitbullManager
-	pitbullMonitor    *pitbull.PitbullMonitor
+	pitbullScheduler  *pitbull.PitbullScheduler
 	passwordGenerator *generator.PasswordGenerator
 
 	errorLogger *log.Logger
@@ -31,7 +31,7 @@ func NewController(manager *pitbull.PitbullManager) *Controller {
 		appConfig: config.GetAppConfig(),
 
 		pitbullManager:    manager,
-		pitbullMonitor:    pitbull.NewPitbullMonitor(manager),
+		pitbullScheduler:  pitbull.NewPitbullScheduler(manager),
 		passwordGenerator: generator.NewPasswordGenerator(),
 
 		errorLogger: log.New(os.Stderr, "[Controller][Error]: ", log.Ldate|log.Ltime),
@@ -112,13 +112,11 @@ func (ct *Controller) Crack(
 		return
 	}
 
-	instance, err := ct.pitbullManager.RunInstance(generatorResult.FileUrl, ct.appConfig.WalletString)
+	instance, err := ct.pitbullScheduler.ScheduleRun(generatorResult.FileUrl, ct.appConfig.WalletString)
 	if err != nil {
 		ct.handleError(w, http.StatusInternalServerError, err)
 		return
 	}
-
-	ct.pitbullMonitor.RunMonitoring(instance.ID.Hex())
 
 	response, err := json.Marshal(instance)
 	if err != nil {

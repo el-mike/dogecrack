@@ -47,10 +47,6 @@ func (vc *VastCLIClient) StartInstance(offerId int) (*VastCreateResponse, error)
 		return nil, err
 	}
 
-	res := string(result)
-
-	fmt.Print(res)
-
 	var response *VastCreateResponse
 
 	if err := json.Unmarshal(result, &response); err != nil {
@@ -58,6 +54,16 @@ func (vc *VastCLIClient) StartInstance(offerId int) (*VastCreateResponse, error)
 	}
 
 	return response, nil
+}
+
+// DestroyInstance - stops a Vast.ai instance with given id.
+func (vc *VastCLIClient) DestroyInstance(instanceId int) error {
+	_, err := vc.run("destroy", "instance", strconv.Itoa(instanceId))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // GetInstance - returns single, existing (rented) instance based on passed id.

@@ -17,6 +17,7 @@ const CONTAINER_PITBULL_PATH = "/app"
 type VastSSHClient struct {
 	user      string
 	password  string
+	signer    ssh.Signer
 	hostKeyCb ssh.HostKeyCallback
 
 	ipAddress string
@@ -27,17 +28,24 @@ type VastSSHClient struct {
 
 // NewVastSSHClient  - returns new VastClient instance. Does NOT start up a connection.
 func NewVastSSHClient(user, password, sshDirPath, ipAddress string, port int) (*VastSSHClient, error) {
-	knownHostsPath := sshDirPath + "/known_hosts"
+	privateKeyPath := sshDirPath + "/id_rsa"
 
-	hostKeyCb, err := knownhosts.New(knownHostsPath)
+	privateKeyRaw, err := os.ReadFile(privateKeyPath)
+	if err != nil {
+		return nil, err
+	}
+
+	signer, err := ssh.ParsePrivateKey(privateKeyRaw)
 	if err != nil {
 		return nil, err
 	}
 
 	client := &VastSSHClient{
-		user:      user,
-		password:  password,
-		hostKeyCb: hostKeyCb,
+		user:     user,
+		password: password,
+		signer:   signer,
+		// TODO: Consider handling host key verification - it's partially implemented below.
+		hostKeyCb: ssh.InsecureIgnoreHostKey(),
 		ipAddress: ipAddress,
 		port:      port,
 	}
@@ -46,8 +54,8 @@ func NewVastSSHClient(user, password, sshDirPath, ipAddress string, port int) (*
 }
 
 // RunPitbull - runs Pitbull process for given fileUrl and walletString.
-func (vs *VastSSHClient) RunPitbull(fileUrl, walletString string) (string, error) {
-	return vs.run("pitbull run -f " + fileUrl + " -w " + walletString)
+func (vs *VastSSHClient) RunPitbull(passlistUrl, walletString string) (string, error) {
+	return vs.run("pitbull run -f " + passlistUrl + " -w " + walletString)
 }
 
 // GetPitbullStatus - runs Pitbull's status command and returns the output.
@@ -71,6 +79,7 @@ func (vs *VastSSHClient) connect() error {
 		User:            vs.user,
 		HostKeyCallback: vs.hostKeyCb,
 		Auth: []ssh.AuthMethod{
+			ssh.PublicKeys(vs.signer),
 			ssh.Password(vs.password),
 		},
 	}
@@ -131,4 +140,46 @@ func (vs *VastSSHClient) run(cmd string) (string, error) {
 	}
 
 	return output, nil
+}
+
+// AddKnownHost - dynamically registers host as known host.
+// This method is partially working - in order to make it work properly, we would need to add
+// dynamic keyscan for the host and handle known host entry generation.
+func (vs *VastSSHClient) addKnownHost(sshDirPath, ipAddress string) (ssh.HostKeyCallback, error) {
+	knownHostsPath := sshDirPath + "/known_hosts"
+	publicKeyPath := sshDirPath + "/id_rsa.pub"
+
+	publicKeyRaw, err := os.ReadFile(publicKeyPath)
+	if err != nil {
+		return nil, err
+	}
+
+	// The format that is used for storing SSH public key in a file is a different format
+	// that we need for ParsePublicKey (wire format), therefore we need to parse it accordingly.
+	publicKeyFileFormat, _, _, _, err := ssh.ParseAuthorizedKey(publicKeyRaw)
+	if err != nil {
+		return nil, err
+	}
+
+	publicKey, err := ssh.ParsePublicKey(publicKeyFileFormat.Marshal())
+	if err != nil {
+		return nil, err
+	}
+
+	hostNormalized := knownhosts.Normalize(ipAddress)
+
+	knownHost := knownhosts.Line([]string{hostNormalized}, publicKey)
+
+	knownHostFile, err := os.OpenFile(knownHostsPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := knownHostFile.WriteString(knownHost + "\n"); err != nil {
+		return nil, err
+	}
+
+	knownHostFile.Close()
+
+	return knownhosts.New(knownHostsPath)
 }

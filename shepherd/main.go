@@ -50,8 +50,6 @@ func main() {
 
 	pitbullManager := pitbull.NewPitbullManager(vastManager)
 
-	go pitbullManager.SyncInstances()
-
 	s := server.NewServer(pitbullManager)
 	s.Run()
 }

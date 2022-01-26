@@ -19,8 +19,8 @@ type VastManager struct {
 // NewVastManager - returns new VastManager instance.
 func NewVastManager(apiSecret, pitbullImage, sshUser, sshPassword, sshDir, rootDir string) *VastManager {
 	return &VastManager{
-		// cli: NewVastCLI(apiSecret, pitbullImage),
-		cli: NewVastCLIClientMock(rootDir),
+		cli: NewVastCLI(apiSecret, pitbullImage),
+		// cli: NewVastCLIClientMock(rootDir),
 
 		sshUser:     sshUser,
 		sshPassword: sshPassword,
@@ -28,24 +28,13 @@ func NewVastManager(apiSecret, pitbullImage, sshUser, sshPassword, sshDir, rootD
 	}
 }
 
-// Sync - HostManager implementation.
-func (vm *VastManager) Sync() ([]host.HostInstance, error) {
-	instances, err := vm.cli.GetInstances()
-	if err != nil {
-		return nil, err
-	}
-
-	hostInstances := make([]host.HostInstance, len(instances))
-
-	for _, instance := range instances {
-		hostInstances = append(hostInstances, instance)
-	}
-
-	return hostInstances, nil
+// CreateInstance - HostManager implementation.
+func (vm *VastManager) CreateInstance() host.HostInstance {
+	return &VastInstance{}
 }
 
 // RunInstance - HostManager implementation.
-func (vm *VastManager) RunInstance(fileUrl, wallet string) (host.HostInstance, error) {
+func (vm *VastManager) RunInstance() (host.HostInstance, error) {
 	offer, err := vm.cli.GetOfferByCriteria(CheapOfferFilter)
 	if err != nil {
 		return nil, err
@@ -69,6 +58,25 @@ func (vm *VastManager) GetInstance(instanceId int) (host.HostInstance, error) {
 	return vm.cli.GetInstance(instanceId)
 }
 
+// DestroyInstance - stops given instance.
+func (vm *VastManager) DestroyInstance(instanceId int) error {
+	return vm.cli.DestroyInstance(instanceId)
+}
+
+func (vm *VastManager) RunPitbull(instance host.HostInstance, passlistUrl, walletString string) error {
+	sshClient, err := vm.getSSHClient(instance)
+	if err != nil {
+		return err
+	}
+
+	_, err = sshClient.RunPitbull(passlistUrl, walletString)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // GetPitbullStatus - HostManager implementation.
 func (vm *VastManager) GetPitbullStatus(instance host.HostInstance) (string, error) {
 	sshClient, err := vm.getSSHClient(instance)
@@ -87,6 +95,15 @@ func (vm *VastManager) GetPitbullProgress(instance host.HostInstance) (string, e
 	}
 
 	return sshClient.GetPitbullProgress()
+}
+
+func (vm *VastManager) GetPitbullOutput(instance host.HostInstance) (string, error) {
+	sshClient, err := vm.getSSHClient(instance)
+	if err != nil {
+		return "", err
+	}
+
+	return sshClient.GetPitbullOutput()
 }
 
 // RunDirectCommand - runs given command directly on underlying host instance.

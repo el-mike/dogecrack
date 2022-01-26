@@ -16,17 +16,26 @@ import (
 type PitbullStatus int8
 
 const (
-	Waiting PitbullStatus = iota
+	Scheduled PitbullStatus = iota
+	Starting
+	Waiting
 	Running
 	Finished
 	Success
 )
 
 var pitbullStatusNames = map[PitbullStatus]string{
-	Waiting:  "WAITING",
-	Running:  "RUNNING",
-	Finished: "FINISHED",
-	Success:  "SUCCESS",
+	Scheduled: "SCHEDULED",
+	Starting:  "STARTING",
+	Waiting:   "WAITING",
+	Running:   "RUNNING",
+	Finished:  "FINISHED",
+	Success:   "SUCCESS",
+}
+
+// Formatted - returns status in human-readable format.
+func (pi PitbullStatus) Formatted() string {
+	return fmt.Sprintf("%s (%d)", pitbullStatusNames[pi], pi)
 }
 
 // ProgressInfo - helper struct describing Pitbull progress.
@@ -35,15 +44,28 @@ type ProgressInfo struct {
 	Total   int64 `bson:"total" json:"total"`
 }
 
+// Formatted - returns progress in human-readable format.
+func (pi *ProgressInfo) Formatted() string {
+	if pi == nil || pi.Total == 0 {
+		return "0 / 0"
+	}
+
+	return fmt.Sprintf("%d / %d", pi.Checked, pi.Total)
+}
+
 // PitbullInstance- describes a single instance of PitbullInstance, backed by a host instance
 // defined in ProviderInstance field.
 type PitbullInstance struct {
 	BaseModel `bson:",inline"`
 
-	Name     string        `bson:"name" json:"name"`
-	Rules    []string      `bson:"rules" json:"rules"`
-	Status   PitbullStatus `bson:"status" json:"status"`
-	Progress *ProgressInfo `bson:"progress" json:"progress"`
+	Name         string   `bson:"name" json:"name"`
+	Rules        []string `bson:"rules" json:"rules"`
+	WalletString string   `bson:"walletString" json:"walletString"`
+	PasslistUrl  string   `bson:"passlistUrl" json:"passlistUrl"`
+
+	Status     PitbullStatus `bson:"status" json:"status"`
+	Progress   *ProgressInfo `bson:"progress" json:"progress"`
+	LastOutput string        `bson:"lastOutput" json:"lastOutput"`
 
 	ProviderName string `bson:"providerName" json:"providerName"`
 
@@ -54,16 +76,22 @@ type PitbullInstance struct {
 type marshalablePitbullInstance PitbullInstance
 
 // NewPitbullInstance - returns new PitbullInstance instance.
-func NewPitbullInstance(hostInstance host.HostInstance) *PitbullInstance {
+func NewPitbullInstance(host host.HostInstance, passlistUrl, walletString string) *PitbullInstance {
 	instance := &PitbullInstance{
-		Status:       Waiting,
-		HostInstance: hostInstance,
-		ProviderName: hostInstance.ProviderName(),
+		Status:       Scheduled,
+		PasslistUrl:  passlistUrl,
+		WalletString: walletString,
+		HostInstance: host,
 	}
 
 	instance.ID = primitive.NewObjectID()
 
 	return instance
+}
+
+func (pi *PitbullInstance) SetHost(hostInstance host.HostInstance) {
+	pi.HostInstance = hostInstance
+	pi.ProviderName = hostInstance.ProviderName()
 }
 
 // Completed - returns true if all passwords have been checked for given Pitbull instance,
@@ -129,20 +157,6 @@ func (pi *PitbullInstance) SetProgress(rawProgress string) error {
 	pi.Progress.Total = int64(total)
 
 	return nil
-}
-
-// FormattedStatus - returns status in human-readable format.
-func (pi *PitbullInstance) FormattedStatus() string {
-	return pitbullStatusNames[pi.Status]
-}
-
-// FormattedProgress - returns progress in human-readable format.
-func (pi *PitbullInstance) FormattedProgress() string {
-	if pi.Progress == nil || pi.Progress.Total == 0 {
-		return ""
-	}
-
-	return fmt.Sprintf("%d / %d\n", pi.Progress.Checked, pi.Progress.Total)
 }
 
 // UnmarshalBSON - Unmarshaler interface implementation.
