@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strconv"
+	"sync"
 
 	"github.com/el-mike/dogecrack/shepherd/host"
 )
@@ -20,6 +21,10 @@ const (
 type VastCLIClient struct {
 	apiSecret    string
 	pitbullImage string
+
+	// Since vast.ai API is rather limited in terms of handling request,
+	// we want to use mutual exclusion to perform request sequentially.
+	sync.Mutex
 }
 
 // NewVastCli - returns new VastCli instance.
@@ -32,6 +37,9 @@ func NewVastCLI(apiSecret, pitbullImage string) *VastCLIClient {
 
 // GetInstances - returns current instances.
 func (vc *VastCLIClient) GetInstances() ([]*VastInstance, error) {
+	vc.Lock()
+	defer vc.Unlock()
+
 	result, err := vc.run("show", "instances")
 	if err != nil {
 		return nil, err
@@ -42,6 +50,9 @@ func (vc *VastCLIClient) GetInstances() ([]*VastInstance, error) {
 
 // StartInstance - starts new Vast.ai instance. Waits for starting process to be over.
 func (vc *VastCLIClient) StartInstance(offerId int) (*VastCreateResponse, error) {
+	vc.Lock()
+	defer vc.Unlock()
+
 	result, err := vc.run("create", "instance", strconv.Itoa(offerId), "--image", vc.pitbullImage)
 	if err != nil {
 		return nil, err
@@ -58,6 +69,9 @@ func (vc *VastCLIClient) StartInstance(offerId int) (*VastCreateResponse, error)
 
 // DestroyInstance - stops a Vast.ai instance with given id.
 func (vc *VastCLIClient) DestroyInstance(instanceId int) error {
+	vc.Lock()
+	defer vc.Unlock()
+
 	_, err := vc.run("destroy", "instance", strconv.Itoa(instanceId))
 	if err != nil {
 		return err
@@ -94,6 +108,9 @@ func (vc *VastCLIClient) GetOfferByCriteria(criteria string) (*VastOffer, error)
 
 // GetOffers - returns current Vast.ai machine offers.
 func (vc *VastCLIClient) GetOffers(filter string) ([]*VastOffer, error) {
+	vc.Lock()
+	defer vc.Unlock()
+
 	result, err := vc.run("search", "offers", filter)
 	if err != nil {
 		return nil, err
