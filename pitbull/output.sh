@@ -6,5 +6,6 @@
 dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $dirname
 
+source ./variables.sh
 
-cat ./progress_view.txt
+cat ./$viewFile

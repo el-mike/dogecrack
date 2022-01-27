@@ -10,7 +10,7 @@ docker run --runtime=nvidia -ti pitbull
 ```
 
 ## Vast.ai
-1. In `Instance Configuration`, choose custom image and paste: `michalhuras/pitbull:6.0` (make sure you are using the newest version)
+1. In `Instance Configuration`, choose custom image and paste: `michalhuras/pitbull:7.0` (make sure you are using the newest version)
 2. Rent a machine
 3. Go to `Instances`
 4. Click "connect"
@@ -39,7 +39,7 @@ You can easily re-attach to pitbull session with:
 ```bash
 tmux a -t "pitbull"
 ```
-To see the live progress.
+To see the live progress. You can also use [Attach](#attach) command described below.
 
 Btcrecover's output is continuously written to `progress_view.txt` file (including loading indicators). Refer to [Output](#output) to see how you can access it.
 
@@ -80,3 +80,17 @@ Run:
 pitbull kill
 ```
 To kill the entire terminal Pitbull was run in.
+
+### Attach
+Run
+```bash
+pitbull attach
+```
+To attach to the tmux session running Pitbull. Use `Ctrl+b -> d` to detach.
+
+### Errors
+Run
+```bash
+pitbull errors
+```
+To see if there were any errors while running the Pitbull process. Errors are written to `$pitbullDir/err_log.txt` file.

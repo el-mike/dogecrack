@@ -17,14 +17,18 @@ dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # pitbul.sh exists in.
 cd $dirname
 
+source ./variables.sh
+
 runCommand='run'
 statusCommand='status'
 progressCommand='progress'
 outputCommand='output'
 killCommand='kill'
+errorsCommand='errors'
+attachCommand='attach'
 
-passlistFileName='passlist.txt'
-pipe='btcrecover_out'
+# clear file - we want to create new log file view every time we run Pitbull.
+> $errLogFile
 
 # command - describes the operation an user agent wants to perform. Available commands
 # are listed above.
@@ -41,6 +45,12 @@ elif [[ "$command" == "$outputCommand"  ]]; then
   exit $?
 elif [[ "$command" == "$killCommand" ]]; then
   ./kill.sh
+  exit $?
+elif [[ "$command" == "$errorsCommand" ]]; then
+  ./errors.sh
+  exit $?
+elif [[ "$command" == "$attachCommand" ]]; then
+  ./attach.sh
   exit $?
 elif [[ "$command" == "$runCommand"  ]]; then
   # Since we are "starting" with positional argument (command), we need to shift
@@ -65,7 +75,7 @@ elif [[ "$command" == "$runCommand"  ]]; then
     exit 1
   fi
 
-  tmux new-session -d -s "pitbull" "./run_pitbull.sh $fileUrl $passlistFileName $walletString"
+  tmux new-session -d -s "pitbull" "./run_pitbull.sh $fileUrl $passlistFile $walletString 2>> $errLogFile"
 else
   echo "Command: '$command' not recognized"
   exit 1

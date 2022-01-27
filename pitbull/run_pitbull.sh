@@ -11,11 +11,11 @@
 dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $dirname
 
-fileUrl=$1
-passlistFileName=$2
-walletString=$3
+source ./variables.sh
 
-pipe='btcrecover_out'
+passlistFileUrl=$1
+passlistFile=$2
+walletString=$3
 
 # Output capture setup.
 # If pipe exists, remove it - it ensures that no other agent is
@@ -23,11 +23,13 @@ pipe='btcrecover_out'
 # For some reason, "-p" (testing for named pipe exactly) does not work sometimes,
 # therefore we use "-e" instead. 
 if [ -e "./$pipe" ]; then
-  rm "$pipe"
+  rm "./$pipe"
 fi
 
-mkfifo "./$pipe" && ./capture_output.sh &
+mkfifo "./$pipe"
 
-script -f -c "./download_passlist.sh $fileUrl $passlistFileName && \
-  ./run_btcrecover.sh $walletString $passlistFileName" \
+./capture_output.sh &
+
+script -f -c "./download_passlist.sh $passlistFileUrl $passlistFile && \
+  ./run_btcrecover.sh $walletString $passlistFile" \
   $pipe

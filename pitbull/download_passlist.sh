@@ -3,7 +3,7 @@
 # This script is responsible for downloading passlist file and saving it for later use.
 
 fileUrl=$1
-passlistFileName=$2
+passlistFile=$2
 
 # Checks if given file URL is hosted on Google Drive.
 is_google_drive_file() {
@@ -21,7 +21,7 @@ is_google_drive_file() {
 # accessing and downloading files.
 # It saves file in current working directory (that should be set in pitbull.sh).
 download_from_google_drive() {
-  gdown  $1 -O $passlistFileName
+  gdown  $1 -O $passlistFile
 }
 
 # Downloads a file using wget.

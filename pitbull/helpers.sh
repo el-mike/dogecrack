@@ -1,9 +1,5 @@
 #!/bin/bash
 
-ord() {
-  LC_CTYPE=C printf '\n%d' "'$1"
-}
-
 # Checks if given line is a progress bar from gdown tool.
 # Regex tests for progress bar with "| |" at the start and end,
 # and for "B/s" download speed suffix.

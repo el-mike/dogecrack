@@ -2,12 +2,17 @@ FROM nvidia/opencl:runtime-ubuntu18.04
 
 WORKDIR /app
 
-COPY install.sh helpers.sh pitbull.sh run_pitbull.sh capture_output.sh download_passlist.sh \
-  run_btcrecover.sh status.sh output.sh progress.sh kill.sh ./
+  # Setup and common scripts
+COPY install.sh helpers.sh variables.sh \
+  # Command scripts
+  run_pitbull.sh status.sh progress.sh output.sh kill.sh errors.sh attach.sh \
+  # Operation scripts
+  capture_output.sh download_passlist.sh run_btcrecover.sh \
+  # Entry point script
+  pitbull.sh ./
 
 RUN apt update && cp ./pitbull.sh pitbull && \
-  chmod +x ./install.sh helpers.sh run_pitbull.sh ./capture_output.sh ./download_passlist.sh \
-    ./run_btcrecover.sh ./status.sh ./output.sh ./progress.sh ./kill.sh ./pitbull && \
+  chmod -R +x ./ && \
   # Adds pitbull executable to PATH, so client can run it from any directory.
   # Since pitbull can be run via all sorts of shells (interactive, non-interactive,
   # login, non-login), we add it to bash config files, as well as to /etc/environment.

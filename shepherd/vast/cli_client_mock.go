@@ -157,6 +157,6 @@ func (vc *VastCLIClientMock) buildVastInstance(fakeInstance *fakeInstance) *Vast
 		SSHHost:     fakeInstance.ipAddress,
 		SSHPort:     22,
 		Status:      status,
-		DockerImage: "michalhuras/pitbull:6.0",
+		DockerImage: "michalhuras/pitbull:7.0",
 	}
 }

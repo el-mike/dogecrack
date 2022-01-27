@@ -4,7 +4,7 @@
 dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $dirname
 
-viewFile='progress_view.txt'
+source ./variables.sh
 
 WAITING_STATUS="WAITING"
 RUNNING_STATUS="RUNNING"

@@ -6,9 +6,11 @@
 # the user to see, we need to use some tricks to capture the output that
 # is being constantly overwritten by \r (carriage return) character.
 
-pipe='btcrecover_out'
-viewFile='progress_view.txt'
+# Returns the directory the script exists in, no matter where it was called from.
+dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd $dirname
 
+source ./variables.sh
 source ./helpers.sh
 
 # clear file - we want to create new progress view every time we run the reader.

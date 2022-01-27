@@ -7,9 +7,9 @@
 dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $dirname
 
+source ./variables.sh
 source ./helpers.sh
 
-viewFile='progress_view.txt'
 errorMessage='NO_PROGRESS_AVAILABLE'
 
 # If progress_view.txt does not exist, we return fallback message.
