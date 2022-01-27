@@ -1,6 +1,8 @@
 package pitbull
 
 import (
+	"fmt"
+	"io"
 	"log"
 	"os"
 	"sync"
@@ -11,12 +13,11 @@ import (
 
 const INSTANCES_LIMIT = 5
 const START_HOST_ATTEMPTS_LIMIT = 10
+const CHECK_STATUS_ATTEMPTS_LIMIT = 10
 
 // PitbullScheduler - entity responsible for monitoring and maintanence jobs.
 type PitbullScheduler struct {
 	pitbullManager *PitbullManager
-	errorLogger    *log.Logger
-	infoLogger     *log.Logger
 
 	instancesLimit int
 	instancesQueue *models.StringQueue
@@ -24,12 +25,10 @@ type PitbullScheduler struct {
 	jobsPool *jobsPool
 }
 
+// NewPitbullScheduler - returns new PitbullScheduler instance.
 func NewPitbullScheduler(pitbullManager *PitbullManager) *PitbullScheduler {
 	return &PitbullScheduler{
 		pitbullManager: pitbullManager,
-
-		errorLogger: log.New(os.Stderr, "[Scheduler][Error] ", log.Ldate|log.Ltime),
-		infoLogger:  log.New(os.Stdout, "[Scheduler][Info] ", log.Ldate|log.Ltime),
 
 		instancesLimit: INSTANCES_LIMIT,
 		instancesQueue: models.NewStringQueue(),
@@ -40,48 +39,57 @@ func NewPitbullScheduler(pitbullManager *PitbullManager) *PitbullScheduler {
 
 // ScheduleRun - schedules a single Pitbull run. If instances limit is not reach yet,
 // it will run it immediately.
-func (pm *PitbullScheduler) ScheduleRun(passlistUrl, walletString string) (*models.PitbullInstance, error) {
-	instance, err := pm.pitbullManager.CreateInstance(passlistUrl, walletString)
+func (ps *PitbullScheduler) ScheduleRun(passlistUrl, walletString string) (*models.PitbullInstance, error) {
+	jobName := "scheduleRun"
+
+	instance, err := ps.pitbullManager.CreateInstance(passlistUrl, walletString)
 	if err != nil {
 		return nil, err
 	}
 
 	// If the queue is empty, we want to wake the dequeueJob.
-	if pm.instancesQueue.IsEmpty() {
-		if err := pm.dequeueJob(); err != nil {
+	if ps.instancesQueue.IsEmpty() {
+		if err := ps.dequeueJob(); err != nil {
 			return nil, err
 		}
 	}
 
 	instanceId := instance.ID.Hex()
-	pm.instancesQueue.Enqueue(instanceId)
+	ps.instancesQueue.Enqueue(instanceId)
 
-	pm.infoLogger.Printf("[scheduleRun][%s]: instance scheduled\n", instanceId)
+	infoLogger := ps.getInfoJobLogger(jobName, instanceId)
+
+	infoLogger.Printf("instance scheduled\n")
 
 	return instance, nil
 }
 
-func (pm *PitbullScheduler) dequeueJob() error {
-	pm.infoLogger.Printf("[dequeueJob]: starting\n")
+func (ps *PitbullScheduler) dequeueJob() error {
+	jobName := "dequeueJob"
+
+	infoLogger := ps.getInfoJobLogger(jobName, "")
+	errorLogger := ps.getErrorJobLogger(jobName, "")
+
+	infoLogger.Printf("starting\n")
 
 	c := cron.New(cron.WithSeconds())
 
 	_, err := c.AddFunc("*/30 * * * * *", func() {
-		if !pm.instancesQueue.IsEmpty() && pm.jobsPool.Size() < INSTANCES_LIMIT {
-			instanceId, err := pm.instancesQueue.Dequeue()
+		if !ps.instancesQueue.IsEmpty() && ps.jobsPool.Size() < INSTANCES_LIMIT {
+			instanceId, err := ps.instancesQueue.Dequeue()
 			if err != nil {
-				pm.errorLogger.Printf("[dequeueJob][%s]: instance dequeue failed, reason: %s\n", instanceId, err)
+				errorLogger.Printf("instance dequeue failed. Reason: %s\n", err)
 			}
 
-			pm.infoLogger.Printf("[dequeueJob][%s]: instance dequeued\n", instanceId)
+			infoLogger.Printf("'%s' instance dequeued\n", instanceId)
 
-			pm.startHostJob(instanceId)
+			ps.startHostJob(instanceId)
 		}
 
 		// If queue has been emptied, we want to stop dequeueJob, to not waste resources
 		// and prevent memory leaks. It will be waken up by ScheduleRun if needed.
-		if pm.instancesQueue.IsEmpty() {
-			pm.infoLogger.Printf("[dequeueJob]: queue empty, stopping\n")
+		if ps.instancesQueue.IsEmpty() {
+			infoLogger.Printf("queue empty, stopping\n")
 
 			c.Stop()
 			return
@@ -89,7 +97,7 @@ func (pm *PitbullScheduler) dequeueJob() error {
 	})
 
 	if err != nil {
-		pm.errorLogger.Printf("[dequeueJob]: cronjob error, reason: %s\n", err)
+		errorLogger.Printf("cronjob error. Reason: %s\n", err)
 		return err
 	}
 
@@ -98,12 +106,17 @@ func (pm *PitbullScheduler) dequeueJob() error {
 	return nil
 }
 
-func (pm *PitbullScheduler) startHostJob(instanceId string) error {
-	pm.infoLogger.Printf("[startHostJob][%s]: starting host\n", instanceId)
+func (ps *PitbullScheduler) startHostJob(instanceId string) error {
+	jobName := "startHostJob"
 
-	_, err := pm.pitbullManager.RunHostForInstance(instanceId)
+	infoLogger := ps.getInfoJobLogger(jobName, instanceId)
+	errorLogger := ps.getErrorJobLogger(jobName, instanceId)
+
+	infoLogger.Printf("starting host\n")
+
+	_, err := ps.pitbullManager.RunHostForInstance(instanceId)
 	if err != nil {
-		pm.errorLogger.Printf("[startHostJob][%s]: starting host failed, reason: %s\n", instanceId, err)
+		errorLogger.Printf("starting host failed. Reason: %s\n", err)
 
 		return err
 	}
@@ -114,33 +127,38 @@ func (pm *PitbullScheduler) startHostJob(instanceId string) error {
 
 	// Runs at every 30th second.
 	_, err = c.AddFunc("*/30 * * * * *", func() {
-		instance, err := pm.pitbullManager.SyncInstance(instanceId)
-		if err != nil {
-			pm.errorLogger.Printf("[startHostJob][%s]: instance sync failed, stopping the job. reason: %s\n", instanceId, err)
-
-			c.Stop()
-			return
-		}
-
-		pm.infoLogger.Printf("[startHostJob][%s]: host status: %s\n", instanceId, instance.HostInstance.HostStatus().Formatted())
-
-		if instance.Status == models.Waiting {
-			pm.infoLogger.Printf("[startHostJob][%s]: host started\n", instanceId)
-
-			pm.runPitbullJob(instanceId)
-
-			c.Stop()
-			return
-		}
-
 		attemptsCount += 1
 
 		if attemptsCount >= START_HOST_ATTEMPTS_LIMIT {
-			pm.infoLogger.Printf("[startHostJob][%s]: attempts limit reached, stopping job and host\n", instanceId)
+			infoLogger.Printf("attempts limit reached, stopping job and host\n")
 
-			if err := pm.pitbullManager.StopHostInstance(instanceId); err != nil {
-				pm.errorLogger.Printf("[startHostJob][%s]: stopping host instance failed\n", instanceId)
+			if err := ps.pitbullManager.StopHostInstance(instanceId); err != nil {
+				errorLogger.Printf("stopping host instance failed. Reason: %s\n", err)
 			}
+
+			c.Stop()
+			return
+		}
+
+		instance, err := ps.pitbullManager.SyncInstance(instanceId)
+		if err != nil {
+			errorLogger.Printf("instance sync failed. Reason: %s\n", err)
+
+			return
+		}
+
+		// Double check - if for some reason SyncInstance returned nil error and nil instance,
+		// we want to return, to prevent nil pointer dereference.
+		if instance == nil {
+			return
+		}
+
+		infoLogger.Printf("host status: %s\n", instance.HostInstance.HostStatus().Formatted())
+
+		if instance.Status == models.Waiting {
+			infoLogger.Printf("host started\n")
+
+			ps.runPitbullJob(instanceId)
 
 			c.Stop()
 			return
@@ -148,7 +166,7 @@ func (pm *PitbullScheduler) startHostJob(instanceId string) error {
 	})
 
 	if err != nil {
-		pm.errorLogger.Printf("[startHostJob][%s]: cronjob error, reason: %s\n", instanceId, err)
+		errorLogger.Printf("cronjob error. Reason: %s\n", err)
 		return err
 	}
 
@@ -157,11 +175,16 @@ func (pm *PitbullScheduler) startHostJob(instanceId string) error {
 	return nil
 }
 
-func (pm *PitbullScheduler) runPitbullJob(instanceId string) error {
-	pm.infoLogger.Printf("[runPitbullJob][%s]: starting Pitbull\n", instanceId)
+func (ps *PitbullScheduler) runPitbullJob(instanceId string) error {
+	jobName := "runPitbullJob"
 
-	if _, err := pm.pitbullManager.RunPitbull(instanceId); err != nil {
-		pm.infoLogger.Printf("[runPitbullJob][%s]: starting Pitbull failed, reason: %s\n", instanceId, err)
+	infoLogger := ps.getInfoJobLogger(jobName, instanceId)
+	errorLogger := ps.getErrorJobLogger(jobName, instanceId)
+
+	infoLogger.Printf("starting Pitbull\n")
+
+	if _, err := ps.pitbullManager.RunPitbull(instanceId); err != nil {
+		errorLogger.Printf("starting Pitbull failed. Reason: %s\n", err)
 
 		return err
 	}
@@ -170,55 +193,95 @@ func (pm *PitbullScheduler) runPitbullJob(instanceId string) error {
 	// is minutes, not seconds.
 	c := cron.New()
 
+	attemptsCount := 0
+
 	_, err := c.AddFunc("* * * * *", func() {
-		instance, err := pm.pitbullManager.SyncInstance(instanceId)
-		if err != nil {
-			pm.errorLogger.Printf("[runPitbullJob][%s]: Pitbull sync failed, stopping the job. reason: %s\n", instanceId, err)
+		attemptsCount += 1
+
+		if attemptsCount >= CHECK_STATUS_ATTEMPTS_LIMIT {
+			infoLogger.Printf("attempts limit reached, stopping job and host\n")
+
+			if err := ps.pitbullManager.StopHostInstance(instanceId); err != nil {
+				errorLogger.Printf("stopping host instance failed. Reason: %s\n", err)
+			}
 
 			c.Stop()
 			return
 		}
 
-		pm.infoLogger.Printf("[runPitbullJob][%s][Process]: %s | %s\n", instanceId, instance.Status.Formatted(), instance.Progress.Formatted())
+		instance, err := ps.pitbullManager.SyncInstance(instanceId)
+		if err != nil {
+			errorLogger.Printf("Pitbull sync failed. Reason: %s\n", err)
+
+			return
+		}
+
+		if instance == nil {
+			return
+		}
+
+		infoLogger.Printf("<Process>: %s | %s\n", instance.Status.Formatted(), instance.Progress.Formatted())
 
 		if instance.Status == models.Finished ||
 			instance.Status == models.Success {
-			pm.infoLogger.Printf("[runPitbullJob][%s]: pitbull finished, stopping host instance\n", instanceId)
+			infoLogger.Printf("pitbull finished, stopping host instance\n")
 
-			output, err := pm.pitbullManager.GetInstanceOutput(instance)
+			output, err := ps.pitbullManager.GetInstanceOutput(instance)
 			if err != nil {
-				pm.errorLogger.Printf("[runPitbullJob][%s] output retrieval failed, reason: %s\n", instanceId, err.Error())
+				errorLogger.Printf("output retrieval failed. Reason: %s\n", err)
 			}
 
-			if err := pm.pitbullManager.StopHostInstance(instanceId); err != nil {
-				pm.errorLogger.Printf("[runPitbullJob][%s]: stopping host instance '%d' failed\n, reason: %s", instanceId, instance.HostInstance.ProviderId(), err)
+			if err := ps.pitbullManager.StopHostInstance(instanceId); err != nil {
+				errorLogger.Printf("stopping host instance '%d' failed. reason: %s\n", instance.HostInstance.ProviderId(), err)
 			}
 
-			pm.infoLogger.Printf("[runPitbullJob][%s]: host instance stopped \n", instanceId)
+			infoLogger.Printf("host instance stopped \n")
 
 			if output != "" {
 				instance.LastOutput = output
 
-				if err := pm.pitbullManager.UpdateInstance(instance); err != nil {
-					pm.errorLogger.Printf("[runPitbullJob][%s] saving last output failed, reason: %s\n", instanceId, err)
+				if err := ps.pitbullManager.UpdateInstance(instance); err != nil {
+					errorLogger.Printf("saving last output failed. Reason: %s\n", err)
 				}
 			}
 
 			c.Stop()
 
-			pm.infoLogger.Printf("[runPitbullJob][%s]: job completed \n", instanceId)
+			infoLogger.Printf("job completed\n")
 			return
 		}
 	})
 
 	if err != nil {
-		pm.errorLogger.Printf("[runPitbullJob][%s]: cronjob error, reason: %s\n", instanceId, err)
+		errorLogger.Printf("cronjob error. Reason: %s\n", err)
 		return err
 	}
 
 	c.Start()
 
 	return nil
+}
+
+// getJobLogger - returns a logger with predefined "tags" and correct setup.
+func (ps *PitbullScheduler) getJobLogger(out io.Writer, logType string, jobName, instanceId string) *log.Logger {
+	instanceTag := ""
+
+	if instanceId != "" {
+		instanceTag = fmt.Sprintf("[%s]", instanceId)
+	}
+	return log.New(out, fmt.Sprintf("[Scheduler][%s][%s]%s: ", logType, jobName, instanceTag), log.Ldate|log.Ltime|log.Lmsgprefix)
+}
+
+// getInfoJobLogger - returns info job logger.
+func (ps *PitbullScheduler) getInfoJobLogger(jobName, instanceId string) *log.Logger {
+	// TODO: Add file handling for output.
+	return ps.getJobLogger(os.Stdout, "Info", jobName, instanceId)
+}
+
+// getErrorJobLogger - returns error job logger.
+func (ps *PitbullScheduler) getErrorJobLogger(jobName, instanceId string) *log.Logger {
+	// TODO: Add file handling for output.
+	return ps.getJobLogger(os.Stderr, "Error", jobName, instanceId)
 }
 
 type jobsPool struct {

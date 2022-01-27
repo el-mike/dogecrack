@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/el-mike/dogecrack/shepherd/host"
 	"github.com/el-mike/dogecrack/shepherd/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -85,7 +84,7 @@ func (pir *PitbullInstanceRepository) GetActiveInstances() ([]*models.PitbullIns
 	collection := pir.db.Collection(instancesCollection)
 
 	filter := bson.D{
-		{"status", bson.D{{"$ne", host.Finished}}},
+		{"status", bson.D{{"$nin", bson.A{models.Finished, models.Success}}}},
 	}
 
 	cursor, err := collection.Find(context.TODO(), filter)
