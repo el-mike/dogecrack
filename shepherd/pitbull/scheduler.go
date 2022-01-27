@@ -40,18 +40,13 @@ func NewPitbullScheduler(pitbullManager *PitbullManager) *PitbullScheduler {
 
 // ScheduleRun - schedules a single Pitbull run. If instances limit is not reach yet,
 // it will run it immediately.
-func (ps *PitbullScheduler) ScheduleRun(passlistUrl, walletString string) (*models.PitbullInstance, error) {
+func (ps *PitbullScheduler) ScheduleRun(instance *models.PitbullInstance) error {
 	jobName := "scheduleRun"
-
-	instance, err := ps.pitbullManager.CreateInstance(passlistUrl, walletString)
-	if err != nil {
-		return nil, err
-	}
 
 	// If the queue is empty, we want to wake the dequeueJob.
 	if ps.instancesQueue.IsEmpty() {
 		if err := ps.dequeueJob(); err != nil {
-			return nil, err
+			return err
 		}
 	}
 
@@ -62,7 +57,7 @@ func (ps *PitbullScheduler) ScheduleRun(passlistUrl, walletString string) (*mode
 
 	infoLogger.Printf("instance scheduled\n")
 
-	return instance, nil
+	return nil
 }
 
 func (ps *PitbullScheduler) dequeueJob() error {

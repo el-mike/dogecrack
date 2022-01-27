@@ -15,11 +15,11 @@ func (pg *PasswordGenerator) Generate(basePassword string, rules []string) (*Gen
 		BasePassword: basePassword,
 		Rules:        rules,
 		// Big file
-		// fileUrl: "https://drive.google.com/file/d/1hztPGWlG4bfjLXjIG80-7si5M3PqoNzx/view?usp=sharing",
+		// PasslistUrl "https://drive.google.com/file/d/1hztPGWlG4bfjLXjIG80-7si5M3PqoNzx/view?usp=sharing",
 		// Small file, win:
-		FileUrl: "https://drive.google.com/uc?id=12ULZTz8X5tIZ4243DI_-pHwe65PgQ33E",
+		// PasslistUrl: "https://drive.google.com/uc?id=12ULZTz8X5tIZ4243DI_-pHwe65PgQ33E",
 		// Medium file, win:
-		// FileUrl: "https://drive.google.com/uc?id=15Ao40uZK44whbS6BlM8RSo7LewIymKwq",
+		PasslistUrl: "https://drive.google.com/uc?id=15Ao40uZK44whbS6BlM8RSo7LewIymKwq",
 	}
 
 	return result, nil

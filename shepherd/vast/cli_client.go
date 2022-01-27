@@ -3,7 +3,6 @@ package vast
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"os/exec"
 	"strconv"
 	"sync"
@@ -139,9 +138,7 @@ func (vc *VastCLIClient) run(cmdArgs ...string) ([]byte, error) {
 	cmd.Stderr = &errOut
 
 	if err := cmd.Run(); err != nil {
-		fmt.Println(string(out.Bytes()))
-		fmt.Print(string(errOut.Bytes()))
-		return nil, err
+		return nil, NewVastCLIError(string(out.Bytes()), string(errOut.Bytes()))
 	}
 
 	return out.Bytes(), nil

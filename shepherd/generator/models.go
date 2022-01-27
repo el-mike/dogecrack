@@ -5,5 +5,5 @@ package generator
 type GeneratorResult struct {
 	BasePassword string
 	Rules        []string
-	FileUrl      string
+	PasslistUrl  string
 }

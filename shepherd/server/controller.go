@@ -112,8 +112,13 @@ func (ct *Controller) Crack(
 		return
 	}
 
-	instance, err := ct.pitbullScheduler.ScheduleRun(generatorResult.FileUrl, ct.appConfig.WalletString)
+	instance, err := ct.pitbullManager.CreateInstance(generatorResult.PasslistUrl, ct.appConfig.WalletString)
 	if err != nil {
+		ct.handleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err := ct.pitbullScheduler.ScheduleRun(instance); err != nil {
 		ct.handleError(w, http.StatusInternalServerError, err)
 		return
 	}
