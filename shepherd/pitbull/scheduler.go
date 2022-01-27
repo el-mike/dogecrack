@@ -1,6 +1,7 @@
 package pitbull
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -13,7 +14,7 @@ import (
 
 const INSTANCES_LIMIT = 5
 const START_HOST_ATTEMPTS_LIMIT = 10
-const CHECK_STATUS_ATTEMPTS_LIMIT = 10
+const CHECK_STATUS_RETRY_LIMIT = 10
 
 // PitbullScheduler - entity responsible for monitoring and maintanence jobs.
 type PitbullScheduler struct {
@@ -141,15 +142,15 @@ func (ps *PitbullScheduler) startHostJob(instanceId string) error {
 		}
 
 		instance, err := ps.pitbullManager.SyncInstance(instanceId)
-		if err != nil {
-			errorLogger.Printf("instance sync failed. Reason: %s\n", err)
-
-			return
-		}
-
 		// Double check - if for some reason SyncInstance returned nil error and nil instance,
 		// we want to return, to prevent nil pointer dereference.
-		if instance == nil {
+		if err != nil || instance == nil {
+			if err == nil {
+				err = errors.New("instance is nil")
+			}
+
+			errorLogger.Printf("instance sync failed. Reason: %s\n", err)
+
 			return
 		}
 
@@ -193,13 +194,11 @@ func (ps *PitbullScheduler) runPitbullJob(instanceId string) error {
 	// is minutes, not seconds.
 	c := cron.New()
 
-	attemptsCount := 0
+	retryCount := 0
 
 	_, err := c.AddFunc("* * * * *", func() {
-		attemptsCount += 1
-
-		if attemptsCount >= CHECK_STATUS_ATTEMPTS_LIMIT {
-			infoLogger.Printf("attempts limit reached, stopping job and host\n")
+		if retryCount >= CHECK_STATUS_RETRY_LIMIT {
+			infoLogger.Printf("retries limit reached, stopping job and host\n")
 
 			if err := ps.pitbullManager.StopHostInstance(instanceId); err != nil {
 				errorLogger.Printf("stopping host instance failed. Reason: %s\n", err)
@@ -210,17 +209,23 @@ func (ps *PitbullScheduler) runPitbullJob(instanceId string) error {
 		}
 
 		instance, err := ps.pitbullManager.SyncInstance(instanceId)
-		if err != nil {
+		if err != nil || instance == nil {
+			if err == nil {
+				err = errors.New("instance is nil")
+			}
+
 			errorLogger.Printf("Pitbull sync failed. Reason: %s\n", err)
 
+			retryCount += 1
+
 			return
 		}
 
-		if instance == nil {
-			return
-		}
+		// If we have reached this point, that means sync was succesful - therefore, we want to
+		// reset retry counter.
+		retryCount = 0
 
-		infoLogger.Printf("<Process>: %s | %s\n", instance.Status.Formatted(), instance.Progress.Formatted())
+		infoLogger.Printf("[Process]: %s | %s\n", instance.Status.Formatted(), instance.Progress.Formatted())
 
 		if instance.Status == models.Finished ||
 			instance.Status == models.Success {
