@@ -10,6 +10,7 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/config"
 	"github.com/el-mike/dogecrack/shepherd/generator"
 	"github.com/el-mike/dogecrack/shepherd/pitbull"
+	"github.com/el-mike/dogecrack/shepherd/utils"
 )
 
 type ControllerFn func(w http.ResponseWriter, r *http.Request)
@@ -168,7 +169,7 @@ func (ct *Controller) handleError(w http.ResponseWriter, status int, err error) 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusInternalServerError)
 
-	ct.errorLogger.Println(err)
+	utils.WithStackTrace(ct.errorLogger, err)
 
 	apiError := NewApiError(status, err)
 
