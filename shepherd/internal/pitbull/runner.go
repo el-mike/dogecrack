@@ -12,8 +12,8 @@ import (
 const (
 	startHostAttemptsLimit = 10
 	checkStatusRetryLimit  = 10
-	checkHostInterval      = 30 * time.Second
-	checkPitbullInterval   = 60 * time.Second
+	checkHostInterval      = 15 * time.Second
+	checkPitbullInterval   = 30 * time.Second
 )
 
 // PitbullRunner - entity responsible for running and monitoring Pitbull jobs.

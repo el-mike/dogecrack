@@ -56,6 +56,10 @@ func (pm *PitbullManager) SyncInstance(id string) (*models.PitbullInstance, erro
 		pitbullInstance.HostInstance = hostInstance
 	}
 
+	if hostInstance == nil {
+		return nil, host.NewHostInstanceNotAvailable(hostInstanceId)
+	}
+
 	// We want to update pitbullInstance's status and progress when host is in "running" state.
 	if hostInstance.HostStatus() == host.Running {
 		statusRaw, err := pm.hostManager.GetPitbullStatus(pitbullInstance.HostInstance)
