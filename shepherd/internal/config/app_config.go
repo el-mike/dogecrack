@@ -29,6 +29,9 @@ type AppConfig struct {
 	MongoHost     string
 	MongoPort     string
 
+	RedisHost string
+	RedisPort string
+
 	WalletString string
 }
 
@@ -55,6 +58,9 @@ func NewAppConfig(rootPath string) (*AppConfig, error) {
 	config.MongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
 	config.MongoHost = os.Getenv("MONGO_HOST")
 	config.MongoPort = os.Getenv("MONGO_PORT")
+
+	config.RedisHost = os.Getenv("REDIS_HOST")
+	config.RedisPort = os.Getenv("REDIS_PORT")
 
 	appConfig = config
 

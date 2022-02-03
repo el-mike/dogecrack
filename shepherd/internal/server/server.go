@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 	"github.com/gorilla/mux"
 )
 
@@ -12,10 +11,8 @@ type Server struct {
 	router *mux.Router
 }
 
-func NewServer(manager *pitbull.PitbullManager) *Server {
+func NewServer(controller *Controller) *Server {
 	router := mux.NewRouter()
-
-	controller := NewController(manager)
 
 	router.HandleFunc("/health", controller.GetHealth).Methods("GET")
 	router.HandleFunc("/getActiveInstances", controller.GetActiveInstances).Methods("GET")

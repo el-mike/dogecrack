@@ -8,7 +8,6 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
-	"github.com/el-mike/dogecrack/shepherd/internal/server"
 	"github.com/el-mike/dogecrack/shepherd/internal/vast"
 )
 
@@ -20,15 +19,6 @@ func main() {
 
 	appConfig, err := config.NewAppConfig(rootPath)
 	if err != nil {
-		panic(err)
-	}
-
-	sshIp, err := vast.GetFakeVastIp(rootPath, 1)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := vast.AddSSHFingerprint(rootPath, sshIp, appConfig.SSHDirPath); err != nil {
 		panic(err)
 	}
 
@@ -48,15 +38,15 @@ func main() {
 		}
 	}()
 
-	redisCtx, redisCancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer redisCancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	persist.InitRedis(redisCtx, appConfig.RedisHost, appConfig.RedisPort)
+	persist.InitRedis(ctx, appConfig.RedisHost, appConfig.RedisPort)
 
-	pitbullManager := pitbull.NewPitbullManager(vastManager)
+	manager := pitbull.NewPitbullManager(vastManager)
+	runner := pitbull.NewPitbullRunner(manager)
 
-	controller := server.NewController(pitbullManager)
+	dispatcher := pitbull.NewJobDispatcher(runner, 15*time.Second)
 
-	s := server.NewServer(controller)
-	s.Run()
+	dispatcher.Start()
 }

@@ -53,7 +53,7 @@ func (pi *ProgressInfo) Formatted() string {
 	return fmt.Sprintf("%d / %d", pi.Checked, pi.Total)
 }
 
-// PitbullInstance- describes a single instance of PitbullInstance, backed by a host instance
+// PitbullInstance - describes a single instance of PitbullInstance, backed by a host instance
 // defined in ProviderInstance field.
 type PitbullInstance struct {
 	BaseModel `bson:",inline"`

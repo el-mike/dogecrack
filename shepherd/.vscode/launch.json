@@ -11,6 +11,14 @@
       "mode": "debug",
       "program": "${workspaceRoot}/cmd/api",
       "args": []
-  }
+    },
+    {
+      "name": "[Shepherd] Runner",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceRoot}/cmd/runner",
+      "args": []
+    }
   ]
 }
