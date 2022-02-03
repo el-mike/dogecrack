@@ -8,7 +8,8 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-const queueName = "pitbullQueue"
+const waitingQueue = "waitingQueue"
+const processingQueue = "processingQueue"
 
 var ctx = context.TODO()
 
@@ -16,14 +17,16 @@ var ctx = context.TODO()
 type JobQueue struct {
 	redisClient *redis.Client
 
-	queueName string
+	waitingQueue    string
+	processingQueue string
 }
 
 // NewJobQueue - returns new RunQueue instance.
 func NewJobQueue(client *redis.Client) *JobQueue {
 	return &JobQueue{
-		redisClient: client,
-		queueName:   queueName,
+		redisClient:     client,
+		waitingQueue:    waitingQueue,
+		processingQueue: processingQueue,
 	}
 }
 
@@ -34,14 +37,15 @@ func (jq *JobQueue) Enqueue(job *models.PitbullJob) error {
 		return err
 	}
 
-	_, err = jq.redisClient.RPush(ctx, jq.queueName, jobRaw).Result()
+	_, err = jq.redisClient.LPush(ctx, jq.waitingQueue, jobRaw).Result()
 
 	return err
 }
 
 // Dequeue - pops a single PitbullRun from the job queue.
 func (jq *JobQueue) Dequeue() (*models.PitbullJob, error) {
-	jobRaw, err := jq.redisClient.LPop(ctx, jq.queueName).Result()
+	// We are using RPOPLPUSH, so we can retry jobs that failed before finishing.
+	jobRaw, err := jq.redisClient.RPopLPush(ctx, jq.waitingQueue, jq.processingQueue).Result()
 	// If error is "redis.Nil", that means list was empty, but we don't want to
 	// treat it as error - therefore, we use nil, nil.
 	if err == redis.Nil {
@@ -57,4 +61,8 @@ func (jq *JobQueue) Dequeue() (*models.PitbullJob, error) {
 	}
 
 	return job, nil
+}
+
+func (jq *JobQueue) Ack(instanceId string) {
+
 }
