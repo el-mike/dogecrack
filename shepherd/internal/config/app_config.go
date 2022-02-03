@@ -33,8 +33,8 @@ type AppConfig struct {
 }
 
 // NewAppConfig - creates new AppConfig instance and reads values from env.
-func NewAppConfig() (*AppConfig, error) {
-	if err := godotenv.Load(); err != nil {
+func NewAppConfig(rootPath string) (*AppConfig, error) {
+	if err := godotenv.Load(rootPath + "/.env"); err != nil {
 		log.Fatal("Error loading .env file")
 		return nil, err
 	}

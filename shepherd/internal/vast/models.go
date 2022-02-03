@@ -1,7 +1,7 @@
 package vast
 
 import (
-	"github.com/el-mike/dogecrack/shepherd/host"
+	"github.com/el-mike/dogecrack/shepherd/internal/host"
 )
 
 const ProviderName = "vast"

@@ -3,7 +3,7 @@ package vast
 import (
 	"errors"
 
-	"github.com/el-mike/dogecrack/shepherd/host"
+	"github.com/el-mike/dogecrack/shepherd/internal/host"
 )
 
 // VastManager - entity responsible for managing Vast.ai machine instances.

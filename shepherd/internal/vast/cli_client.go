@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/el-mike/dogecrack/shepherd/host"
+	"github.com/el-mike/dogecrack/shepherd/internal/host"
 )
 
 const (

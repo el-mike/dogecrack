@@ -5,20 +5,20 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/el-mike/dogecrack/shepherd/config"
-	"github.com/el-mike/dogecrack/shepherd/persist"
-	"github.com/el-mike/dogecrack/shepherd/pitbull"
-	"github.com/el-mike/dogecrack/shepherd/server"
-	"github.com/el-mike/dogecrack/shepherd/vast"
+	"github.com/el-mike/dogecrack/shepherd/internal/config"
+	"github.com/el-mike/dogecrack/shepherd/internal/persist"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
+	"github.com/el-mike/dogecrack/shepherd/internal/server"
+	"github.com/el-mike/dogecrack/shepherd/internal/vast"
 )
 
 func main() {
-	appConfig, err := config.NewAppConfig()
+	rootPath, err := filepath.Abs("../../")
 	if err != nil {
 		panic(err)
 	}
 
-	rootPath, err := filepath.Abs(".")
+	appConfig, err := config.NewAppConfig(rootPath)
 	if err != nil {
 		panic(err)
 	}

@@ -8,7 +8,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/el-mike/dogecrack/shepherd/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/models"
 	"github.com/robfig/cron/v3"
 )
 

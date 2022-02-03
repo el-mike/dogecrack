@@ -5,7 +5,7 @@ services:
     tty: true
     runtime: nvidia
     build:
-      context: ./vast
+      context: ./tools/vast
       dockerfile: fake_vast.Dockerfile
 
   fake_vast_2:
@@ -13,7 +13,7 @@ services:
     tty: true
     runtime: nvidia
     build:
-      context: ./vast
+      context: ./tools/vast
       dockerfile: fake_vast.Dockerfile
   
   mongodb:

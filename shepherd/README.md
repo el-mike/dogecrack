@@ -24,9 +24,9 @@ Pitbull-based Docker container with running open-ssh server inside. Allows to ea
 docker-compose runs two instances of fake vast.ai server, therefore you need to specify `<number>` to connect with proper instance.
 
 ```bash
-chmod +x ./vast/scripts/connect_fake_vast.sh
+chmod +x ./tools/vast/scripts/connect_fake_vast.sh
 
-./vast/scripts/connect_fake_vast.sh <number>
+./tools/vast/scripts/connect_fake_vast.sh <number>
 # password '12345'
 ```
 

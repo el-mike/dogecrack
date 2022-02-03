@@ -5,11 +5,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "[Shepherd] Launch",
+      "name": "[Shepherd] API",
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceRoot}",
+      "program": "${workspaceRoot}/cmd/api",
       "args": []
   }
   ]

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/el-mike/dogecrack/shepherd/host"
-	"github.com/el-mike/dogecrack/shepherd/models"
-	"github.com/el-mike/dogecrack/shepherd/persist"
+	"github.com/el-mike/dogecrack/shepherd/internal/host"
+	"github.com/el-mike/dogecrack/shepherd/internal/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/persist"
 )
 
 // PitbullManager - main managing entity responsible for Pitbull instances.

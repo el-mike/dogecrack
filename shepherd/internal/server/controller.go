@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/el-mike/dogecrack/shepherd/config"
-	"github.com/el-mike/dogecrack/shepherd/generator"
-	"github.com/el-mike/dogecrack/shepherd/pitbull"
-	"github.com/el-mike/dogecrack/shepherd/utils"
+	"github.com/el-mike/dogecrack/shepherd/internal/config"
+	"github.com/el-mike/dogecrack/shepherd/internal/generator"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
+	"github.com/el-mike/dogecrack/shepherd/internal/utils"
 )
 
 type ControllerFn func(w http.ResponseWriter, r *http.Request)

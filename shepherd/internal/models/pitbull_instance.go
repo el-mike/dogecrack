@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/el-mike/dogecrack/shepherd/host"
-	"github.com/el-mike/dogecrack/shepherd/vast"
+	"github.com/el-mike/dogecrack/shepherd/internal/host"
+	"github.com/el-mike/dogecrack/shepherd/internal/vast"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

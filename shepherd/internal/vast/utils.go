@@ -9,7 +9,7 @@ import (
 
 // GetFakeVastIp - returns an ID of fake_vast container when running locally.
 func GetFakeVastIp(rootDir string, fakeVastId int) (string, error) {
-	cmd := exec.Command(rootDir+"/vast/scripts/get_fake_vast_ip.sh", strconv.Itoa(fakeVastId))
+	cmd := exec.Command(rootDir+"/tools/vast/scripts/get_fake_vast_ip.sh", strconv.Itoa(fakeVastId))
 
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -31,7 +31,7 @@ func GetFakeVastIp(rootDir string, fakeVastId int) (string, error) {
 func AddSSHFingerprint(rootDir, host, sshDirPath string) error {
 	hostsFilePath := sshDirPath + "/known_hosts"
 
-	cmd := exec.Command(rootDir+"/vast/scripts/add_ssh_fingerprint.sh", host, hostsFilePath)
+	cmd := exec.Command(rootDir+"/tools/vast/scripts/add_ssh_fingerprint.sh", host, hostsFilePath)
 
 	var out bytes.Buffer
 	cmd.Stdout = &out

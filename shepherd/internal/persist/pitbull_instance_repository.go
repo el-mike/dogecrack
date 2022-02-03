@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/el-mike/dogecrack/shepherd/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

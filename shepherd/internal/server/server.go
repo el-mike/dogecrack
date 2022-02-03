@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/el-mike/dogecrack/shepherd/pitbull"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 	"github.com/gorilla/mux"
 )
 
