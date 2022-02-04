@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/el-mike/dogecrack/shepherd/internal/models"
-	"github.com/el-mike/dogecrack/shepherd/internal/utils"
+	"github.com/el-mike/dogecrack/shepherd/internal/common"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
 )
 
 const (
@@ -34,7 +34,7 @@ func (ru *Runner) Run(instanceId string) {
 }
 
 func (ru *Runner) startHost(instanceId string) {
-	logger := utils.NewLogger("Runner", os.Stdout, os.Stderr, "startHost", instanceId)
+	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "startHost", instanceId)
 
 	logger.Info.Println("starting host.")
 
@@ -90,7 +90,7 @@ func (ru *Runner) startHost(instanceId string) {
 }
 
 func (ru *Runner) runPitbull(instanceId string) {
-	logger := utils.NewLogger("Runner", os.Stdout, os.Stderr, "runPitbullJob", instanceId)
+	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "runPitbullJob", instanceId)
 
 	logger.Info.Printf("starting Pitbull\n")
 

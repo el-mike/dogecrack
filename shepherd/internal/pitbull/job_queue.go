@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/el-mike/dogecrack/shepherd/internal/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
 	"github.com/go-redis/redis/v8"
 )
 

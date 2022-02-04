@@ -3,9 +3,9 @@ package pitbull
 import (
 	"os"
 
-	"github.com/el-mike/dogecrack/shepherd/internal/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
-	"github.com/el-mike/dogecrack/shepherd/internal/utils"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
 )
 
 const INSTANCES_LIMIT = 5
@@ -14,7 +14,7 @@ const INSTANCES_LIMIT = 5
 type Scheduler struct {
 	queue *JobQueue
 
-	logger *utils.Logger
+	logger *common.Logger
 }
 
 // NewScheduler - returns new PitbullScheduler instance.
@@ -22,7 +22,7 @@ func NewScheduler() *Scheduler {
 	return &Scheduler{
 		queue: NewJobQueue(persist.GetRedisClient()),
 
-		logger: utils.NewLogger("Scheduler", os.Stdout, os.Stderr),
+		logger: common.NewLogger("Scheduler", os.Stdout, os.Stderr),
 	}
 }
 

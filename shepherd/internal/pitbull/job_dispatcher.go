@@ -4,8 +4,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
-	"github.com/el-mike/dogecrack/shepherd/internal/utils"
 )
 
 // JobDispatcher - observes redis-based PitbullQueue with BLPOP
@@ -18,7 +18,7 @@ type JobDispatcher struct {
 
 	pollInterval time.Duration
 
-	logger *utils.Logger
+	logger *common.Logger
 }
 
 // NewJobDispatcher - returns new JobDispatcher.
@@ -31,7 +31,7 @@ func NewJobDispatcher(runner *Runner, pollInterval time.Duration) *JobDispatcher
 
 		pollInterval: pollInterval,
 
-		logger: utils.NewLogger("Dispatcher", os.Stdout, os.Stderr),
+		logger: common.NewLogger("Dispatcher", os.Stdout, os.Stderr),
 	}
 }
 

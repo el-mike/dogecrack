@@ -3,14 +3,13 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
+	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
 	"github.com/el-mike/dogecrack/shepherd/internal/generator"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
-	"github.com/el-mike/dogecrack/shepherd/internal/utils"
 )
 
 type ControllerFn func(w http.ResponseWriter, r *http.Request)
@@ -23,7 +22,7 @@ type Controller struct {
 	pitbullScheduler  *pitbull.Scheduler
 	passwordGenerator *generator.PasswordGenerator
 
-	errorLogger *log.Logger
+	logger *common.Logger
 }
 
 // NewController - returns new Controller instance.
@@ -35,7 +34,7 @@ func NewController(manager *pitbull.Manager) *Controller {
 		pitbullScheduler:  pitbull.NewScheduler(),
 		passwordGenerator: generator.NewPasswordGenerator(),
 
-		errorLogger: log.New(os.Stderr, "[Controller][Error]: ", log.Ldate|log.Ltime),
+		logger: common.NewLogger("Controller", os.Stdout, os.Stderr),
 	}
 }
 
@@ -57,7 +56,7 @@ func (ct *Controller) GetActiveInstances(
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 
-		ct.errorLogger.Println(err)
+		ct.logger.Err.Println(err)
 		return
 	}
 
@@ -65,7 +64,7 @@ func (ct *Controller) GetActiveInstances(
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 
-		ct.errorLogger.Println(err)
+		ct.logger.Err.Println(err)
 		return
 	}
 
@@ -169,7 +168,7 @@ func (ct *Controller) handleError(w http.ResponseWriter, status int, err error) 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusInternalServerError)
 
-	utils.WithStackTrace(ct.errorLogger, err)
+	common.WithStackTrace(ct.logger.Err, err)
 
 	apiError := NewApiError(status, err)
 

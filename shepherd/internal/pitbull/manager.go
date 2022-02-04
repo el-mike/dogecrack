@@ -5,32 +5,32 @@ import (
 	"fmt"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/host"
-	"github.com/el-mike/dogecrack/shepherd/internal/models"
-	"github.com/el-mike/dogecrack/shepherd/internal/persist"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/repositories"
 )
 
 // Manager - main managing entity responsible for Pitbull instances.
 type Manager struct {
-	hostManager               host.HostManager
-	pitbullInstanceRepository *persist.PitbullInstanceRepository
+	hostManager        host.HostManager
+	instanceRepository *repositories.InstanceRepository
 }
 
 // NewManager - returns new Shepherd instance.
 func NewManager(hostManager host.HostManager) *Manager {
 	return &Manager{
-		hostManager:               hostManager,
-		pitbullInstanceRepository: persist.NewPitbullInstanceRepository(),
+		hostManager:        hostManager,
+		instanceRepository: repositories.NewInstanceRepository(),
 	}
 }
 
 // GetActiveInstances - returns all active PitbullInstances.
 func (ma *Manager) GetActiveInstances() ([]*models.PitbullInstance, error) {
-	return ma.pitbullInstanceRepository.GetActiveInstances()
+	return ma.instanceRepository.GetActiveInstances()
 }
 
 // GetInstanceById - returns a PitbullInstance with given id.
 func (ma *Manager) GetInstanceById(id string) (*models.PitbullInstance, error) {
-	return ma.pitbullInstanceRepository.GetInstanceById(id)
+	return ma.instanceRepository.GetInstanceById(id)
 }
 
 func (ma *Manager) SyncInstance(id string) (*models.PitbullInstance, error) {
@@ -90,7 +90,7 @@ func (ma *Manager) CreateInstance(passlistUrl, walletString string) (*models.Pit
 	hostInstance := ma.hostManager.CreateInstance()
 	pitbullInstance := models.NewPitbullInstance(hostInstance, passlistUrl, walletString)
 
-	if err := ma.pitbullInstanceRepository.CreateInstance(pitbullInstance); err != nil {
+	if err := ma.instanceRepository.CreateInstance(pitbullInstance); err != nil {
 		return nil, err
 	}
 
@@ -116,7 +116,7 @@ func (ma *Manager) RunHostForInstance(id string) (*models.PitbullInstance, error
 	pitbullInstance.SetHost(hostInstance)
 	pitbullInstance.Status = models.Starting
 
-	if err := ma.pitbullInstanceRepository.UpdateInstance(pitbullInstance); err != nil {
+	if err := ma.instanceRepository.UpdateInstance(pitbullInstance); err != nil {
 		return nil, err
 	}
 
@@ -154,7 +154,7 @@ func (ma *Manager) RunPitbull(id string) (*models.PitbullInstance, error) {
 
 // UpdateInstance - updates Pitbull instance.
 func (ma *Manager) UpdateInstance(pitbullInstance *models.PitbullInstance) error {
-	return ma.pitbullInstanceRepository.UpdateInstance(pitbullInstance)
+	return ma.instanceRepository.UpdateInstance(pitbullInstance)
 }
 
 // GetInstanceOutput - returns Pitbull process output for given instance.
@@ -164,7 +164,7 @@ func (ma *Manager) GetInstanceOutput(pitbullInstance *models.PitbullInstance) (s
 
 // RunCommand - runs a command on Pitbull's host.
 func (ma *Manager) RunHostCommand(id, cmd string) (string, error) {
-	pitbullInstance, err := ma.pitbullInstanceRepository.GetInstanceById(id)
+	pitbullInstance, err := ma.instanceRepository.GetInstanceById(id)
 	if err != nil {
 		return "", err
 	}

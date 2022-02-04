@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/host"
 	"github.com/el-mike/dogecrack/shepherd/internal/vast"
 	"go.mongodb.org/mongo-driver/bson"
@@ -56,7 +57,7 @@ func (pi *ProgressInfo) Formatted() string {
 // PitbullInstance - describes a single instance of PitbullInstance, backed by a host instance
 // defined in ProviderInstance field.
 type PitbullInstance struct {
-	BaseModel `bson:",inline"`
+	common.BaseModel `bson:",inline"`
 
 	Name         string   `bson:"name" json:"name"`
 	Rules        []string `bson:"rules" json:"rules"`
