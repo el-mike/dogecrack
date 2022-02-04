@@ -53,7 +53,7 @@ func main() {
 
 	persist.InitRedis(redisCtx, appConfig.RedisHost, appConfig.RedisPort)
 
-	pitbullManager := pitbull.NewPitbullManager(vastManager)
+	pitbullManager := pitbull.NewManager(vastManager)
 
 	controller := server.NewController(pitbullManager)
 

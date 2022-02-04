@@ -10,20 +10,16 @@ import (
 
 const INSTANCES_LIMIT = 5
 
-// PitbullScheduler - entity responsible for scheduling Pitbull runs via JobQueue.
-type PitbullScheduler struct {
-	pitbullManager *PitbullManager
-
+// Scheduler - entity responsible for scheduling Pitbull runs via JobQueue.
+type Scheduler struct {
 	queue *JobQueue
 
 	logger *utils.Logger
 }
 
-// NewPitbullScheduler - returns new PitbullScheduler instance.
-func NewPitbullScheduler(pitbullManager *PitbullManager) *PitbullScheduler {
-	return &PitbullScheduler{
-		pitbullManager: pitbullManager,
-
+// NewScheduler - returns new PitbullScheduler instance.
+func NewScheduler() *Scheduler {
+	return &Scheduler{
 		queue: NewJobQueue(persist.GetRedisClient()),
 
 		logger: utils.NewLogger("Scheduler", os.Stdout, os.Stderr),
@@ -32,12 +28,12 @@ func NewPitbullScheduler(pitbullManager *PitbullManager) *PitbullScheduler {
 
 // ScheduleRun - schedules a single Pitbull run. If instances limit is not reach yet,
 // it will run it immediately.
-func (ps *PitbullScheduler) ScheduleRun(instance *models.PitbullInstance) error {
+func (sc *Scheduler) ScheduleRun(instance *models.PitbullInstance) error {
 	job := models.NewPitbullJob(instance)
 
-	ps.queue.Enqueue(job)
+	sc.queue.Enqueue(job)
 
-	ps.logger.Info.Printf("instance scheduled\n")
+	sc.logger.Info.Printf("instance scheduled\n")
 
 	return nil
 }

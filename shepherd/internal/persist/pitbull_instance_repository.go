@@ -2,6 +2,7 @@ package persist
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/models"
@@ -53,12 +54,16 @@ func (pir *PitbullInstanceRepository) CreateInstance(pitbull *models.PitbullInst
 	pitbull.CreatedAt = time.Now()
 	pitbull.UpdatedAt = time.Now()
 
+	fmt.Println(pitbull.ID.Hex())
+
 	result, err := collection.InsertOne(context.TODO(), pitbull)
 	if err != nil {
 		return err
 	}
 
 	pitbull.ID = result.InsertedID.(primitive.ObjectID)
+
+	fmt.Println(pitbull.ID.Hex())
 
 	return nil
 }

@@ -9,39 +9,39 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
 )
 
-// PitbullManager - main managing entity responsible for Pitbull instances.
-type PitbullManager struct {
+// Manager - main managing entity responsible for Pitbull instances.
+type Manager struct {
 	hostManager               host.HostManager
 	pitbullInstanceRepository *persist.PitbullInstanceRepository
 }
 
-// NewPitbullManager - returns new Shepherd instance.
-func NewPitbullManager(hostManager host.HostManager) *PitbullManager {
-	return &PitbullManager{
+// NewManager - returns new Shepherd instance.
+func NewManager(hostManager host.HostManager) *Manager {
+	return &Manager{
 		hostManager:               hostManager,
 		pitbullInstanceRepository: persist.NewPitbullInstanceRepository(),
 	}
 }
 
 // GetActiveInstances - returns all active PitbullInstances.
-func (pm *PitbullManager) GetActiveInstances() ([]*models.PitbullInstance, error) {
-	return pm.pitbullInstanceRepository.GetActiveInstances()
+func (ma *Manager) GetActiveInstances() ([]*models.PitbullInstance, error) {
+	return ma.pitbullInstanceRepository.GetActiveInstances()
 }
 
 // GetInstanceById - returns a PitbullInstance with given id.
-func (pm *PitbullManager) GetInstanceById(id string) (*models.PitbullInstance, error) {
-	return pm.pitbullInstanceRepository.GetInstanceById(id)
+func (ma *Manager) GetInstanceById(id string) (*models.PitbullInstance, error) {
+	return ma.pitbullInstanceRepository.GetInstanceById(id)
 }
 
-func (pm *PitbullManager) SyncInstance(id string) (*models.PitbullInstance, error) {
-	pitbullInstance, err := pm.GetInstanceById(id)
+func (ma *Manager) SyncInstance(id string) (*models.PitbullInstance, error) {
+	pitbullInstance, err := ma.GetInstanceById(id)
 	if err != nil {
 		return nil, err
 	}
 
 	hostInstanceId := pitbullInstance.HostInstance.ProviderId()
 
-	hostInstance, err := pm.hostManager.GetInstance(hostInstanceId)
+	hostInstance, err := ma.hostManager.GetInstance(hostInstanceId)
 	if err != nil {
 		// If given instance could not be found on given provider's side, that means
 		// it has been terminated - therefore, we want to mark related PitbullInstance
@@ -62,12 +62,12 @@ func (pm *PitbullManager) SyncInstance(id string) (*models.PitbullInstance, erro
 
 	// We want to update pitbullInstance's status and progress when host is in "running" state.
 	if hostInstance.HostStatus() == host.Running {
-		statusRaw, err := pm.hostManager.GetPitbullStatus(pitbullInstance.HostInstance)
+		statusRaw, err := ma.hostManager.GetPitbullStatus(pitbullInstance.HostInstance)
 		if err != nil {
 			return nil, err
 		}
 
-		progressRaw, err := pm.hostManager.GetPitbullProgress(pitbullInstance.HostInstance)
+		progressRaw, err := ma.hostManager.GetPitbullProgress(pitbullInstance.HostInstance)
 		if err != nil {
 			return nil, err
 		}
@@ -79,18 +79,18 @@ func (pm *PitbullManager) SyncInstance(id string) (*models.PitbullInstance, erro
 		}
 	}
 
-	if err := pm.UpdateInstance(pitbullInstance); err != nil {
+	if err := ma.UpdateInstance(pitbullInstance); err != nil {
 		return nil, err
 	}
 
 	return pitbullInstance, nil
 }
 
-func (pm *PitbullManager) CreateInstance(passlistUrl, walletString string) (*models.PitbullInstance, error) {
-	hostInstance := pm.hostManager.CreateInstance()
+func (ma *Manager) CreateInstance(passlistUrl, walletString string) (*models.PitbullInstance, error) {
+	hostInstance := ma.hostManager.CreateInstance()
 	pitbullInstance := models.NewPitbullInstance(hostInstance, passlistUrl, walletString)
 
-	if err := pm.pitbullInstanceRepository.CreateInstance(pitbullInstance); err != nil {
+	if err := ma.pitbullInstanceRepository.CreateInstance(pitbullInstance); err != nil {
 		return nil, err
 	}
 
@@ -98,8 +98,8 @@ func (pm *PitbullManager) CreateInstance(passlistUrl, walletString string) (*mod
 }
 
 // RunInstance - runs single pitbull instance.
-func (pm *PitbullManager) RunHostForInstance(id string) (*models.PitbullInstance, error) {
-	pitbullInstance, err := pm.GetInstanceById(id)
+func (ma *Manager) RunHostForInstance(id string) (*models.PitbullInstance, error) {
+	pitbullInstance, err := ma.GetInstanceById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (pm *PitbullManager) RunHostForInstance(id string) (*models.PitbullInstance
 		return nil, errors.New(fmt.Sprintf("PasslistUrl or WalletString missing for instance: %s", pitbullInstance.ID.Hex()))
 	}
 
-	hostInstance, err := pm.hostManager.RunInstance()
+	hostInstance, err := ma.hostManager.RunInstance()
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (pm *PitbullManager) RunHostForInstance(id string) (*models.PitbullInstance
 	pitbullInstance.SetHost(hostInstance)
 	pitbullInstance.Status = models.Starting
 
-	if err := pm.pitbullInstanceRepository.UpdateInstance(pitbullInstance); err != nil {
+	if err := ma.pitbullInstanceRepository.UpdateInstance(pitbullInstance); err != nil {
 		return nil, err
 	}
 
@@ -124,17 +124,17 @@ func (pm *PitbullManager) RunHostForInstance(id string) (*models.PitbullInstance
 }
 
 // StopHostInstance - stops a host instance with given id.
-func (pm *PitbullManager) StopHostInstance(id string) error {
-	pitbullInstance, err := pm.GetInstanceById(id)
+func (ma *Manager) StopHostInstance(id string) error {
+	pitbullInstance, err := ma.GetInstanceById(id)
 	if err != nil {
 		return err
 	}
 
-	return pm.hostManager.DestroyInstance(pitbullInstance.HostInstance.ProviderId())
+	return ma.hostManager.DestroyInstance(pitbullInstance.HostInstance.ProviderId())
 }
 
-func (pm *PitbullManager) RunPitbull(id string) (*models.PitbullInstance, error) {
-	pitbullInstance, err := pm.GetInstanceById(id)
+func (ma *Manager) RunPitbull(id string) (*models.PitbullInstance, error) {
+	pitbullInstance, err := ma.GetInstanceById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (pm *PitbullManager) RunPitbull(id string) (*models.PitbullInstance, error)
 		return nil, errors.New(fmt.Sprintf("Instance '%s' is missing data required for running Pitbull", pitbullInstance.ID.Hex()))
 	}
 
-	if err := pm.hostManager.RunPitbull(pitbullInstance.HostInstance, pitbullInstance.PasslistUrl, pitbullInstance.WalletString); err != nil {
+	if err := ma.hostManager.RunPitbull(pitbullInstance.HostInstance, pitbullInstance.PasslistUrl, pitbullInstance.WalletString); err != nil {
 		return nil, err
 	}
 
@@ -153,28 +153,28 @@ func (pm *PitbullManager) RunPitbull(id string) (*models.PitbullInstance, error)
 }
 
 // UpdateInstance - updates Pitbull instance.
-func (pm *PitbullManager) UpdateInstance(pitbullInstance *models.PitbullInstance) error {
-	return pm.pitbullInstanceRepository.UpdateInstance(pitbullInstance)
+func (ma *Manager) UpdateInstance(pitbullInstance *models.PitbullInstance) error {
+	return ma.pitbullInstanceRepository.UpdateInstance(pitbullInstance)
 }
 
 // GetInstanceOutput - returns Pitbull process output for given instance.
-func (pm *PitbullManager) GetInstanceOutput(pitbullInstance *models.PitbullInstance) (string, error) {
-	return pm.hostManager.GetPitbullOutput(pitbullInstance.HostInstance)
+func (ma *Manager) GetInstanceOutput(pitbullInstance *models.PitbullInstance) (string, error) {
+	return ma.hostManager.GetPitbullOutput(pitbullInstance.HostInstance)
 }
 
 // RunCommand - runs a command on Pitbull's host.
-func (pm *PitbullManager) RunHostCommand(id, cmd string) (string, error) {
-	pitbullInstance, err := pm.pitbullInstanceRepository.GetInstanceById(id)
+func (ma *Manager) RunHostCommand(id, cmd string) (string, error) {
+	pitbullInstance, err := ma.pitbullInstanceRepository.GetInstanceById(id)
 	if err != nil {
 		return "", err
 	}
 
 	hostInstanceId := pitbullInstance.HostInstance.ProviderId()
 
-	hostInstance, err := pm.hostManager.GetInstance(hostInstanceId)
+	hostInstance, err := ma.hostManager.GetInstance(hostInstanceId)
 	if err != nil {
 		return "", err
 	}
 
-	return pm.hostManager.RunDirectCommand(hostInstance, cmd)
+	return ma.hostManager.RunDirectCommand(hostInstance, cmd)
 }

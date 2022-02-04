@@ -11,7 +11,7 @@ import (
 // JobDispatcher - observes redis-based PitbullQueue with BLPOP
 // and delegates Pitbull runs to worker threads.
 type JobDispatcher struct {
-	runner *PitbullRunner
+	runner *Runner
 
 	queue *JobQueue
 	done  chan bool
@@ -22,7 +22,7 @@ type JobDispatcher struct {
 }
 
 // NewJobDispatcher - returns new JobDispatcher.
-func NewJobDispatcher(runner *PitbullRunner, pollInterval time.Duration) *JobDispatcher {
+func NewJobDispatcher(runner *Runner, pollInterval time.Duration) *JobDispatcher {
 	return &JobDispatcher{
 		runner: runner,
 

@@ -43,8 +43,8 @@ func main() {
 
 	persist.InitRedis(ctx, appConfig.RedisHost, appConfig.RedisPort)
 
-	manager := pitbull.NewPitbullManager(vastManager)
-	runner := pitbull.NewPitbullRunner(manager)
+	manager := pitbull.NewManager(vastManager)
+	runner := pitbull.NewRunner(manager)
 
 	dispatcher := pitbull.NewJobDispatcher(runner, 15*time.Second)
 

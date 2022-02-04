@@ -19,20 +19,20 @@ type ControllerFn func(w http.ResponseWriter, r *http.Request)
 type Controller struct {
 	appConfig *config.AppConfig
 
-	pitbullManager    *pitbull.PitbullManager
-	pitbullScheduler  *pitbull.PitbullScheduler
+	pitbullManager    *pitbull.Manager
+	pitbullScheduler  *pitbull.Scheduler
 	passwordGenerator *generator.PasswordGenerator
 
 	errorLogger *log.Logger
 }
 
 // NewController - returns new Controller instance.
-func NewController(manager *pitbull.PitbullManager) *Controller {
+func NewController(manager *pitbull.Manager) *Controller {
 	return &Controller{
 		appConfig: config.GetAppConfig(),
 
 		pitbullManager:    manager,
-		pitbullScheduler:  pitbull.NewPitbullScheduler(manager),
+		pitbullScheduler:  pitbull.NewScheduler(),
 		passwordGenerator: generator.NewPasswordGenerator(),
 
 		errorLogger: log.New(os.Stderr, "[Controller][Error]: ", log.Ldate|log.Ltime),

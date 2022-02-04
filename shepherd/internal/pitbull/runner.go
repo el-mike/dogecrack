@@ -16,29 +16,29 @@ const (
 	checkPitbullInterval   = 30 * time.Second
 )
 
-// PitbullRunner - entity responsible for running and monitoring Pitbull jobs.
-type PitbullRunner struct {
-	pitbullManager *PitbullManager
+// Runner - entity responsible for running and monitoring Pitbull jobs.
+type Runner struct {
+	manager *Manager
 }
 
-// NewPitbullRunner - returns new PitbullRunner instance.
-func NewPitbullRunner(pitbullManager *PitbullManager) *PitbullRunner {
-	return &PitbullRunner{
-		pitbullManager: pitbullManager,
+// NewRunner - returns new PitbullRunner instance.
+func NewRunner(manager *Manager) *Runner {
+	return &Runner{
+		manager: manager,
 	}
 }
 
 // Run - starts single Pitbull run.
-func (pr *PitbullRunner) Run(instanceId string) {
-	go pr.startHost(instanceId)
+func (ru *Runner) Run(instanceId string) {
+	go ru.startHost(instanceId)
 }
 
-func (pr *PitbullRunner) startHost(instanceId string) {
+func (ru *Runner) startHost(instanceId string) {
 	logger := utils.NewLogger("Runner", os.Stdout, os.Stderr, "startHost", instanceId)
 
 	logger.Info.Println("starting host.")
 
-	_, err := pr.pitbullManager.RunHostForInstance(instanceId)
+	_, err := ru.manager.RunHostForInstance(instanceId)
 	if err != nil {
 		logger.Err.Printf("starting host failed. Reason: %s\n", err)
 
@@ -55,7 +55,7 @@ func (pr *PitbullRunner) startHost(instanceId string) {
 		if attemptsCount >= startHostAttemptsLimit {
 			logger.Info.Printf("attempts limit reached, stopping job and host\n")
 
-			if err := pr.pitbullManager.StopHostInstance(instanceId); err != nil {
+			if err := ru.manager.StopHostInstance(instanceId); err != nil {
 				logger.Err.Printf("stopping host instance failed. Reason: %s\n", err)
 			}
 
@@ -63,7 +63,7 @@ func (pr *PitbullRunner) startHost(instanceId string) {
 			return
 		}
 
-		instance, err := pr.pitbullManager.SyncInstance(instanceId)
+		instance, err := ru.manager.SyncInstance(instanceId)
 		// Double check - if for some reason SyncInstance returned nil error and nil instance,
 		// we want to return, to prevent nil pointer dereference.
 		if err != nil || instance == nil {
@@ -81,7 +81,7 @@ func (pr *PitbullRunner) startHost(instanceId string) {
 		if instance.Status == models.Waiting {
 			logger.Info.Printf("host started\n")
 
-			go pr.runPitbull(instanceId)
+			go ru.runPitbull(instanceId)
 
 			ticker.Stop()
 			break
@@ -89,12 +89,12 @@ func (pr *PitbullRunner) startHost(instanceId string) {
 	}
 }
 
-func (pr *PitbullRunner) runPitbull(instanceId string) {
+func (ru *Runner) runPitbull(instanceId string) {
 	logger := utils.NewLogger("Runner", os.Stdout, os.Stderr, "runPitbullJob", instanceId)
 
 	logger.Info.Printf("starting Pitbull\n")
 
-	if _, err := pr.pitbullManager.RunPitbull(instanceId); err != nil {
+	if _, err := ru.manager.RunPitbull(instanceId); err != nil {
 		logger.Err.Printf("starting Pitbull failed. Reason: %s\n", err)
 
 		return
@@ -108,7 +108,7 @@ func (pr *PitbullRunner) runPitbull(instanceId string) {
 		if retryCount >= checkStatusRetryLimit {
 			logger.Info.Printf("retries limit reached, stopping job and host\n")
 
-			if err := pr.pitbullManager.StopHostInstance(instanceId); err != nil {
+			if err := ru.manager.StopHostInstance(instanceId); err != nil {
 				logger.Err.Printf("stopping host instance failed. Reason: %s\n", err)
 			}
 
@@ -116,7 +116,7 @@ func (pr *PitbullRunner) runPitbull(instanceId string) {
 			return
 		}
 
-		instance, err := pr.pitbullManager.SyncInstance(instanceId)
+		instance, err := ru.manager.SyncInstance(instanceId)
 		if err != nil || instance == nil {
 			if err == nil {
 				err = errors.New("instance is nil")
@@ -139,12 +139,12 @@ func (pr *PitbullRunner) runPitbull(instanceId string) {
 			instance.Status == models.Success {
 			logger.Info.Printf("pitbull finished, stopping host instance\n")
 
-			output, err := pr.pitbullManager.GetInstanceOutput(instance)
+			output, err := ru.manager.GetInstanceOutput(instance)
 			if err != nil {
 				logger.Err.Printf("output retrieval failed. Reason: %s\n", err)
 			}
 
-			if err := pr.pitbullManager.StopHostInstance(instanceId); err != nil {
+			if err := ru.manager.StopHostInstance(instanceId); err != nil {
 				logger.Err.Printf("stopping host instance '%d' failed. reason: %s\n", instance.HostInstance.ProviderId(), err)
 			}
 
@@ -153,7 +153,7 @@ func (pr *PitbullRunner) runPitbull(instanceId string) {
 			if output != "" {
 				instance.LastOutput = output
 
-				if err := pr.pitbullManager.UpdateInstance(instance); err != nil {
+				if err := ru.manager.UpdateInstance(instance); err != nil {
 					logger.Err.Printf("saving last output failed. Reason: %s\n", err)
 				}
 			}
