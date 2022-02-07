@@ -118,12 +118,13 @@ func (ct *Controller) Crack(
 		return
 	}
 
-	if err := ct.pitbullScheduler.ScheduleRun(instance); err != nil {
+	job, err := ct.pitbullScheduler.ScheduleRun(instance)
+	if err != nil {
 		ct.handleError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	response, err := json.Marshal(instance)
+	response, err := json.Marshal(job)
 	if err != nil {
 		ct.handleError(w, http.StatusInternalServerError, err)
 		return

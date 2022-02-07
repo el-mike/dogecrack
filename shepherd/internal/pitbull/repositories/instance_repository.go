@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
@@ -27,8 +26,8 @@ func NewInstanceRepository() *InstanceRepository {
 }
 
 // GetInstanceById - returns an instance with given id.
-func (pir *InstanceRepository) GetInstanceById(id string) (*models.PitbullInstance, error) {
-	collection := pir.db.Collection(instancesCollection)
+func (ir *InstanceRepository) GetInstanceById(id string) (*models.PitbullInstance, error) {
+	collection := ir.db.Collection(instancesCollection)
 
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -49,13 +48,11 @@ func (pir *InstanceRepository) GetInstanceById(id string) (*models.PitbullInstan
 }
 
 // CreateInstance - saves a new Pitbull instance to the DB.
-func (pir *InstanceRepository) CreateInstance(pitbull *models.PitbullInstance) error {
-	collection := pir.db.Collection(instancesCollection)
+func (ir *InstanceRepository) CreateInstance(pitbull *models.PitbullInstance) error {
+	collection := ir.db.Collection(instancesCollection)
 
 	pitbull.CreatedAt = time.Now()
 	pitbull.UpdatedAt = time.Now()
-
-	fmt.Println(pitbull.ID.Hex())
 
 	result, err := collection.InsertOne(context.TODO(), pitbull)
 	if err != nil {
@@ -64,20 +61,17 @@ func (pir *InstanceRepository) CreateInstance(pitbull *models.PitbullInstance) e
 
 	pitbull.ID = result.InsertedID.(primitive.ObjectID)
 
-	fmt.Println(pitbull.ID.Hex())
-
 	return nil
 }
 
-func (pir *InstanceRepository) UpdateInstance(pitbull *models.PitbullInstance) error {
-	collection := pir.db.Collection(instancesCollection)
+func (ir *InstanceRepository) UpdateInstance(pitbull *models.PitbullInstance) error {
+	collection := ir.db.Collection(instancesCollection)
 
 	pitbull.UpdatedAt = time.Now()
 
-	updatePayload := bson.D{{Key: "$set", Value: pitbull}}
+	payload := bson.D{{Key: "$set", Value: pitbull}}
 
-	_, err := collection.UpdateByID(context.TODO(), pitbull.ID, updatePayload)
-	if err != nil {
+	if _, err := collection.UpdateByID(context.TODO(), pitbull.ID, payload); err != nil {
 		return err
 	}
 
@@ -86,8 +80,8 @@ func (pir *InstanceRepository) UpdateInstance(pitbull *models.PitbullInstance) e
 
 // GetActiveInstances - returns all instances that are active, i.e. thepir status is different
 // than FINISHED (4).
-func (pir *InstanceRepository) GetActiveInstances() ([]*models.PitbullInstance, error) {
-	collection := pir.db.Collection(instancesCollection)
+func (ir *InstanceRepository) GetActiveInstances() ([]*models.PitbullInstance, error) {
+	collection := ir.db.Collection(instancesCollection)
 
 	filter := bson.D{
 		{"status", bson.D{{"$nin", bson.A{models.Finished, models.Success}}}},
