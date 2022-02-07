@@ -71,7 +71,7 @@ func (rd *JobDispatcher) Start() {
 			}
 
 			job.Status = models.Processing
-			job.LastScheduledAt = time.Now()
+			job.StartedAt = time.Now()
 
 			if err := rd.jobRepository.Update(job); err != nil {
 				rd.logger.Err.Printf("updating status for job '%s' failed. reason: %s\n", job.ID.Hex(), err)

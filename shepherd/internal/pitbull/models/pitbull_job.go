@@ -32,9 +32,12 @@ type PitbullJob struct {
 
 	InstanceId primitive.ObjectID `bson:"instanceId" json:"instanceId"`
 
-	AcknowledgedAt  time.Time `bson:"acknowledgedAt" json:"acknowledgedAt"`
-	LastScheduledAt time.Time `bson:"lastScheduledAt" json:"lastScheduledAt"`
-	RejectedAt      time.Time `bson:"rejectedAt" json:"rejectedAt"`
+	StartedAt time.Time `bson:"startedAt" json:"startedAt"`
+
+	FirstScheduledAt time.Time `bson:"firstScheduledAt" json:"firstScheduledAt"`
+	LastScheduledAt  time.Time `bson:"lastScheduledAt" json:"lastScheduledAt"`
+	AcknowledgedAt   time.Time `bson:"acknowledgedAt" json:"acknowledgedAt"`
+	RejectedAt       time.Time `bson:"rejectedAt" json:"rejectedAt"`
 
 	Status          JobStatus `bson:"status" json:"status"`
 	RescheduleCount int       `bson:"rescheduleCount" json:"rescheduleCount"`
@@ -50,10 +53,4 @@ func NewPitbullJob(instanceId primitive.ObjectID) *PitbullJob {
 	job.ID = primitive.NewObjectID()
 
 	return job
-}
-
-// FirstScheduledAt - "scheduled" timestamp is basically the same as
-// "created" timestamp.
-func (pj *PitbullJob) FirstScheduledAt() time.Time {
-	return pj.CreatedAt
 }

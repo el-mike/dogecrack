@@ -2,6 +2,7 @@ package pitbull
 
 import (
 	"os"
+	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
@@ -35,6 +36,9 @@ func NewScheduler() *Scheduler {
 // it will run it immediately.
 func (sc *Scheduler) ScheduleRun(instance *models.PitbullInstance) (*models.PitbullJob, error) {
 	job := models.NewPitbullJob(instance.ID)
+
+	job.FirstScheduledAt = time.Now()
+	job.LastScheduledAt = time.Now()
 
 	if err := sc.jobRepository.Create(job); err != nil {
 		return nil, err
