@@ -43,22 +43,14 @@ func (ma *Manager) SyncInstance(id string) (*models.PitbullInstance, error) {
 
 	hostInstance, err := ma.hostManager.GetInstance(hostInstanceId)
 	if err != nil {
-		// If given instance could not be found on given provider's side, that means
-		// it has been terminated - therefore, we want to mark related PitbullInstance
-		// as Finished.
-		if _, ok := err.(*host.HostInstanceNotFound); ok {
-			pitbullInstance.Status = models.Finished
-		} else {
-			return nil, err
-		}
-		// Otherwise, we override current ProviderInstance with new data.
-	} else {
-		pitbullInstance.HostInstance = hostInstance
+		return nil, err
 	}
 
 	if hostInstance == nil {
 		return nil, host.NewHostInstanceNotAvailable(hostInstanceId)
 	}
+
+	pitbullInstance.HostInstance = hostInstance
 
 	// We want to update pitbullInstance's status and progress when host is in "running" state.
 	if hostInstance.HostStatus() == host.Running {
