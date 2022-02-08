@@ -78,3 +78,44 @@ func (jr *JobRepository) Update(job *models.PitbullJob) error {
 
 	return nil
 }
+
+func (jr *JobRepository) GetAll(statuses []models.JobStatus) ([]*models.PitbullJob, error) {
+	collection := jr.db.Collection(jobsCollection)
+
+	filter := bson.D{}
+
+	if len(statuses) > 0 {
+		filter = bson.D{
+			{"status", bson.D{{"$in", statuses}}},
+		}
+	}
+
+	match := bson.D{{"$match", filter}}
+	lookup := bson.D{
+		{"$lookup", bson.D{
+			{"from", "instances"},
+			{"localField", "instanceId"},
+			{"foreignField", "_id"},
+			{"as", "instance"}},
+		},
+	}
+
+	// Without $unwind stage, aggregation will return an array in "instance" field,
+	// therefore making instance unmarshaling impossible and returning a Zero-value for the field.
+	unwind := bson.D{
+		{"$unwind", bson.D{{"path", "$instance"}}},
+	}
+
+	cursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{match, lookup, unwind})
+	if err != nil {
+		return nil, err
+	}
+
+	var jobs []*models.PitbullJob
+
+	if err = cursor.All(context.TODO(), &jobs); err != nil {
+		return nil, err
+	}
+
+	return jobs, nil
+}

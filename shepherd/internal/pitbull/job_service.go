@@ -17,6 +17,6 @@ func NewJobService() *JobService {
 	}
 }
 
-func (js *JobService) GetJobs() ([]*models.PitbullJob, error) {
-	return nil, nil
+func (js *JobService) GetJobs(statuses []models.JobStatus) ([]*models.PitbullJob, error) {
+	return js.jobRepository.GetAll(statuses)
 }

@@ -18,7 +18,7 @@ const (
 	Acknowledged
 )
 
-var jobStatusNames = map[JobStatus]string{
+var nameByJobStatus = map[JobStatus]string{
 	Scheduled:    "SCHEDULED",
 	Processing:   "PROCESSING",
 	Rescheduled:  "RESCHEDULED",
@@ -31,6 +31,7 @@ type PitbullJob struct {
 	common.BaseModel `bson:",inline"`
 
 	InstanceId primitive.ObjectID `bson:"instanceId" json:"instanceId"`
+	Instance   *PitbullInstance   `bson:"instance,omitempty" json:"instance"`
 
 	StartedAt time.Time `bson:"startedAt" json:"startedAt"`
 

@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
 	"github.com/el-mike/dogecrack/shepherd/internal/generator"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
 )
 
 type ControllerFn func(w http.ResponseWriter, r *http.Request)
@@ -18,8 +21,10 @@ type ControllerFn func(w http.ResponseWriter, r *http.Request)
 type Controller struct {
 	appConfig *config.AppConfig
 
-	pitbullManager    *pitbull.Manager
-	pitbullScheduler  *pitbull.Scheduler
+	pitbullManager   *pitbull.Manager
+	pitbullScheduler *pitbull.Scheduler
+	jobService       *pitbull.JobService
+
 	passwordGenerator *generator.PasswordGenerator
 
 	logger *common.Logger
@@ -30,8 +35,10 @@ func NewController(manager *pitbull.Manager) *Controller {
 	return &Controller{
 		appConfig: config.GetAppConfig(),
 
-		pitbullManager:    manager,
-		pitbullScheduler:  pitbull.NewScheduler(),
+		pitbullManager:   manager,
+		pitbullScheduler: pitbull.NewScheduler(),
+		jobService:       pitbull.NewJobService(),
+
 		passwordGenerator: generator.NewPasswordGenerator(),
 
 		logger: common.NewLogger("Controller", os.Stdout, os.Stderr),
@@ -125,6 +132,46 @@ func (ct *Controller) Crack(
 	}
 
 	response, err := json.Marshal(job)
+	if err != nil {
+		ct.handleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.handleJSONResponse(w, response)
+}
+
+// GetJobs - returns PitbullJobs based on passed filters.
+func (ct *Controller) GetJobs(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	statusesParam := r.URL.Query().Get("statuses")
+
+	statusesParam = strings.Trim(statusesParam, ",")
+
+	statuses := []models.JobStatus{}
+
+	if statusesParam != "" {
+		statusesRaw := strings.Split(statusesParam, ",")
+
+		for _, statusRaw := range statusesRaw {
+			status, err := strconv.Atoi(statusRaw)
+			if err != nil {
+				ct.handleError(w, http.StatusBadRequest, fmt.Errorf("Status: '%s' is not valid", statusRaw))
+				return
+			}
+
+			statuses = append(statuses, models.JobStatus(status))
+		}
+	}
+
+	jobs, err := ct.jobService.GetJobs(statuses)
+	if err != nil {
+		ct.handleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response, err := json.Marshal(jobs)
 	if err != nil {
 		ct.handleError(w, http.StatusInternalServerError, err)
 		return
