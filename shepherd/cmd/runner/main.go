@@ -24,24 +24,18 @@ func main() {
 
 	vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage, appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, rootPath)
 
-	mongoCtx, mongoCancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer mongoCancel()
-
-	mongoClient, err := persist.InitMongo(mongoCtx, appConfig.MongoUser, appConfig.MongoPassword, appConfig.MongoHost, appConfig.MongoPort)
+	mongoClient, err := persist.InitMongo(context.TODO(), appConfig.MongoUser, appConfig.MongoPassword, appConfig.MongoHost, appConfig.MongoPort)
 	if err != nil {
 		panic(err)
 	}
 
 	defer func() {
-		if err := mongoClient.Disconnect(mongoCtx); err != nil {
+		if err := mongoClient.Disconnect(context.TODO()); err != nil {
 			panic(err)
 		}
 	}()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	persist.InitRedis(ctx, appConfig.RedisHost, appConfig.RedisPort)
+	persist.InitRedis(appConfig.RedisHost, appConfig.RedisPort)
 
 	manager := pitbull.NewManager(vastManager)
 	runner := pitbull.NewRunner(manager)

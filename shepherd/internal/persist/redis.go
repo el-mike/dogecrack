@@ -1,7 +1,6 @@
 package persist
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/go-redis/redis/v8"
@@ -15,7 +14,7 @@ func GetRedisClient() *redis.Client {
 }
 
 // InitRedis - inits Redis instance connection.
-func InitRedis(ctx context.Context, host, port string) *redis.Client {
+func InitRedis(host, port string) *redis.Client {
 	if redisClient != nil {
 		return redisClient
 	}

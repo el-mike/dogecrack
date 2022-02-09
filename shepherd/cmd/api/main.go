@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"path/filepath"
-	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
@@ -34,24 +33,18 @@ func main() {
 
 	vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage, appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, rootPath)
 
-	mongoCtx, mongoCancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer mongoCancel()
-
-	mongoClient, err := persist.InitMongo(mongoCtx, appConfig.MongoUser, appConfig.MongoPassword, appConfig.MongoHost, appConfig.MongoPort)
+	mongoClient, err := persist.InitMongo(context.TODO(), appConfig.MongoUser, appConfig.MongoPassword, appConfig.MongoHost, appConfig.MongoPort)
 	if err != nil {
 		panic(err)
 	}
 
 	defer func() {
-		if err := mongoClient.Disconnect(mongoCtx); err != nil {
+		if err := mongoClient.Disconnect(context.TODO()); err != nil {
 			panic(err)
 		}
 	}()
 
-	redisCtx, redisCancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer redisCancel()
-
-	persist.InitRedis(redisCtx, appConfig.RedisHost, appConfig.RedisPort)
+	persist.InitRedis(appConfig.RedisHost, appConfig.RedisPort)
 
 	pitbullManager := pitbull.NewManager(vastManager)
 
