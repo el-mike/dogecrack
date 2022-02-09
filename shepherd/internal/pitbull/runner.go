@@ -37,7 +37,18 @@ func NewRunner(manager *Manager) *Runner {
 
 // Run - starts single Pitbull run.
 func (ru *Runner) Run(job *models.PitbullJob) {
-	go ru.startHost(job)
+	go ru.runSingle(job)
+}
+
+func (ru *Runner) runSingle(job *models.PitbullJob) {
+	defer func() {
+		if r := recover(); r != nil {
+			logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "recovery", job.ID.Hex())
+			logger.Err.Printf("Recovering from panic. reason: %v\n", r)
+		}
+	}()
+
+	ru.startHost(job)
 }
 
 // startHost - starts a single host for Pitbull process to work in.
