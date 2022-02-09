@@ -8,15 +8,15 @@ type HostStatus int8
 const (
 	Starting HostStatus = iota
 	Running
-	Finished
+	Destroyed
 	Unknown
 )
 
 var hostStatusNames = map[HostStatus]string{
-	Starting: "STARTING",
-	Running:  "RUNNING",
-	Finished: "FINISHED",
-	Unknown:  "UNKNOWN",
+	Starting:  "STARTING",
+	Running:   "RUNNING",
+	Destroyed: "DESTROYED",
+	Unknown:   "UNKNOWN",
 }
 
 // Formatted - returns HostStatus in human-readable format.

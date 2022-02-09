@@ -106,7 +106,7 @@ func (ma *Manager) RunHostForInstance(id string) (*models.PitbullInstance, error
 	}
 
 	pitbullInstance.SetHost(hostInstance)
-	pitbullInstance.Status = models.Starting
+	pitbullInstance.Status = models.HostStarting
 
 	if err := ma.instanceRepository.UpdateInstance(pitbullInstance); err != nil {
 		return nil, err

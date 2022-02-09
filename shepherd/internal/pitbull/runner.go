@@ -14,6 +14,7 @@ import (
 const (
 	startHostAttemptsLimit = 10
 	checkStatusRetryLimit  = 10
+	stalledProgressLimit   = 10
 	rescheduleLimit        = 5
 	checkHostInterval      = 15 * time.Second
 	checkPitbullInterval   = 30 * time.Second
@@ -73,7 +74,7 @@ func (ru *Runner) startHost(job *models.PitbullJob) {
 		attemptsCount += 1
 
 		if attemptsCount >= startHostAttemptsLimit {
-			logger.Info.Printf("attempts limit reached, stopping job and host\n")
+			logger.Err.Printf("attempts limit reached, stopping job and host\n")
 
 			if err := ru.manager.StopHostInstance(job.InstanceId.Hex()); err != nil {
 				logger.Err.Printf("stopping host instance failed. Reason: %s\n", err)
@@ -127,9 +128,12 @@ func (ru *Runner) runPitbull(job *models.PitbullJob) {
 
 	retryCount := 0
 
+	lastProgress := int64(0)
+	stalledProgressCount := 0
+
 	for range ticker.C {
 		if retryCount >= checkStatusRetryLimit {
-			logger.Info.Printf("retries limit reached, stopping job and host\n")
+			logger.Err.Printf("retries limit reached, stopping job and host\n")
 
 			if err := ru.manager.StopHostInstance(job.InstanceId.Hex()); err != nil {
 				logger.Err.Printf("stopping host instance failed. Reason: %s\n", err)
@@ -190,6 +194,32 @@ func (ru *Runner) runPitbull(job *models.PitbullJob) {
 
 			return
 		}
+
+		currentProgress := instance.Progress.Checked
+
+		// If progress did not change since the last iteration, we increment
+		// the counter. Otherwise we want to reset it, since progress has been made.
+		if currentProgress == lastProgress {
+			stalledProgressCount += 1
+		} else {
+			stalledProgressCount = 0
+		}
+
+		if stalledProgressCount >= stalledProgressLimit {
+			logger.Err.Printf("pitbull progress stalled, stopping job and host\n")
+
+			if err := ru.manager.StopHostInstance(job.InstanceId.Hex()); err != nil {
+				logger.Err.Printf("stopping host instance failed. Reason: %s\n", err)
+			}
+
+			ticker.Stop()
+
+			ru.handleFailure(job)
+			return
+		}
+
+		lastProgress = instance.Progress.Checked
+
 	}
 }
 
@@ -232,7 +262,7 @@ func (ru *Runner) handleFailure(job *models.PitbullJob) {
 		job.Status = models.Rejected
 		job.RejectedAt = time.Now()
 	} else {
-		logger.Info.Printf("Rescheduling\n")
+		logger.Info.Printf("Rescheduling.\n")
 
 		if err := ru.queue.Reschedule(job.ID.Hex()); err != nil {
 			logger.Err.Printf("Rescheduling failed. reason: %s\n", err)

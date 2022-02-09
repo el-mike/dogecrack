@@ -58,8 +58,6 @@ func (rd *JobDispatcher) Start() {
 			}
 
 			if jobId == "" {
-				rd.logger.Info.Println("No scheduled jobs found in the queue.")
-
 				continue
 			}
 

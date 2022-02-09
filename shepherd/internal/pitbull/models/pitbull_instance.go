@@ -17,8 +17,8 @@ import (
 type PitbullStatus int8
 
 const (
-	Created PitbullStatus = iota
-	Starting
+	WaitingForHost PitbullStatus = iota
+	HostStarting
 	Waiting
 	Running
 	Finished
@@ -26,12 +26,12 @@ const (
 )
 
 var pitbullStatusNames = map[PitbullStatus]string{
-	Created:  "CREATED",
-	Starting: "STARTING",
-	Waiting:  "WAITING",
-	Running:  "RUNNING",
-	Finished: "FINISHED",
-	Success:  "SUCCESS",
+	WaitingForHost: "WAITING_FOR_HOST",
+	HostStarting:   "HOST_STARTING",
+	Waiting:        "WAITING",
+	Running:        "RUNNING",
+	Finished:       "FINISHED",
+	Success:        "SUCCESS",
 }
 
 // Formatted - returns status in human-readable format.
@@ -79,7 +79,7 @@ type marshalablePitbullInstance PitbullInstance
 // NewPitbullInstance - returns new PitbullInstance instance.
 func NewPitbullInstance(host host.HostInstance, passlistUrl, walletString string) *PitbullInstance {
 	instance := &PitbullInstance{
-		Status:       Created,
+		Status:       WaitingForHost,
 		PasslistUrl:  passlistUrl,
 		WalletString: walletString,
 		HostInstance: host,
@@ -115,6 +115,7 @@ func (pi *PitbullInstance) SetStatus(rawStatus string) {
 	} else if strings.Contains(rawStatus, "FINISHED") {
 		pi.Status = Finished
 	} else {
+		// In this case, raw status will be "WAITING".
 		pi.Status = Waiting
 	}
 }

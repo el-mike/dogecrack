@@ -41,11 +41,11 @@ func (vi *VastInstance) ProviderId() int {
 
 // HostStatus - HostInstance implementation.
 func (vi *VastInstance) HostStatus() host.HostStatus {
-	if vi == nil {
+	if vi == nil || vi.Status == "" {
 		return host.Unknown
 	}
 
-	if vi.Status == "" || vi.Status == "loading" {
+	if vi.Status == "loading" {
 		return host.Starting
 	}
 
@@ -53,5 +53,5 @@ func (vi *VastInstance) HostStatus() host.HostStatus {
 		return host.Running
 	}
 
-	return host.Finished
+	return host.Destroyed
 }
