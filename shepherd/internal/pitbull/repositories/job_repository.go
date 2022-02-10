@@ -47,6 +47,66 @@ func (jr *JobRepository) GetById(id string) (*models.PitbullJob, error) {
 	return job, nil
 }
 
+func (jr *JobRepository) GetAll(statuses []models.JobStatus) ([]*models.PitbullJob, error) {
+	collection := jr.db.Collection(jobsCollection)
+
+	filter := bson.D{}
+
+	if len(statuses) > 0 {
+		filter = bson.D{
+			{"status", bson.D{{"$in", statuses}}},
+		}
+	}
+
+	match := bson.D{{"$match", filter}}
+
+	lookup, unwind := jr.lookupAndUnwindInstance()
+
+	cursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{match, lookup, unwind})
+	if err != nil {
+		return nil, err
+	}
+
+	var jobs []*models.PitbullJob
+
+	if err = cursor.All(context.TODO(), &jobs); err != nil {
+		return nil, err
+	}
+
+	return jobs, nil
+}
+
+// GetCompletedWithActiveInstance - returns all the jobs that have a running instance.
+func (jr *JobRepository) GetCompletedWithActiveInstance() ([]*models.PitbullJob, error) {
+	collection := jr.db.Collection(jobsCollection)
+
+	lookup, unwind := jr.lookupAndUnwindInstance()
+
+	filter := bson.D{
+		{"status", bson.D{
+			{"$in", bson.A{models.Rejected, models.Acknowledged}},
+		}},
+		{"instance.status", bson.D{
+			{"$in", bson.A{models.HostStarting, models.Waiting, models.Running}}},
+		},
+	}
+
+	match := bson.D{{"$match", filter}}
+
+	cursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{lookup, unwind, match})
+	if err != nil {
+		return nil, err
+	}
+
+	var jobs []*models.PitbullJob
+
+	if err = cursor.All(context.TODO(), &jobs); err != nil {
+		return nil, err
+	}
+
+	return jobs, nil
+}
+
 // Create - saves a new PitbullJob to the DB.
 func (jr *JobRepository) Create(job *models.PitbullJob) error {
 	collection := jr.db.Collection(jobsCollection)
@@ -79,18 +139,7 @@ func (jr *JobRepository) Update(job *models.PitbullJob) error {
 	return nil
 }
 
-func (jr *JobRepository) GetAll(statuses []models.JobStatus) ([]*models.PitbullJob, error) {
-	collection := jr.db.Collection(jobsCollection)
-
-	filter := bson.D{}
-
-	if len(statuses) > 0 {
-		filter = bson.D{
-			{"status", bson.D{{"$in", statuses}}},
-		}
-	}
-
-	match := bson.D{{"$match", filter}}
+func (jr *JobRepository) lookupAndUnwindInstance() (bson.D, bson.D) {
 	lookup := bson.D{
 		{"$lookup", bson.D{
 			{"from", "instances"},
@@ -106,16 +155,5 @@ func (jr *JobRepository) GetAll(statuses []models.JobStatus) ([]*models.PitbullJ
 		{"$unwind", bson.D{{"path", "$instance"}}},
 	}
 
-	cursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{match, lookup, unwind})
-	if err != nil {
-		return nil, err
-	}
-
-	var jobs []*models.PitbullJob
-
-	if err = cursor.All(context.TODO(), &jobs); err != nil {
-		return nil, err
-	}
-
-	return jobs, nil
+	return lookup, unwind
 }

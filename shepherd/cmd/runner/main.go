@@ -40,7 +40,10 @@ func main() {
 	manager := pitbull.NewManager(vastManager)
 	runner := pitbull.NewRunner(manager)
 
+	collector := pitbull.NewCollector(15 * time.Second)
 	dispatcher := pitbull.NewJobDispatcher(runner, 15*time.Second)
+
+	go collector.Start()
 
 	dispatcher.Start()
 }

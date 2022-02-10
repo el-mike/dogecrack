@@ -16,10 +16,10 @@ type JobDispatcher struct {
 	runner        *Runner
 	jobRepository *repositories.JobRepository
 
+	pollInterval time.Duration
+
 	queue *JobQueue
 	done  chan bool
-
-	pollInterval time.Duration
 
 	logger *common.Logger
 }
@@ -30,10 +30,10 @@ func NewJobDispatcher(runner *Runner, pollInterval time.Duration) *JobDispatcher
 		runner:        runner,
 		jobRepository: repositories.NewJobRepository(),
 
+		pollInterval: pollInterval,
+
 		queue: NewJobQueue(persist.GetRedisClient()),
 		done:  make(chan bool),
-
-		pollInterval: pollInterval,
 
 		logger: common.NewLogger("Dispatcher", os.Stdout, os.Stderr),
 	}
@@ -81,6 +81,7 @@ func (rd *JobDispatcher) Start() {
 
 		case <-rd.done:
 			ticker.Stop()
+
 			rd.logger.Info.Println("stopped.")
 
 			return
