@@ -5,16 +5,14 @@ import (
 	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
-	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
-	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/repositories"
 )
 
 // JobDispatcher - observes redis-based PitbullQueue with BLPOP
 // and delegates Pitbull runs to worker threads.
 type JobDispatcher struct {
-	jobRunner     *JobRunner
-	jobRepository *repositories.JobRepository
-	jobQueue      *JobQueue
+	jobRunner  *JobRunner
+	jobManager *JobManager
+	jobQueue   *JobQueue
 
 	pollInterval time.Duration
 
@@ -26,8 +24,8 @@ type JobDispatcher struct {
 // NewJobDispatcher - returns new JobDispatcher.
 func NewJobDispatcher(jobRunner *JobRunner, pollInterval time.Duration) *JobDispatcher {
 	return &JobDispatcher{
-		jobRunner:     jobRunner,
-		jobRepository: repositories.NewJobRepository(),
+		jobRunner:  jobRunner,
+		jobManager: NewJobManager(),
 
 		pollInterval: pollInterval,
 
@@ -44,39 +42,31 @@ func (rd *JobDispatcher) Start() {
 
 	ticker := time.NewTicker(rd.pollInterval)
 
+	defer func() {
+		if r := recover(); r != nil {
+			rd.logger.Err.Printf("Recovering from panic. reason: %v\n", r)
+		}
+
+		go rd.Start()
+	}()
+
 	for {
 		select {
 		case <-ticker.C:
 			rd.logger.Info.Println("Checking for scheduled jobs...")
 
-			jobId, err := rd.jobQueue.Dequeue()
+			job, err := rd.jobManager.DequeueJob()
 			if err != nil {
-				rd.logger.Err.Println(err)
+				rd.logger.Err.Printf("Dequeueing job failed. reason: %v\n", err)
 
 				continue
 			}
 
-			if jobId == "" {
-				continue
+			if job != nil {
+				rd.logger.Info.Printf("job '%s' dequeued. Starting Pitbull...\n", job.ID.Hex())
+
+				rd.jobRunner.Run(job)
 			}
-
-			job, err := rd.jobRepository.GetById(jobId)
-			if err != nil {
-				rd.logger.Err.Println(err)
-
-				continue
-			}
-
-			job.Status = models.Processing
-			job.StartedAt = time.Now()
-
-			if err := rd.jobRepository.Update(job); err != nil {
-				rd.logger.Err.Printf("updating status for job '%s' failed. reason: %s\n", job.ID.Hex(), err)
-			}
-
-			rd.logger.Info.Printf("job '%s' dequeued. Starting Pitbull...\n", job.ID.Hex())
-
-			rd.jobRunner.Run(job)
 
 		case <-rd.done:
 			ticker.Stop()

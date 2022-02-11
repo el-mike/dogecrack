@@ -47,6 +47,39 @@ func (jr *JobRepository) GetById(id string) (*models.PitbullJob, error) {
 	return job, nil
 }
 
+// RejectProcessingJobs - marks all "processing" jobs as "rejected".
+func (jr *JobRepository) RejectProcessingJobs(jobIds []string) error {
+	collection := jr.db.Collection(jobsCollection)
+
+	objectIds := []primitive.ObjectID{}
+
+	for _, jobId := range jobIds {
+		objectId, err := primitive.ObjectIDFromHex(jobId)
+		if err != nil {
+			return err
+		}
+
+		objectIds = append(objectIds, objectId)
+	}
+
+	filter := bson.D{
+		{"_id", bson.D{{"$in", objectIds}}},
+	}
+
+	update := bson.D{
+		{"$set", bson.D{
+			{"status", models.Rejected},
+			{"rejectedAt", time.Now()},
+		}},
+	}
+
+	if _, err := collection.UpdateMany(context.TODO(), filter, update); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (jr *JobRepository) GetAll(statuses []models.JobStatus) ([]*models.PitbullJob, error) {
 	collection := jr.db.Collection(jobsCollection)
 

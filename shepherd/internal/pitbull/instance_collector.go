@@ -7,9 +7,9 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 )
 
-// Collector - an entity responsible for detecting and disposing
+// InstanceCollector - an entity responsible for detecting and disposing
 // orphaned Pitbull instances (the ones with inactive parent PitbullJob).
-type Collector struct {
+type InstanceCollector struct {
 	jobManager      *JobManager
 	queue           *JobQueue
 	instanceManager *InstanceManager
@@ -21,9 +21,9 @@ type Collector struct {
 	logger *common.Logger
 }
 
-// NewCollector - returns new Collector instance.
-func NewCollector(manager *InstanceManager, interval time.Duration) *Collector {
-	return &Collector{
+// NewInstanceCollector - returns new Collector instance.
+func NewInstanceCollector(manager *InstanceManager, interval time.Duration) *InstanceCollector {
+	return &InstanceCollector{
 		jobManager:      NewJobManager(),
 		queue:           NewJobQueue(),
 		instanceManager: manager,
@@ -37,7 +37,7 @@ func NewCollector(manager *InstanceManager, interval time.Duration) *Collector {
 }
 
 // Start - starts Collector.
-func (cl *Collector) Start() {
+func (cl *InstanceCollector) Start() {
 	cl.logger.Info.Printf("started. Interval: %v\n", cl.interval)
 
 	defer func() {
@@ -45,7 +45,7 @@ func (cl *Collector) Start() {
 			cl.logger.Err.Printf("Recovering from panic. reason: %v\n", r)
 		}
 
-		cl.Start()
+		go cl.Start()
 	}()
 
 	ticker := time.NewTicker(cl.interval)
@@ -97,6 +97,6 @@ func (cl *Collector) Start() {
 }
 
 // Stop - stops Collector.
-func (cl *Collector) Stop() {
+func (cl *InstanceCollector) Stop() {
 	cl.done <- true
 }

@@ -29,8 +29,8 @@ func NewJobQueue() *JobQueue {
 	}
 }
 
-// QueueRun - adds a single jobId to the waiting queue.
-func (jq *JobQueue) Enqueue(jobId string) error {
+// QueueRun - adds specified jobIds to the waiting queue.
+func (jq *JobQueue) Enqueue(jobId ...string) error {
 	_, err := jq.redisClient.LPush(ctx, jq.waitingQueue, jobId).Result()
 
 	return err
@@ -77,6 +77,31 @@ func (jq *JobQueue) Reject(jobId string) error {
 	_, err = jq.redisClient.LRem(ctx, jq.waitingQueue, 1, jobId).Result()
 
 	return err
+}
+
+// ClearProcessing - removes all
+func (jq *JobQueue) RescheduleAllProcessing() ([]string, error) {
+	jobsIds, err := jq.redisClient.LRange(ctx, jq.processingQueue, 0, -1).Result()
+	// If the err is redis.Nil, it just means the queue is empty.
+	if err == redis.Nil {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(jobsIds) == 0 {
+		return nil, nil
+	}
+
+	if err := jq.Enqueue(jobsIds...); err != nil {
+		return nil, err
+	}
+
+	_, err = jq.redisClient.Del(ctx, jq.processingQueue).Result()
+
+	return jobsIds, err
 }
 
 // removeProcessing - removes a single job id from processing queue.
