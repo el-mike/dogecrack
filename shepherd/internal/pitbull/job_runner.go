@@ -18,28 +18,28 @@ const (
 	checkPitbullInterval   = 30 * time.Second
 )
 
-// Runner - entity responsible for running and monitoring Pitbull jobs.
-type Runner struct {
-	manager    *Manager
-	queue      *JobQueue
-	jobManager *JobManager
+// JobRunner - entity responsible for running and monitoring Pitbull jobs.
+type JobRunner struct {
+	instanceManager *InstanceManager
+	jobQueue        *JobQueue
+	jobManager      *JobManager
 }
 
-// NewRunner - returns new PitbullRunner instance.
-func NewRunner(manager *Manager) *Runner {
-	return &Runner{
-		manager:    manager,
-		queue:      NewJobQueue(),
-		jobManager: NewJobManager(),
+// NewJobRunner - returns new PitbullRunner instance.
+func NewJobRunner(manager *InstanceManager) *JobRunner {
+	return &JobRunner{
+		instanceManager: manager,
+		jobQueue:        NewJobQueue(),
+		jobManager:      NewJobManager(),
 	}
 }
 
 // Run - starts single Pitbull run.
-func (ru *Runner) Run(job *models.PitbullJob) {
+func (ru *JobRunner) Run(job *models.PitbullJob) {
 	go ru.runSingle(job)
 }
 
-func (ru *Runner) runSingle(job *models.PitbullJob) {
+func (ru *JobRunner) runSingle(job *models.PitbullJob) {
 	defer func() {
 		if r := recover(); r != nil {
 			logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "recovery", job.ID.Hex())
@@ -51,12 +51,12 @@ func (ru *Runner) runSingle(job *models.PitbullJob) {
 }
 
 // startHost - starts a single host for Pitbull process to work in.
-func (ru *Runner) startHost(job *models.PitbullJob) {
+func (ru *JobRunner) startHost(job *models.PitbullJob) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "startHost", job.ID.Hex())
 
 	logger.Info.Println("starting host.")
 
-	_, err := ru.manager.RunHostForInstance(job.InstanceId.Hex())
+	_, err := ru.instanceManager.RunHostForInstance(job.InstanceId.Hex())
 	if err != nil {
 		logger.Err.Printf("starting host failed. Reason: %s\n", err)
 
@@ -74,7 +74,7 @@ func (ru *Runner) startHost(job *models.PitbullJob) {
 		if attemptsCount >= startHostAttemptsLimit {
 			logger.Err.Printf("attempts limit reached, stopping job and host\n")
 
-			if err := ru.manager.StopHostInstance(job.InstanceId.Hex()); err != nil {
+			if err := ru.instanceManager.StopHostInstance(job.InstanceId.Hex()); err != nil {
 				logger.Err.Printf("stopping host instance failed. Reason: %s\n", err)
 			}
 
@@ -84,7 +84,7 @@ func (ru *Runner) startHost(job *models.PitbullJob) {
 			return
 		}
 
-		instance, err := ru.manager.SyncInstance(job.InstanceId.Hex())
+		instance, err := ru.instanceManager.SyncInstance(job.InstanceId.Hex())
 		// Double check - if for some reason SyncInstance returned nil error and nil instance,
 		// we want to return, to prevent nil pointer dereference.
 		if err != nil || instance == nil {
@@ -110,12 +110,12 @@ func (ru *Runner) startHost(job *models.PitbullJob) {
 	}
 }
 
-func (ru *Runner) runPitbull(job *models.PitbullJob) {
+func (ru *JobRunner) runPitbull(job *models.PitbullJob) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "runPitbull", job.ID.Hex())
 
 	logger.Info.Printf("starting Pitbull\n")
 
-	if _, err := ru.manager.RunPitbull(job.InstanceId.Hex()); err != nil {
+	if _, err := ru.instanceManager.RunPitbull(job.InstanceId.Hex()); err != nil {
 		logger.Err.Printf("starting Pitbull failed. Reason: %s\n", err)
 
 		ru.handleFailure(job)
@@ -133,7 +133,7 @@ func (ru *Runner) runPitbull(job *models.PitbullJob) {
 		if retryCount >= checkStatusRetryLimit {
 			logger.Err.Printf("retries limit reached, stopping job and host\n")
 
-			if err := ru.manager.StopHostInstance(job.InstanceId.Hex()); err != nil {
+			if err := ru.instanceManager.StopHostInstance(job.InstanceId.Hex()); err != nil {
 				logger.Err.Printf("stopping host instance failed. Reason: %s\n", err)
 			}
 
@@ -143,7 +143,7 @@ func (ru *Runner) runPitbull(job *models.PitbullJob) {
 			return
 		}
 
-		instance, err := ru.manager.SyncInstance(job.InstanceId.Hex())
+		instance, err := ru.instanceManager.SyncInstance(job.InstanceId.Hex())
 		if err != nil || instance == nil {
 			if err == nil {
 				err = errors.New("instance is nil")
@@ -166,12 +166,12 @@ func (ru *Runner) runPitbull(job *models.PitbullJob) {
 			instance.Status == models.Success {
 			logger.Info.Printf("pitbull finished, stopping host instance\n")
 
-			output, err := ru.manager.GetInstanceOutput(instance)
+			output, err := ru.instanceManager.GetInstanceOutput(instance)
 			if err != nil {
 				logger.Err.Printf("output retrieval failed. Reason: %s\n", err)
 			}
 
-			if err := ru.manager.StopHostInstance(job.InstanceId.Hex()); err != nil {
+			if err := ru.instanceManager.StopHostInstance(job.InstanceId.Hex()); err != nil {
 				logger.Err.Printf("stopping host instance '%d' failed. reason: %s\n", instance.HostInstance.ProviderId(), err)
 			}
 
@@ -180,7 +180,7 @@ func (ru *Runner) runPitbull(job *models.PitbullJob) {
 			if output != "" {
 				instance.LastOutput = output
 
-				if err := ru.manager.UpdateInstance(instance); err != nil {
+				if err := ru.instanceManager.UpdateInstance(instance); err != nil {
 					logger.Err.Printf("saving last output failed. Reason: %s\n", err)
 				}
 			}
@@ -206,7 +206,7 @@ func (ru *Runner) runPitbull(job *models.PitbullJob) {
 		if stalledProgressCount >= stalledProgressLimit {
 			logger.Err.Printf("pitbull progress stalled, stopping job and host\n")
 
-			if err := ru.manager.StopHostInstance(job.InstanceId.Hex()); err != nil {
+			if err := ru.instanceManager.StopHostInstance(job.InstanceId.Hex()); err != nil {
 				logger.Err.Printf("stopping host instance failed. Reason: %s\n", err)
 			}
 
@@ -222,7 +222,7 @@ func (ru *Runner) runPitbull(job *models.PitbullJob) {
 }
 
 // handleCompletion - performs any cleanups and updates after completing the job.
-func (ru *Runner) handleCompletion(job *models.PitbullJob) {
+func (ru *JobRunner) handleCompletion(job *models.PitbullJob) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "cleanup", job.ID.Hex())
 
 	if err := ru.jobManager.AcknowledgeJob(job); err != nil {
@@ -236,7 +236,7 @@ func (ru *Runner) handleCompletion(job *models.PitbullJob) {
 
 // handleFailure - handles a failure scenario by rescheduling or rejecting the job,
 // based on its history and status.
-func (ru *Runner) handleFailure(job *models.PitbullJob) {
+func (ru *JobRunner) handleFailure(job *models.PitbullJob) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "cleanup", job.ID.Hex())
 
 	logger.Info.Printf("Failure handling started\n")

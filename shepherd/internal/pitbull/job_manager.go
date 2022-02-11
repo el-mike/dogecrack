@@ -11,7 +11,7 @@ import (
 type JobManager struct {
 	jobRepository      *repositories.JobRepository
 	instanceRepository *repositories.InstanceRepository
-	queue              *JobQueue
+	jobQueue           *JobQueue
 }
 
 // NewJobManager - returns new JobService instance.
@@ -19,7 +19,7 @@ func NewJobManager() *JobManager {
 	return &JobManager{
 		jobRepository:      repositories.NewJobRepository(),
 		instanceRepository: repositories.NewInstanceRepository(),
-		queue:              NewJobQueue(),
+		jobQueue:           NewJobQueue(),
 	}
 }
 
@@ -35,7 +35,7 @@ func (js *JobManager) GetCompletedJobWithActiveInstance() ([]*models.PitbullJob,
 
 // AcknowledgeJob - ackes a single job.
 func (js *JobManager) AcknowledgeJob(job *models.PitbullJob) error {
-	if err := js.queue.Ack(job.ID.Hex()); err != nil {
+	if err := js.jobQueue.Ack(job.ID.Hex()); err != nil {
 		return err
 	}
 
@@ -47,7 +47,7 @@ func (js *JobManager) AcknowledgeJob(job *models.PitbullJob) error {
 
 // RejectJob - rejects a single job, and marks related instances as "Interrupted".
 func (js *JobManager) RejectJob(job *models.PitbullJob) error {
-	if err := js.queue.Reject(job.ID.Hex()); err != nil {
+	if err := js.jobQueue.Reject(job.ID.Hex()); err != nil {
 		return err
 	}
 
@@ -63,7 +63,7 @@ func (js *JobManager) RejectJob(job *models.PitbullJob) error {
 
 // RescheduleJob - reschedules a single job and marks related instances as "Interrupted".
 func (js *JobManager) RescheduleJob(job *models.PitbullJob) error {
-	if err := js.queue.Reschedule(job.ID.Hex()); err != nil {
+	if err := js.jobQueue.Reschedule(job.ID.Hex()); err != nil {
 		return err
 	}
 

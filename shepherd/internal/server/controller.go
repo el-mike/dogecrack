@@ -21,9 +21,9 @@ type ControllerFn func(w http.ResponseWriter, r *http.Request)
 type Controller struct {
 	appConfig *config.AppConfig
 
-	pitbullManager   *pitbull.Manager
-	pitbullScheduler *pitbull.Scheduler
-	jobManager       *pitbull.JobManager
+	instanceManager *pitbull.InstanceManager
+	jobScheduler    *pitbull.Scheduler
+	jobManager      *pitbull.JobManager
 
 	passwordGenerator *generator.PasswordGenerator
 
@@ -31,13 +31,13 @@ type Controller struct {
 }
 
 // NewController - returns new Controller instance.
-func NewController(manager *pitbull.Manager) *Controller {
+func NewController(manager *pitbull.InstanceManager) *Controller {
 	return &Controller{
 		appConfig: config.GetAppConfig(),
 
-		pitbullManager:   manager,
-		pitbullScheduler: pitbull.NewScheduler(),
-		jobManager:       pitbull.NewJobManager(),
+		instanceManager: manager,
+		jobScheduler:    pitbull.NewScheduler(),
+		jobManager:      pitbull.NewJobManager(),
 
 		passwordGenerator: generator.NewPasswordGenerator(),
 
@@ -59,7 +59,7 @@ func (ct *Controller) GetActiveInstances(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	instances, err := ct.pitbullManager.GetActiveInstances()
+	instances, err := ct.instanceManager.GetActiveInstances()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 
@@ -90,7 +90,7 @@ func (ct *Controller) GetInstance(
 		return
 	}
 
-	instance, err := ct.pitbullManager.GetInstanceById(id)
+	instance, err := ct.instanceManager.GetInstanceById(id)
 	if err != nil {
 		ct.handleError(w, http.StatusInternalServerError, err)
 		return
@@ -119,13 +119,13 @@ func (ct *Controller) Crack(
 		return
 	}
 
-	instance, err := ct.pitbullManager.CreateInstance(generatorResult.PasslistUrl, ct.appConfig.WalletString)
+	instance, err := ct.instanceManager.CreateInstance(generatorResult.PasslistUrl, ct.appConfig.WalletString)
 	if err != nil {
 		ct.handleError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	job, err := ct.pitbullScheduler.ScheduleRun(instance)
+	job, err := ct.jobScheduler.ScheduleRun(instance)
 	if err != nil {
 		ct.handleError(w, http.StatusInternalServerError, err)
 		return
@@ -202,7 +202,7 @@ func (ct *Controller) RunCommand(
 		return
 	}
 
-	output, err := ct.pitbullManager.RunHostCommand(id, payload.Cmd)
+	output, err := ct.instanceManager.RunHostCommand(id, payload.Cmd)
 	if err != nil {
 		ct.handleError(w, http.StatusInternalServerError, err)
 		return

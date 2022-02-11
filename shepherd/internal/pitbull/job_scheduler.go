@@ -13,7 +13,7 @@ const INSTANCES_LIMIT = 5
 
 // Scheduler - entity responsible for scheduling Pitbull runs via JobQueue.
 type Scheduler struct {
-	queue *JobQueue
+	jobQueue *JobQueue
 
 	jobRepository *repositories.JobRepository
 
@@ -23,7 +23,7 @@ type Scheduler struct {
 // NewScheduler - returns new PitbullScheduler instance.
 func NewScheduler() *Scheduler {
 	return &Scheduler{
-		queue: NewJobQueue(),
+		jobQueue: NewJobQueue(),
 
 		jobRepository: repositories.NewJobRepository(),
 
@@ -43,7 +43,7 @@ func (sc *Scheduler) ScheduleRun(instance *models.PitbullInstance) (*models.Pitb
 		return nil, err
 	}
 
-	if err := sc.queue.Enqueue(job.ID.Hex()); err != nil {
+	if err := sc.jobQueue.Enqueue(job.ID.Hex()); err != nil {
 		return nil, err
 	}
 

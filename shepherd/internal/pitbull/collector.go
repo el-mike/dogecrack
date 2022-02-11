@@ -10,9 +10,9 @@ import (
 // Collector - an entity responsible for detecting and disposing
 // orphaned Pitbull instances (the ones with inactive parent PitbullJob).
 type Collector struct {
-	jobManager *JobManager
-	queue      *JobQueue
-	manager    *Manager
+	jobManager      *JobManager
+	queue           *JobQueue
+	instanceManager *InstanceManager
 
 	interval time.Duration
 
@@ -22,11 +22,11 @@ type Collector struct {
 }
 
 // NewCollector - returns new Collector instance.
-func NewCollector(manager *Manager, interval time.Duration) *Collector {
+func NewCollector(manager *InstanceManager, interval time.Duration) *Collector {
 	return &Collector{
-		jobManager: NewJobManager(),
-		queue:      NewJobQueue(),
-		manager:    manager,
+		jobManager:      NewJobManager(),
+		queue:           NewJobQueue(),
+		instanceManager: manager,
 
 		interval: interval,
 
@@ -73,7 +73,7 @@ func (cl *Collector) Start() {
 					continue
 				}
 
-				if err := cl.manager.StopHostInstance(instance.ID.Hex()); err != nil {
+				if err := cl.instanceManager.StopHostInstance(instance.ID.Hex()); err != nil {
 					cl.logger.Err.Printf("Stopping orphan instance failed. reason: %v\n", err)
 
 					continue

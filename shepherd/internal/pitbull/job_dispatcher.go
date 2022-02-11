@@ -12,27 +12,27 @@ import (
 // JobDispatcher - observes redis-based PitbullQueue with BLPOP
 // and delegates Pitbull runs to worker threads.
 type JobDispatcher struct {
-	runner        *Runner
+	jobRunner     *JobRunner
 	jobRepository *repositories.JobRepository
+	jobQueue      *JobQueue
 
 	pollInterval time.Duration
 
-	queue *JobQueue
-	done  chan bool
+	done chan bool
 
 	logger *common.Logger
 }
 
 // NewJobDispatcher - returns new JobDispatcher.
-func NewJobDispatcher(runner *Runner, pollInterval time.Duration) *JobDispatcher {
+func NewJobDispatcher(jobRunner *JobRunner, pollInterval time.Duration) *JobDispatcher {
 	return &JobDispatcher{
-		runner:        runner,
+		jobRunner:     jobRunner,
 		jobRepository: repositories.NewJobRepository(),
 
 		pollInterval: pollInterval,
 
-		queue: NewJobQueue(),
-		done:  make(chan bool),
+		jobQueue: NewJobQueue(),
+		done:     make(chan bool),
 
 		logger: common.NewLogger("Dispatcher", os.Stdout, os.Stderr),
 	}
@@ -49,7 +49,7 @@ func (rd *JobDispatcher) Start() {
 		case <-ticker.C:
 			rd.logger.Info.Println("Checking for scheduled jobs...")
 
-			jobId, err := rd.queue.Dequeue()
+			jobId, err := rd.jobQueue.Dequeue()
 			if err != nil {
 				rd.logger.Err.Println(err)
 
@@ -76,7 +76,7 @@ func (rd *JobDispatcher) Start() {
 
 			rd.logger.Info.Printf("job '%s' dequeued. Starting Pitbull...\n", job.ID.Hex())
 
-			rd.runner.Run(job)
+			rd.jobRunner.Run(job)
 
 		case <-rd.done:
 			ticker.Stop()
