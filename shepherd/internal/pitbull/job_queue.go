@@ -3,6 +3,7 @@ package pitbull
 import (
 	"context"
 
+	"github.com/el-mike/dogecrack/shepherd/internal/persist"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -20,9 +21,9 @@ type JobQueue struct {
 }
 
 // NewJobQueue - returns new RunQueue instance.
-func NewJobQueue(client *redis.Client) *JobQueue {
+func NewJobQueue() *JobQueue {
 	return &JobQueue{
-		redisClient:     client,
+		redisClient:     persist.GetRedisClient(),
 		waitingQueue:    waitingQueue,
 		processingQueue: processingQueue,
 	}

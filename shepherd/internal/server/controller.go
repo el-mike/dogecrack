@@ -23,7 +23,7 @@ type Controller struct {
 
 	pitbullManager   *pitbull.Manager
 	pitbullScheduler *pitbull.Scheduler
-	jobService       *pitbull.JobService
+	jobManager       *pitbull.JobManager
 
 	passwordGenerator *generator.PasswordGenerator
 
@@ -37,7 +37,7 @@ func NewController(manager *pitbull.Manager) *Controller {
 
 		pitbullManager:   manager,
 		pitbullScheduler: pitbull.NewScheduler(),
-		jobService:       pitbull.NewJobService(),
+		jobManager:       pitbull.NewJobManager(),
 
 		passwordGenerator: generator.NewPasswordGenerator(),
 
@@ -165,7 +165,7 @@ func (ct *Controller) GetJobs(
 		}
 	}
 
-	jobs, err := ct.jobService.GetJobs(statuses)
+	jobs, err := ct.jobManager.GetJobs(statuses)
 	if err != nil {
 		ct.handleError(w, http.StatusInternalServerError, err)
 		return

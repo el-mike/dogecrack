@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
-	"github.com/el-mike/dogecrack/shepherd/internal/persist"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/repositories"
 )
@@ -32,7 +31,7 @@ func NewJobDispatcher(runner *Runner, pollInterval time.Duration) *JobDispatcher
 
 		pollInterval: pollInterval,
 
-		queue: NewJobQueue(persist.GetRedisClient()),
+		queue: NewJobQueue(),
 		done:  make(chan bool),
 
 		logger: common.NewLogger("Dispatcher", os.Stdout, os.Stderr),

@@ -6,9 +6,7 @@ import (
 	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
-	"github.com/el-mike/dogecrack/shepherd/internal/persist"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
-	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/repositories"
 )
 
 const (
@@ -22,17 +20,17 @@ const (
 
 // Runner - entity responsible for running and monitoring Pitbull jobs.
 type Runner struct {
-	manager       *Manager
-	queue         *JobQueue
-	jobRepository *repositories.JobRepository
+	manager    *Manager
+	queue      *JobQueue
+	jobManager *JobManager
 }
 
 // NewRunner - returns new PitbullRunner instance.
 func NewRunner(manager *Manager) *Runner {
 	return &Runner{
-		manager:       manager,
-		queue:         NewJobQueue(persist.GetRedisClient()),
-		jobRepository: repositories.NewJobRepository(),
+		manager:    manager,
+		queue:      NewJobQueue(),
+		jobManager: NewJobManager(),
 	}
 }
 
@@ -227,21 +225,13 @@ func (ru *Runner) runPitbull(job *models.PitbullJob) {
 func (ru *Runner) handleCompletion(job *models.PitbullJob) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "cleanup", job.ID.Hex())
 
-	if err := ru.queue.Ack(job.ID.Hex()); err != nil {
+	if err := ru.jobManager.AcknowledgeJob(job); err != nil {
 		logger.Err.Printf("Acknowledge failed. reason: %s\n", err)
+
 		return
 	}
 
 	logger.Info.Printf("Job acknowledged\n")
-
-	job.Status = models.Acknowledged
-	job.AcknowledgedAt = time.Now()
-
-	if err := ru.jobRepository.Update(job); err != nil {
-		logger.Err.Printf("Updating status failed. reason: %s\n", err)
-	}
-
-	return
 }
 
 // handleFailure - handles a failure scenario by rescheduling or rejecting the job,
@@ -254,28 +244,18 @@ func (ru *Runner) handleFailure(job *models.PitbullJob) {
 	if job.RescheduleCount > rescheduleLimit {
 		logger.Info.Printf("Reschedule limit reached, rejecting\n")
 
-		if err := ru.queue.Reject(job.ID.Hex()); err != nil {
+		if err := ru.jobManager.RejectJob(job); err != nil {
 			logger.Err.Printf("Rejecting failed. reason: %s\n", err)
+
 			return
 		}
-
-		job.Status = models.Rejected
-		job.RejectedAt = time.Now()
 	} else {
 		logger.Info.Printf("Rescheduling.\n")
 
-		if err := ru.queue.Reschedule(job.ID.Hex()); err != nil {
+		if err := ru.jobManager.RescheduleJob(job); err != nil {
 			logger.Err.Printf("Rescheduling failed. reason: %s\n", err)
+
 			return
 		}
-
-		job.Status = models.Rescheduled
-		job.LastScheduledAt = time.Now()
-		job.RescheduleCount += 1
-	}
-
-	if err := ru.jobRepository.Update(job); err != nil {
-		logger.Info.Printf("Updating job failed. reason: %s\n", err)
-		return
 	}
 }

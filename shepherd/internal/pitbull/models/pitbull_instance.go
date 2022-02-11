@@ -23,6 +23,7 @@ const (
 	Running
 	Finished
 	Success
+	Interrupted
 )
 
 var pitbullStatusNames = map[PitbullStatus]string{
@@ -32,6 +33,7 @@ var pitbullStatusNames = map[PitbullStatus]string{
 	Running:        "RUNNING",
 	Finished:       "FINISHED",
 	Success:        "SUCCESS",
+	Interrupted:    "INTERRUPTED",
 }
 
 // Formatted - returns status in human-readable format.

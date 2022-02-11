@@ -84,6 +84,7 @@ func (jr *JobRepository) GetCompletedWithActiveInstance() ([]*models.PitbullJob,
 
 	filter := bson.D{
 		{"status", bson.D{
+			// "Completed" can mean both Rejected and Acknowledged.
 			{"$in", bson.A{models.Rejected, models.Acknowledged}},
 		}},
 		{"instance.status", bson.D{
