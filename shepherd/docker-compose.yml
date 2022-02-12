@@ -16,7 +16,8 @@ services:
       context: ./tools/vast
       dockerfile: fake_vast.Dockerfile
   
-  mongodb:
+  mongo:
+    container_name: shepherd_mongo
     image: mongo:latest
     env_file:
       - .env
@@ -26,9 +27,36 @@ services:
       - mongodb_data_container:/data/db
   
   redis:
+    container_name: shepherd_redis
     image: redis
     ports:
       - 6379:6379
+
+  api:
+    container_name: shepherd_api
+    build:
+      context: .
+      dockerfile: ./cmd/api/Dockerfile
+    ports:
+      - 8080:8080
+    # This env_file will be used, because godotenv does not override env variables by design.
+    env_file:
+      - .env.docker
+    depends_on:
+      - mongo
+      - redis
+
+  runner:
+    container_name: shepherd_runner
+    build:
+      context: .
+      dockerfile: ./cmd/runner/Dockerfile
+    # This env_file will be used, because godotenv does not override env variables by design.
+    env_file:
+      - .env.docker
+    depends_on:
+      - mongo
+      - redis
 
 volumes:
   mongodb_data_container:

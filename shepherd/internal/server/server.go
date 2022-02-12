@@ -10,10 +10,12 @@ import (
 )
 
 type Server struct {
+	port string
+
 	router *mux.Router
 }
 
-func NewServer() *Server {
+func NewServer(port string) *Server {
 	appController := NewController()
 
 	authController := auth.NewController()
@@ -42,10 +44,11 @@ func NewServer() *Server {
 	http.Handle("/", baseRouter)
 
 	return &Server{
+		port:   port,
 		router: baseRouter,
 	}
 }
 
 func (s *Server) Run() {
-	log.Fatal(http.ListenAndServe(":8080", s.router))
+	log.Fatal(http.ListenAndServe(":"+s.port, s.router))
 }

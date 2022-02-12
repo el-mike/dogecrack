@@ -15,7 +15,11 @@ import (
 func main() {
 	logger := common.NewLogger("Startup", os.Stdout, os.Stderr)
 
-	rootPath, err := filepath.Abs("../../")
+	// This assumes that we run the application from the project's root directory,
+	// NOT /cmd/api.
+	// This approach helps with running the app in Docker containers, where built app
+	// is no longer in /cmd/api directory.
+	rootPath, err := filepath.Abs("./")
 	if err != nil {
 		logger.Err.Println(err)
 		panic(err)

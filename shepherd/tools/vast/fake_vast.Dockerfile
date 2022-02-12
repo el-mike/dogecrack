@@ -1,4 +1,5 @@
-# FROM michalhuras/pitbull:7.0
+# syntax=docker/dockerfile:1
+
 FROM michalhuras/pitbull:dev_local
 
 WORKDIR /app
