@@ -97,6 +97,14 @@ func (pi *PitbullInstance) SetHost(hostInstance host.HostInstance) {
 	pi.ProviderName = hostInstance.ProviderName()
 }
 
+// Active - returns true if PitbullInstance is in one of the "active" states,
+// false otherwise.
+func (pi *PitbullInstance) Active() bool {
+	return pi.Status == HostStarting ||
+		pi.Status == Waiting ||
+		pi.Status == Running
+}
+
 // Completed - returns true if all passwords have been checked for given Pitbull instance,
 // false otherwise.
 func (pi *PitbullInstance) Completed() bool {

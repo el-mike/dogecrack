@@ -11,24 +11,27 @@ import (
 type JobStatus int8
 
 const (
-	Scheduled JobStatus = iota
-	Processing
-	Rescheduled
-	Rejected
-	Acknowledged
+	JobScheduled JobStatus = iota
+	JobProcessing
+	JobRescheduled
+	JobRejected
+	JobAcknowledged
 )
 
 var nameByJobStatus = map[JobStatus]string{
-	Scheduled:    "SCHEDULED",
-	Processing:   "PROCESSING",
-	Rescheduled:  "RESCHEDULED",
-	Rejected:     "REJECTED",
-	Acknowledged: "ACKNOWLEDGED",
+	JobScheduled:    "JOB_SCHEDULED",
+	JobProcessing:   "JOB_PROCESSING",
+	JobRescheduled:  "JOB_RESCHEDULED",
+	JobRejected:     "JOB_REJECTED",
+	JobAcknowledged: "JOB_ACKNOWLEDGED",
 }
 
 // PitbullJob - represents a single Pitbull job.
 type PitbullJob struct {
 	common.BaseModel `bson:",inline"`
+
+	WalletString string `bson:"walletString" json:"walletString"`
+	PasslistUrl  string `bson:"passlistUrl" json:"passlistUrl"`
 
 	InstanceId primitive.ObjectID `bson:"instanceId" json:"instanceId"`
 	Instance   *PitbullInstance   `bson:"instance,omitempty" json:"instance"`
@@ -45,10 +48,11 @@ type PitbullJob struct {
 }
 
 // NewPitbullJob - returns new PitbullJob instance.
-func NewPitbullJob(instanceId primitive.ObjectID) *PitbullJob {
+func NewPitbullJob(passlistUrl, walletString string) *PitbullJob {
 	job := &PitbullJob{
-		InstanceId: instanceId,
-		Status:     Scheduled,
+		WalletString: walletString,
+		PasslistUrl:  passlistUrl,
+		Status:       JobScheduled,
 	}
 
 	job.ID = primitive.NewObjectID()

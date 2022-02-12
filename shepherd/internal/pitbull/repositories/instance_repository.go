@@ -100,3 +100,53 @@ func (ir *InstanceRepository) GetActiveInstances() ([]*models.PitbullInstance, e
 
 	return results, nil
 }
+
+// GetOrphanInstances - returns "orphan" instances. Orphan instance is an instance that
+// has no job assigned (meaning the job has been assiged with different instance), or that
+// has one of the "active" statuses, but its job is already rejected/acknowledged.
+func (ir *InstanceRepository) GetOrphanInstances() ([]*models.PitbullInstance, error) {
+	collection := ir.db.Collection(instancesCollection)
+
+	lookup := bson.D{
+		{"$lookup", bson.D{
+			{"from", "jobs"},
+			{"localField", "_id"},
+			{"foreignField", "instanceId"},
+			{"as", "job"},
+		}},
+	}
+
+	unwind := bson.D{
+		{"$unwind", bson.D{
+			{"path", "$job"},
+			{"preserveNullAndEmptyArrays", true},
+		}},
+	}
+
+	match := bson.D{
+		{"$match", bson.D{
+			{"status", bson.D{
+				{"$in", bson.A{models.HostStarting, models.Waiting, models.Running}},
+			}},
+			{"$or", bson.A{
+				bson.D{{"job", nil}},
+				bson.D{{"job.status", bson.D{
+					{"$in", bson.A{models.JobRejected, models.JobAcknowledged}},
+				}}},
+			}},
+		}},
+	}
+
+	cursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{lookup, unwind, match})
+	if err != nil {
+		return nil, err
+	}
+
+	var instances []*models.PitbullInstance
+
+	if err = cursor.All(context.TODO(), &instances); err != nil {
+		return nil, err
+	}
+
+	return instances, nil
+}

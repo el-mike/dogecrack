@@ -31,13 +31,13 @@ type Controller struct {
 }
 
 // NewController - returns new Controller instance.
-func NewController(manager *pitbull.InstanceManager) *Controller {
+func NewController(instanceManager *pitbull.InstanceManager) *Controller {
 	return &Controller{
 		appConfig: config.GetAppConfig(),
 
-		instanceManager: manager,
-		jobScheduler:    pitbull.NewScheduler(),
-		jobManager:      pitbull.NewJobManager(),
+		instanceManager: instanceManager,
+		jobScheduler:    pitbull.NewScheduler(instanceManager),
+		jobManager:      pitbull.NewJobManager(instanceManager),
 
 		passwordGenerator: generator.NewPasswordGenerator(),
 
@@ -119,13 +119,7 @@ func (ct *Controller) Crack(
 		return
 	}
 
-	instance, err := ct.instanceManager.CreateInstance(generatorResult.PasslistUrl, ct.appConfig.WalletString)
-	if err != nil {
-		ct.handleError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	job, err := ct.jobScheduler.ScheduleRun(instance)
+	job, err := ct.jobScheduler.ScheduleRun(generatorResult.PasslistUrl, ct.appConfig.WalletString)
 	if err != nil {
 		ct.handleError(w, http.StatusInternalServerError, err)
 		return

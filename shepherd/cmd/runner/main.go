@@ -46,7 +46,7 @@ func main() {
 	persist.InitRedis(appConfig.RedisHost, appConfig.RedisPort)
 
 	instanceManager := pitbull.NewInstanceManager(vastManager)
-	jobManager := pitbull.NewJobManager()
+	jobManager := pitbull.NewJobManager(instanceManager)
 	runner := pitbull.NewJobRunner(instanceManager)
 
 	// On service start, we want to reschedule all jobs from "processingQueue",
@@ -61,7 +61,7 @@ func main() {
 	}
 
 	collector := pitbull.NewInstanceCollector(instanceManager, 15*time.Second)
-	dispatcher := pitbull.NewJobDispatcher(runner, 15*time.Second)
+	dispatcher := pitbull.NewJobDispatcher(instanceManager, runner, 15*time.Second)
 
 	go collector.Start()
 

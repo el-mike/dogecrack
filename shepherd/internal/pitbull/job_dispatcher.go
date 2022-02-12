@@ -22,10 +22,10 @@ type JobDispatcher struct {
 }
 
 // NewJobDispatcher - returns new JobDispatcher.
-func NewJobDispatcher(jobRunner *JobRunner, pollInterval time.Duration) *JobDispatcher {
+func NewJobDispatcher(instanceManager *InstanceManager, jobRunner *JobRunner, pollInterval time.Duration) *JobDispatcher {
 	return &JobDispatcher{
 		jobRunner:  jobRunner,
-		jobManager: NewJobManager(),
+		jobManager: NewJobManager(instanceManager),
 
 		pollInterval: pollInterval,
 

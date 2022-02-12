@@ -9,17 +9,17 @@ import (
 
 // JobManager - simple facade for operations on PitbullJobs.
 type JobManager struct {
-	jobRepository      *repositories.JobRepository
-	instanceRepository *repositories.InstanceRepository
-	jobQueue           *JobQueue
+	jobRepository   *repositories.JobRepository
+	instanceManager *InstanceManager
+	jobQueue        *JobQueue
 }
 
 // NewJobManager - returns new JobService instance.
-func NewJobManager() *JobManager {
+func NewJobManager(instanceManager *InstanceManager) *JobManager {
 	return &JobManager{
-		jobRepository:      repositories.NewJobRepository(),
-		instanceRepository: repositories.NewInstanceRepository(),
-		jobQueue:           NewJobQueue(),
+		jobRepository:   repositories.NewJobRepository(),
+		instanceManager: instanceManager,
+		jobQueue:        NewJobQueue(),
 	}
 }
 
@@ -28,9 +28,35 @@ func (js *JobManager) GetJobs(statuses []models.JobStatus) ([]*models.PitbullJob
 	return js.jobRepository.GetAll(statuses)
 }
 
-// GetCompletedJobWithActiveInstance - returns all completed jobs with active instances.
-func (js *JobManager) GetCompletedJobWithActiveInstance() ([]*models.PitbullJob, error) {
-	return js.jobRepository.GetCompletedWithActiveInstance()
+// CreateJob - creates an empty job and saves it to DB.
+func (js *JobManager) CreateJob(passlistUrl, walletString string) (*models.PitbullJob, error) {
+	job := models.NewPitbullJob(passlistUrl, walletString)
+
+	job.FirstScheduledAt = time.Now()
+	job.LastScheduledAt = time.Now()
+
+	if err := js.jobRepository.Create(job); err != nil {
+		return nil, err
+	}
+
+	return job, nil
+}
+
+// AssignInstance - creates a PitbullInstance and assignes it to passed PitbullJob.
+// If job has been rescheduled, it will attempt to destroy previous HostInstance.
+func (js *JobManager) AssignInstance(job *models.PitbullJob) (*models.PitbullJob, error) {
+	instance, err := js.instanceManager.CreateInstance(job.PasslistUrl, job.WalletString)
+	if err != nil {
+		return nil, err
+	}
+
+	job.InstanceId = instance.ID
+
+	if err := js.jobRepository.Update(job); err != nil {
+		return nil, err
+	}
+
+	return job, nil
 }
 
 // DequeueJob - dequeues a job and marks it as "Processing".
@@ -51,7 +77,7 @@ func (js *JobManager) DequeueJob() (*models.PitbullJob, error) {
 		return nil, err
 	}
 
-	job.Status = models.Processing
+	job.Status = models.JobProcessing
 	job.StartedAt = time.Now()
 
 	if err := js.jobRepository.Update(job); err != nil {
@@ -67,7 +93,7 @@ func (js *JobManager) AcknowledgeJob(job *models.PitbullJob) error {
 		return err
 	}
 
-	job.Status = models.Acknowledged
+	job.Status = models.JobAcknowledged
 	job.AcknowledgedAt = time.Now()
 
 	return js.jobRepository.Update(job)
@@ -79,7 +105,7 @@ func (js *JobManager) RejectJob(job *models.PitbullJob) error {
 		return err
 	}
 
-	job.Status = models.Rejected
+	job.Status = models.JobRejected
 	job.RejectedAt = time.Now()
 
 	if err := js.jobRepository.Update(job); err != nil {
@@ -95,7 +121,7 @@ func (js *JobManager) RescheduleJob(job *models.PitbullJob) error {
 		return err
 	}
 
-	job.Status = models.Rescheduled
+	job.Status = models.JobRescheduled
 	job.LastScheduledAt = time.Now()
 	job.RescheduleCount += 1
 
@@ -116,7 +142,7 @@ func (js *JobManager) RescheduleProcessingJobs() ([]string, error) {
 	// We need to reject all previously processing jobs,
 	// so any dangling Pitbull instanes can be picked up and destroyed
 	// by InstanceCollector.
-	if err := js.jobRepository.RejectProcessingJobs(jobIds); err != nil {
+	if err := js.jobRepository.RescheduleProcessingJobs(jobIds); err != nil {
 		return nil, err
 	}
 
@@ -132,5 +158,5 @@ func (js *JobManager) MarkInstanceAsInterrupted(instance *models.PitbullInstance
 
 	instance.Status = models.Interrupted
 
-	return js.instanceRepository.UpdateInstance(instance)
+	return js.instanceManager.UpdateInstance(instance)
 }

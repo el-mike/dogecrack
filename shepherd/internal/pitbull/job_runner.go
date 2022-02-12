@@ -7,6 +7,7 @@ import (
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const (
@@ -26,11 +27,11 @@ type JobRunner struct {
 }
 
 // NewJobRunner - returns new PitbullRunner instance.
-func NewJobRunner(manager *InstanceManager) *JobRunner {
+func NewJobRunner(instanceManager *InstanceManager) *JobRunner {
 	return &JobRunner{
-		instanceManager: manager,
+		instanceManager: instanceManager,
 		jobQueue:        NewJobQueue(),
-		jobManager:      NewJobManager(),
+		jobManager:      NewJobManager(instanceManager),
 	}
 }
 
@@ -46,6 +47,37 @@ func (ru *JobRunner) runSingle(job *models.PitbullJob) {
 			logger.Err.Printf("Recovering from panic. reason: %v\n", r)
 		}
 	}()
+
+	ru.assignInstance(job)
+}
+
+// createInstance - creates and attaches a new PitbullInstance to PitbullJob.
+// If rescheduled, it tries to destroy the previous HostInstance.
+func (ru *JobRunner) assignInstance(job *models.PitbullJob) {
+	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "assignInstance", job.ID.Hex())
+
+	if job.InstanceId != primitive.NilObjectID {
+		instance, err := ru.instanceManager.GetInstanceById(job.InstanceId.Hex())
+		if err != nil {
+			logger.Err.Printf("Retrieving previous instance failed. reason: %v\n", err)
+		} else {
+			if instance != nil && instance.Active() {
+				logger.Info.Printf("Stopping previously assigned instance...\n")
+
+				if err := ru.instanceManager.StopHostInstance(job.InstanceId.Hex()); err != nil {
+					logger.Err.Printf("Stopping previously assigned instance failed. reason: %v\n", err)
+				}
+			}
+		}
+	}
+
+	job, err := ru.jobManager.AssignInstance(job)
+	if err != nil {
+		logger.Err.Printf("Assign instance failed. reason: %v\n", err)
+
+		ru.handleFailure(job)
+		return
+	}
 
 	ru.startHost(job)
 }

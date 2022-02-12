@@ -22,11 +22,11 @@ type InstanceCollector struct {
 }
 
 // NewInstanceCollector - returns new Collector instance.
-func NewInstanceCollector(manager *InstanceManager, interval time.Duration) *InstanceCollector {
+func NewInstanceCollector(instanceManager *InstanceManager, interval time.Duration) *InstanceCollector {
 	return &InstanceCollector{
-		jobManager:      NewJobManager(),
+		jobManager:      NewJobManager(instanceManager),
 		queue:           NewJobQueue(),
-		instanceManager: manager,
+		instanceManager: instanceManager,
 
 		interval: interval,
 
@@ -55,20 +55,18 @@ func (cl *InstanceCollector) Start() {
 		case <-ticker.C:
 			cl.logger.Info.Println("Checking for orphan instances...")
 
-			jobs, err := cl.jobManager.GetCompletedJobWithActiveInstance()
+			instances, err := cl.instanceManager.GetOrphanInstances()
 			if err != nil {
-				cl.logger.Err.Println(err)
+				cl.logger.Err.Printf("Getting orphan instances failed. reason: %v\n", err)
 
 				continue
 			}
 
-			if jobs == nil || len(jobs) == 0 {
+			if instances == nil || len(instances) == 0 {
 				continue
 			}
 
-			for _, job := range jobs {
-				instance := job.Instance
-
+			for _, instance := range instances {
 				if instance == nil {
 					continue
 				}

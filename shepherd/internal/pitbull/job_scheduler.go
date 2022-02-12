@@ -2,11 +2,9 @@ package pitbull
 
 import (
 	"os"
-	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
-	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/repositories"
 )
 
 const INSTANCES_LIMIT = 5
@@ -15,17 +13,16 @@ const INSTANCES_LIMIT = 5
 type Scheduler struct {
 	jobQueue *JobQueue
 
-	jobRepository *repositories.JobRepository
+	jobManager *JobManager
 
 	logger *common.Logger
 }
 
 // NewScheduler - returns new PitbullScheduler instance.
-func NewScheduler() *Scheduler {
+func NewScheduler(instanceManager *InstanceManager) *Scheduler {
 	return &Scheduler{
-		jobQueue: NewJobQueue(),
-
-		jobRepository: repositories.NewJobRepository(),
+		jobQueue:   NewJobQueue(),
+		jobManager: NewJobManager(instanceManager),
 
 		logger: common.NewLogger("Scheduler", os.Stdout, os.Stderr),
 	}
@@ -33,13 +30,9 @@ func NewScheduler() *Scheduler {
 
 // ScheduleRun - schedules a single Pitbull run. If instances limit is not reach yet,
 // it will run it immediately.
-func (sc *Scheduler) ScheduleRun(instance *models.PitbullInstance) (*models.PitbullJob, error) {
-	job := models.NewPitbullJob(instance.ID)
-
-	job.FirstScheduledAt = time.Now()
-	job.LastScheduledAt = time.Now()
-
-	if err := sc.jobRepository.Create(job); err != nil {
+func (sc *Scheduler) ScheduleRun(passlistUrl, walletString string) (*models.PitbullJob, error) {
+	job, err := sc.jobManager.CreateJob(passlistUrl, walletString)
+	if err != nil {
 		return nil, err
 	}
 

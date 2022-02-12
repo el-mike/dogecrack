@@ -47,8 +47,8 @@ func (jr *JobRepository) GetById(id string) (*models.PitbullJob, error) {
 	return job, nil
 }
 
-// RejectProcessingJobs - marks all "processing" jobs as "rejected".
-func (jr *JobRepository) RejectProcessingJobs(jobIds []string) error {
+// RescheduleProcessingJobs - marks all "processing" jobs as "rescheduled".
+func (jr *JobRepository) RescheduleProcessingJobs(jobIds []string) error {
 	collection := jr.db.Collection(jobsCollection)
 
 	objectIds := []primitive.ObjectID{}
@@ -68,8 +68,8 @@ func (jr *JobRepository) RejectProcessingJobs(jobIds []string) error {
 
 	update := bson.D{
 		{"$set", bson.D{
-			{"status", models.Rejected},
-			{"rejectedAt", time.Now()},
+			{"status", models.JobRescheduled},
+			{"lastScheduledAt", time.Now()},
 		}},
 	}
 
@@ -96,38 +96,6 @@ func (jr *JobRepository) GetAll(statuses []models.JobStatus) ([]*models.PitbullJ
 	lookup, unwind := jr.lookupAndUnwindInstance()
 
 	cursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{match, lookup, unwind})
-	if err != nil {
-		return nil, err
-	}
-
-	var jobs []*models.PitbullJob
-
-	if err = cursor.All(context.TODO(), &jobs); err != nil {
-		return nil, err
-	}
-
-	return jobs, nil
-}
-
-// GetCompletedWithActiveInstance - returns all the jobs that have a running instance.
-func (jr *JobRepository) GetCompletedWithActiveInstance() ([]*models.PitbullJob, error) {
-	collection := jr.db.Collection(jobsCollection)
-
-	lookup, unwind := jr.lookupAndUnwindInstance()
-
-	filter := bson.D{
-		{"status", bson.D{
-			// "Completed" can mean both Rejected and Acknowledged.
-			{"$in", bson.A{models.Rejected, models.Acknowledged}},
-		}},
-		{"instance.status", bson.D{
-			{"$in", bson.A{models.HostStarting, models.Waiting, models.Running}}},
-		},
-	}
-
-	match := bson.D{{"$match", filter}}
-
-	cursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{lookup, unwind, match})
 	if err != nil {
 		return nil, err
 	}
