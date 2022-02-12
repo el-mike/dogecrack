@@ -3,7 +3,6 @@ package models
 import (
 	"time"
 
-	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -28,7 +27,7 @@ var nameByJobStatus = map[JobStatus]string{
 
 // PitbullJob - represents a single Pitbull job.
 type PitbullJob struct {
-	common.BaseModel `bson:",inline"`
+	BaseModel `bson:",inline"`
 
 	WalletString string `bson:"walletString" json:"walletString"`
 	PasslistUrl  string `bson:"passlistUrl" json:"passlistUrl"`

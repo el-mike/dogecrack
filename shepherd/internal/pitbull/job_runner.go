@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
-	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

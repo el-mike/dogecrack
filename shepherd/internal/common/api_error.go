@@ -1,4 +1,4 @@
-package server
+package common
 
 // APIError - wrapper struct for returning errors in JSON form.
 type APIError struct {

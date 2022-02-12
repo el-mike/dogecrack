@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/el-mike/dogecrack/shepherd/internal/auth"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 	"github.com/gorilla/mux"
 )
 
@@ -11,22 +13,36 @@ type Server struct {
 	router *mux.Router
 }
 
-func NewServer(controller *Controller) *Server {
-	router := mux.NewRouter()
+func NewServer() *Server {
+	appController := NewController()
 
-	router.HandleFunc("/health", controller.GetHealth).Methods("GET")
-	router.HandleFunc("/getActiveInstances", controller.GetActiveInstances).Methods("GET")
-	router.HandleFunc("/getInstance", controller.GetInstance).Methods("GET")
+	authController := auth.NewController()
+	authMiddleware := auth.NewMiddleware()
 
-	router.HandleFunc("/getJobs", controller.GetJobs).Methods("GET")
+	pitbullController := pitbull.NewController()
 
-	router.HandleFunc("/runCommand", controller.RunCommand).Methods("POST")
-	router.HandleFunc("/crack", controller.Crack).Methods("POST")
+	baseRouter := mux.NewRouter()
 
-	http.Handle("/", router)
+	baseRouter.HandleFunc("/health", appController.GetHealth).Methods("GET")
+
+	baseRouter.HandleFunc("/login", authController.Login).Methods("POST")
+
+	pitbullRouter := baseRouter.PathPrefix("/").Subrouter()
+
+	pitbullRouter.Use(authMiddleware.Middleware)
+
+	pitbullRouter.HandleFunc("/getActiveInstances", pitbullController.GetActiveInstances).Methods("GET")
+	pitbullRouter.HandleFunc("/getInstance", pitbullController.GetInstance).Methods("GET")
+
+	pitbullRouter.HandleFunc("/getJobs", pitbullController.GetJobs).Methods("GET")
+
+	pitbullRouter.HandleFunc("/runCommand", pitbullController.RunCommand).Methods("POST")
+	pitbullRouter.HandleFunc("/crack", pitbullController.Crack).Methods("POST")
+
+	http.Handle("/", baseRouter)
 
 	return &Server{
-		router: router,
+		router: baseRouter,
 	}
 }
 

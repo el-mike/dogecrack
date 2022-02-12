@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 
+	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
-	"github.com/el-mike/dogecrack/shepherd/internal/server"
-	"github.com/el-mike/dogecrack/shepherd/internal/vast"
+	"github.com/el-mike/dogecrack/shepherd/internal/users"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -18,15 +20,6 @@ func main() {
 
 	appConfig, err := config.NewAppConfig(rootPath)
 	if err != nil {
-		panic(err)
-	}
-
-	sshIp, err := vast.GetFakeVastIp(rootPath, 1)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := vast.AddSSHFingerprint(rootPath, sshIp, appConfig.SSHDirPath); err != nil {
 		panic(err)
 	}
 
@@ -41,8 +34,19 @@ func main() {
 		}
 	}()
 
-	persist.InitRedis(appConfig.RedisHost, appConfig.RedisPort)
+	name := os.Getenv("ADMIN_NAME")
+	password := os.Getenv("ADMIN_PASSWORD")
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
+	if err != nil {
+		panic(err)
+	}
 
-	s := server.NewServer()
-	s.Run()
+	admin := models.NewUser(name, string(hashedPassword))
+	admin.Role = "ADMIN"
+
+	manager := users.NewManager()
+
+	if err := manager.SaveUser(admin); err != nil {
+		panic(err)
+	}
 }

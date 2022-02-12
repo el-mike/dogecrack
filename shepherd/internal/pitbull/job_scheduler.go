@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
-	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 )
 
 const INSTANCES_LIMIT = 5

@@ -3,7 +3,7 @@ package pitbull
 import (
 	"time"
 
-	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/repositories"
 )
 

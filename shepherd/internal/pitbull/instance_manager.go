@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/config"
 	"github.com/el-mike/dogecrack/shepherd/internal/host"
-	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/repositories"
+	"github.com/el-mike/dogecrack/shepherd/internal/vast"
 )
 
 // InstanceManager - main managing entity responsible for Pitbull instances.
@@ -16,7 +18,16 @@ type InstanceManager struct {
 }
 
 // NewInstanceManager - returns new Shepherd instance.
-func NewInstanceManager(hostManager host.HostManager) *InstanceManager {
+func NewInstanceManager() *InstanceManager {
+	appConfig := config.GetAppConfig()
+
+	var hostManager host.HostManager
+
+	if appConfig.HostProvider == vast.ProviderName {
+		vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage, appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, appConfig.RootPath)
+		hostManager = host.HostManager(vastManager)
+	}
+
 	return &InstanceManager{
 		hostManager:        hostManager,
 		instanceRepository: repositories.NewInstanceRepository(),

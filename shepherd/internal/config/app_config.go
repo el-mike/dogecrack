@@ -3,6 +3,8 @@ package config
 import (
 	"log"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -16,6 +18,9 @@ func GetAppConfig() *AppConfig {
 
 // AppConfig - application config container.
 type AppConfig struct {
+	RootPath     string
+	HostProvider string
+
 	SSHUser     string
 	SSHPassword string
 	SSHDirPath  string
@@ -33,6 +38,8 @@ type AppConfig struct {
 	RedisPort string
 
 	WalletString string
+
+	SessionExpiration time.Duration
 }
 
 // NewAppConfig - creates new AppConfig instance and reads values from env.
@@ -43,6 +50,10 @@ func NewAppConfig(rootPath string) (*AppConfig, error) {
 	}
 
 	config := &AppConfig{}
+
+	config.RootPath = rootPath
+
+	config.HostProvider = os.Getenv("HOST_PROVIDER")
 
 	config.SSHUser = os.Getenv("SSH_USER")
 	config.SSHPassword = os.Getenv("SSH_PASSWORD")
@@ -61,6 +72,15 @@ func NewAppConfig(rootPath string) (*AppConfig, error) {
 
 	config.RedisHost = os.Getenv("REDIS_HOST")
 	config.RedisPort = os.Getenv("REDIS_PORT")
+
+	sessionExpirationMinutesRaw := os.Getenv("SESSION_EXPIRATION_MINUTES")
+
+	sessionExpirationMinutes, err := strconv.Atoi(sessionExpirationMinutesRaw)
+	if err != nil {
+		return nil, err
+	}
+
+	config.SessionExpiration = time.Minute * time.Duration(sessionExpirationMinutes)
 
 	appConfig = config
 

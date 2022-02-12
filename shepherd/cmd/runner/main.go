@@ -10,7 +10,6 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
-	"github.com/el-mike/dogecrack/shepherd/internal/vast"
 )
 
 func main() {
@@ -28,8 +27,6 @@ func main() {
 		panic(err)
 	}
 
-	vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage, appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, rootPath)
-
 	mongoClient, err := persist.InitMongo(context.TODO(), appConfig.MongoUser, appConfig.MongoPassword, appConfig.MongoHost, appConfig.MongoPort)
 	if err != nil {
 		logger.Err.Println(err)
@@ -45,7 +42,7 @@ func main() {
 
 	persist.InitRedis(appConfig.RedisHost, appConfig.RedisPort)
 
-	instanceManager := pitbull.NewInstanceManager(vastManager)
+	instanceManager := pitbull.NewInstanceManager()
 	jobManager := pitbull.NewJobManager(instanceManager)
 	runner := pitbull.NewJobRunner(instanceManager)
 

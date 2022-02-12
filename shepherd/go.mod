@@ -4,10 +4,11 @@ go 1.17
 
 require (
 	github.com/go-redis/redis/v8 v8.11.4
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.4.0
 	go.mongodb.org/mongo-driver v1.8.1
-	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
+	golang.org/x/crypto v0.0.0-20220210151621-f4118a5b28e2
 )
 
 require (
