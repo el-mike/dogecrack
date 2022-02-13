@@ -2,6 +2,7 @@ package pitbull
 
 import (
 	"os"
+	"runtime/debug"
 	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
@@ -45,6 +46,7 @@ func (rd *JobDispatcher) Start() {
 	defer func() {
 		if r := recover(); r != nil {
 			rd.logger.Err.Printf("Recovering from panic. reason: %v\n", r)
+			rd.logger.Err.Printf("Stack: \n%s\n", string(debug.Stack()))
 		}
 
 		go rd.Start()

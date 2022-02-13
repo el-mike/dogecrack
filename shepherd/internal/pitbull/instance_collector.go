@@ -2,6 +2,7 @@ package pitbull
 
 import (
 	"os"
+	"runtime/debug"
 	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
@@ -43,6 +44,7 @@ func (cl *InstanceCollector) Start() {
 	defer func() {
 		if r := recover(); r != nil {
 			cl.logger.Err.Printf("Recovering from panic. reason: %v\n", r)
+			cl.logger.Err.Printf("Stack: \n%s\n", string(debug.Stack()))
 		}
 
 		go cl.Start()

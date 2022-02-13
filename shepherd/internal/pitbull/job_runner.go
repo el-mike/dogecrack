@@ -3,6 +3,7 @@ package pitbull
 import (
 	"errors"
 	"os"
+	"runtime/debug"
 	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
@@ -44,7 +45,9 @@ func (ru *JobRunner) runSingle(job *models.PitbullJob) {
 	defer func() {
 		if r := recover(); r != nil {
 			logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "recovery", job.ID.Hex())
+
 			logger.Err.Printf("Recovering from panic. reason: %v\n", r)
+			logger.Err.Printf("Stack: \n%s\n", string(debug.Stack()))
 		}
 	}()
 
