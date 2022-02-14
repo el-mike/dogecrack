@@ -27,7 +27,7 @@ const UNAUTHORIZED_STATUS = 401;
  *
  * ConnectApiService uses Axios under the hood, and provides a way to set up custom interceptors.
  */
-export class ConnectApiService extends BaseApiService {
+export class ShepherdApiService extends BaseApiService {
   public constructor (
     axiosProvider: typeof axios,
     configService: ConfigService,
@@ -39,7 +39,7 @@ export class ConnectApiService extends BaseApiService {
     return toQueryParams(request);
   }
 
-  public buildUrl(baseUrl: string, request: Dictionary) {
+  public buildUrl(baseUrl: string, request: Dictionary = {}) {
     return `${baseUrl}${this.toQueryParams(request)}`;
   }
 

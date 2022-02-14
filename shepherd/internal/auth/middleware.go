@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"net/http"
 	"os"
 
@@ -50,6 +51,13 @@ func (md *Middleware) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
+		contextUser := &ContextUser{
+			sessionId: sessionId,
+			userId:    userId,
+		}
+
+		ctx := context.WithValue(r.Context(), contextUserKey, contextUser)
+
 		if userId == "" {
 			md.responseHelper.HandleError(w, http.StatusUnauthorized, NewSessionExpiredError())
 			return
@@ -57,6 +65,6 @@ func (md *Middleware) Middleware(next http.Handler) http.Handler {
 
 		md.logger.Info.Printf("User '%s' has been authenticated", userId)
 
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

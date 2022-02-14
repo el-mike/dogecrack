@@ -1,4 +1,4 @@
-import { Shell } from 'core/components';
+import { Shell } from './shell';
 
 function App() {
   return (

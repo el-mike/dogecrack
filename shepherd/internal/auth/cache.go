@@ -29,6 +29,10 @@ func NewCache(expiration time.Duration) *Cache {
 // GetSessionId - gets a userId by given sessionId if exists.
 func (cc *Cache) GetUserBySessionId(sessionId string) (string, error) {
 	result, err := cc.redisClient.Get(ctx, sessionId).Result()
+	if err == redis.Nil {
+		return "", nil
+	}
+
 	if err != nil {
 		return "", err
 	}

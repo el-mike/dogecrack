@@ -7,9 +7,9 @@ import {
   Typography,
 } from '@mui/material';
 
-import { UserCredentials } from 'models';
-
 import { LoginForm } from '../components';
+
+import { useAuth } from '../auth.hook';
 
 const LoginBox = styled(Box)`
   display: flex;
@@ -19,14 +19,15 @@ const LoginBox = styled(Box)`
 `;
 
 export const LoginPage: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-
-  const login = (creds: UserCredentials) => console.log(creds);
+  const {
+    loginLoading,
+    login
+  } = useAuth();
 
   return (
     <LoginBox>
       <Typography variant='h5'>Log in</Typography>
-      <LoginForm loading={loading} login={login} />
+      <LoginForm loading={loginLoading} login={login} />
     </LoginBox>
   );
 };

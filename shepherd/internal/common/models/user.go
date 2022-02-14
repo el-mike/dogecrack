@@ -4,7 +4,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 // UserCredentials - describes a User credentials for login operation.
 type UserCredentials struct {
-	Name     string `json:"name"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
@@ -14,7 +14,7 @@ type User struct {
 
 	Name     string `bson:"name" json:"name"`
 	Email    string `bson:"email" json:"email"`
-	Password string `bson:"password" json:"password"`
+	Password string `bson:"password" json:"-"`
 	Role     string `bson:"role" json:"role"`
 }
 
@@ -28,4 +28,21 @@ func NewUser(name, password string) *User {
 	user.ID = primitive.NewObjectID()
 
 	return user
+}
+
+// UserResponse - a response object to be sent to clients.
+type UserResponse struct {
+	BaseModel `bson:",inline"`
+
+	Name  string `bson:"name" json:"name"`
+	Email string `bson:"email" json:"email"`
+}
+
+// NewUserResponse - creates a new UserResponse from User model.
+func NewUserResponse(user *User) *UserResponse {
+	return &UserResponse{
+		BaseModel: user.BaseModel,
+		Name:      user.Name,
+		Email:     user.Email,
+	}
 }

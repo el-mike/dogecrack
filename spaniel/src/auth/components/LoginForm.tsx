@@ -11,7 +11,7 @@ import {
 } from 'common/components';
 
 enum FormKeys {
-  USERNAME = 'username',
+  NAME = 'username',
   PASSWORD = 'password'
 }
 
@@ -30,8 +30,8 @@ export const LoginForm: React.FC<LoginFormProps> = props => {
     const data = new FormData(event.currentTarget);
 
     login({
-      username: data.get('username'),
-      password: data.get('password')
+      username: data.get(FormKeys.NAME),
+      password: data.get(FormKeys.PASSWORD)
     } as UserCredentials);
   };
 
@@ -45,8 +45,8 @@ export const LoginForm: React.FC<LoginFormProps> = props => {
         margin='normal'
         required
         fullWidth
-        id={FormKeys.USERNAME}
-        name={FormKeys.USERNAME}
+        id={FormKeys.NAME}
+        name={FormKeys.NAME}
         label='Username'
         autoFocus
       />

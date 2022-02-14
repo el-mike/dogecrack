@@ -26,3 +26,8 @@ func (mg *Manager) SaveUser(user *models.User) error {
 func (mg *Manager) GetUserByName(name string) (*models.User, error) {
 	return mg.repository.GetByName(name)
 }
+
+// GetUserById - returns a single User with given id.
+func (mg *Manager) GetUserById(id string) (*models.User, error) {
+	return mg.repository.GetById(id)
+}

@@ -37,6 +37,30 @@ func NewController() *Controller {
 	}
 }
 
+// Me - returns a User related to current session sent via cookie.
+func (ct *Controller) Me(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	contextUser := r.Context().Value(contextUserKey).(*ContextUser)
+
+	user, err := ct.manager.GetUser(contextUser.userId)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	userResponse := models.NewUserResponse(user)
+
+	response, err := json.Marshal(&userResponse)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.responseHelper.HandleJSONResponse(w, response)
+}
+
 // Login - performs login operation and sets proper cookie for the client.
 func (ct *Controller) Login(
 	w http.ResponseWriter,
@@ -49,12 +73,12 @@ func (ct *Controller) Login(
 		return
 	}
 
-	if creds.Name == "" || creds.Password == "" {
+	if creds.Username == "" || creds.Password == "" {
 		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("Username or password not provided"))
 		return
 	}
 
-	sessionId, err := ct.manager.Login(creds.Name, creds.Password)
+	sessionId, err := ct.manager.Login(creds.Username, creds.Password)
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return
@@ -65,6 +89,29 @@ func (ct *Controller) Login(
 		Value:    sessionId,
 		Path:     "/",
 		Expires:  time.Now().Add(ct.expiration),
+		HttpOnly: true,
+	})
+
+	ct.responseHelper.HandleEmptyResponse(w)
+}
+
+// Logout - logs user out by deleting the cache entry and cookie.
+func (ct *Controller) Logout(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	contextUser := r.Context().Value(contextUserKey).(*ContextUser)
+
+	if err := ct.manager.Logout(contextUser.sessionId); err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     sessionIdCookie,
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
 		HttpOnly: true,
 	})
 

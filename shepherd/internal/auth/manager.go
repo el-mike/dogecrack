@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
 	"github.com/el-mike/dogecrack/shepherd/internal/users"
 	"github.com/google/uuid"
@@ -23,6 +24,12 @@ func NewManager() *Manager {
 	}
 }
 
+// GetMe - returns currently logged-in User.
+func (mg *Manager) GetUser(userId string) (*models.User, error) {
+	return mg.usersManager.GetUserById(userId)
+}
+
+// Login - logs in given user and saves sessionId to cache.
 func (mg *Manager) Login(username, password string) (string, error) {
 	user, err := mg.usersManager.GetUserByName(username)
 	if err != nil {
@@ -44,6 +51,6 @@ func (mg *Manager) Login(username, password string) (string, error) {
 }
 
 // Logout - logs out given user.
-func (mg *Manager) Logout(username string) error {
-	return mg.cache.DeleteSessionId(username)
+func (mg *Manager) Logout(sessionId string) error {
+	return mg.cache.DeleteSessionId(sessionId)
 }

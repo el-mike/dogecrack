@@ -21,7 +21,7 @@ func NewResponseHelper(logger *Logger) *ResponseHelper {
 // handleInternalError - helper function for returning error as JSON.
 func (ct *ResponseHelper) HandleError(w http.ResponseWriter, status int, err error) {
 	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusInternalServerError)
+	w.WriteHeader(status)
 
 	WithStackTrace(ct.logger.Err, err)
 

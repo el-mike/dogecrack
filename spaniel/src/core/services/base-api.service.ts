@@ -14,31 +14,32 @@ export abstract class BaseApiService<U = any> {
 
   public get<T = U>(url: string, headers: Headers = {}) {
     return this.axios.get<T>(`${url}`, {
+      /**
+       * We need to use withCredentials for request to enable cookie-based authorization.
+       * Otherwise, httpOnly cookies won't be sent back to api.
+       */
+      withCredentials: true,
       headers: this._getHeaders(headers)
-    });
-  }
-
-  public getAsFile(url: string, headers: Headers = {}) {
-    return this.axios.get(`${url}`, {
-      headers: this._getHeaders(headers),
-      responseType: 'blob'
     });
   }
 
   public post<T = U>(url: string, data: any, headers: Headers = {}) {
     return this.axios.post<T>(`${url}`, data, {
+      withCredentials: true,
       headers: this._getHeaders(headers)
     });
   }
 
   public put<T = U>(url: string, data: any, headers: Headers = {}) {
     return this.axios.put<T>(`${url}`, data, {
+      withCredentials: true,
       headers: this._getHeaders(headers)
     });
   }
 
   public delete<T = U>(url: string, headers: Headers = {}) {
     return this.axios.delete<T>(`${url}`, {
+      withCredentials: true,
       headers: this._getHeaders(headers)
     });
   }

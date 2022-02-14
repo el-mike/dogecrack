@@ -13,7 +13,17 @@
       // api from the /cmd/api, and still maintain correct app's internal "rootPath".
       "cwd": "${workspaceRoot}",
       "program": "${workspaceRoot}/cmd/api",
-      "args": ["handleFakeVast"]
+    },
+    {
+      "name": "[Shepherd] API with FakeVast",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      // Note that this has to be set in order to allow to run
+      // api from the /cmd/api, and still maintain correct app's internal "rootPath".
+      "cwd": "${workspaceRoot}",
+      "program": "${workspaceRoot}/cmd/api",
+      "args": ["handleFakeVast"],
     },
     {
       "name": "[Shepherd] Runner",
