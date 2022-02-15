@@ -164,13 +164,16 @@ func (vc *VastCLIClient) sanitizeJSONOutput(out []byte) []byte {
 	jsonArrayStartIndex := strings.Index(outString, "[")
 	jsonObjectStartIndex := strings.Index(outString, "{")
 
-	jsonStartIndex := 0
+	jsonStartIndex := -1
 
 	// Vast CLI can return both objects and arrays as root, depends on the command.
 	// Therefore, we need to check for both cases, and prioritize accordingly.
-	if (jsonArrayStartIndex != -1) && (jsonArrayStartIndex < jsonObjectStartIndex) {
+	if jsonArrayStartIndex != -1 {
 		jsonStartIndex = jsonArrayStartIndex
-	} else {
+	}
+
+	// If '{' was found, and it's before '[' (or '[' was not found), use it instead.
+	if jsonObjectStartIndex != -1 && (jsonObjectStartIndex < jsonStartIndex || jsonStartIndex == -1) {
 		jsonStartIndex = jsonObjectStartIndex
 	}
 
@@ -178,5 +181,7 @@ func (vc *VastCLIClient) sanitizeJSONOutput(out []byte) []byte {
 		return out
 	}
 
-	return []byte(outString[jsonStartIndex:])
+	jsonString := outString[jsonStartIndex:]
+
+	return []byte(jsonString)
 }

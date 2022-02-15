@@ -24,9 +24,10 @@ type AppConfig struct {
 	APIPort       string
 	OriginAllowed string
 
-	SSHUser     string
-	SSHPassword string
-	SSHDirPath  string
+	SSHUser       string
+	SSHPassword   string
+	SSHDirPath    string
+	SSHPrivateKey string
 
 	PitbullImage string
 
@@ -64,6 +65,7 @@ func NewAppConfig(rootPath string) (*AppConfig, error) {
 	config.SSHUser = os.Getenv("SSH_USER")
 	config.SSHPassword = os.Getenv("SSH_PASSWORD")
 	config.SSHDirPath = os.Getenv("SSH_DIR")
+	config.SSHPrivateKey = os.Getenv("SSH_PRIVATE_KEY")
 
 	config.PitbullImage = os.Getenv("PITBULL_IMAGE")
 

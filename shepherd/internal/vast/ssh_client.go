@@ -4,13 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 const CONN_PROTOCOL = "tcp"
-const CONTAINER_PITBULL_PATH = "/app"
 
 // VastSSHClient - Vast.ai SSH connection client. Encapsulates all the operations
 // we can perform on Vast.ai instance.
@@ -27,13 +27,11 @@ type VastSSHClient struct {
 }
 
 // NewVastSSHClient  - returns new VastClient instance. Does NOT start up a connection.
-func NewVastSSHClient(user, password, sshDirPath, ipAddress string, port int) (*VastSSHClient, error) {
-	privateKeyPath := sshDirPath + "/id_rsa"
-
-	privateKeyRaw, err := os.ReadFile(privateKeyPath)
-	if err != nil {
-		return nil, err
-	}
+func NewVastSSHClient(user, password, sshDirPath, sshPrivateKey, ipAddress string, port int) (*VastSSHClient, error) {
+	// We store sshPrivateKey as string with '\n', but since it's coming from .env file, it treats
+	// '\n' characters as normal signs. Therefore, we use replace to insert actual new lines.
+	sshPrivateKey = strings.ReplaceAll(sshPrivateKey, `\n`, "\n")
+	privateKeyRaw := []byte(sshPrivateKey)
 
 	signer, err := ssh.ParsePrivateKey(privateKeyRaw)
 	if err != nil {

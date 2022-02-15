@@ -24,7 +24,7 @@ func NewInstanceManager() *InstanceManager {
 	var hostManager host.HostManager
 
 	if appConfig.HostProvider == vast.ProviderName {
-		vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage, appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, appConfig.RootPath)
+		vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage, appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, appConfig.SSHPrivateKey, appConfig.RootPath)
 		hostManager = host.HostManager(vastManager)
 	}
 

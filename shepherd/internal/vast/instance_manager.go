@@ -11,20 +11,22 @@ import (
 type VastManager struct {
 	cli VastClient
 
-	sshUser     string
-	sshPassword string
-	sshDir      string
+	sshUser       string
+	sshPassword   string
+	sshDir        string
+	sshPrivateKey string
 }
 
 // NewVastManager - returns new VastManager instance.
-func NewVastManager(apiSecret, pitbullImage, sshUser, sshPassword, sshDir, rootDir string) *VastManager {
+func NewVastManager(apiSecret, pitbullImage, sshUser, sshPassword, sshDir, sshPrivateKey, rootDir string) *VastManager {
 	return &VastManager{
 		cli: NewVastCLI(apiSecret, pitbullImage),
 		// cli: NewVastCLIClientMock(rootDir),
 
-		sshUser:     sshUser,
-		sshPassword: sshPassword,
-		sshDir:      sshDir,
+		sshUser:       sshUser,
+		sshPassword:   sshPassword,
+		sshDir:        sshDir,
+		sshPrivateKey: sshPrivateKey,
 	}
 }
 
@@ -123,7 +125,7 @@ func (vm *VastManager) getSSHClient(instance host.HostInstance) (*VastSSHClient,
 		return nil, errors.New("HostInstance is not VastInstance!")
 	}
 
-	sshClient, err := NewVastSSHClient(vm.sshUser, vm.sshPassword, vm.sshDir, vastInstance.SSHHost, vastInstance.SSHPort)
+	sshClient, err := NewVastSSHClient(vm.sshUser, vm.sshPassword, vm.sshDir, vm.sshPrivateKey, vastInstance.SSHHost, vastInstance.SSHPort)
 	if err != nil {
 		return nil, err
 	}
