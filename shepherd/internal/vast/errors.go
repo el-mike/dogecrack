@@ -18,5 +18,5 @@ func NewVastCLIError(stdoutLog, stderrLog string) *VastCLIError {
 
 // Error - error implementation.
 func (e *VastCLIError) Error() string {
-	return fmt.Sprintf("[Stdout]: %s\n[Stderr]: %s\n", e.StdoutLog, e.StderrLog)
+	return fmt.Sprintf("Vast CLI error occured.\n[Stdout]: %s\n[Stderr]: %s\n", e.StdoutLog, e.StderrLog)
 }

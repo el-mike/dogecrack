@@ -154,7 +154,7 @@ func (jr *JobRepository) lookupAndUnwindInstance() (bson.D, bson.D) {
 	// Without $unwind stage, aggregation will return an array in "instance" field,
 	// therefore making instance unmarshaling impossible and returning a Zero-value for the field.
 	unwind := bson.D{
-		{"$unwind", bson.D{{"path", "$instance"}}},
+		{"$unwind", bson.D{{"path", "$instance"}, {"preserveNullAndEmptyArrays", true}}},
 	}
 
 	return lookup, unwind

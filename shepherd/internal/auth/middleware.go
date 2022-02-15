@@ -63,8 +63,6 @@ func (md *Middleware) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		md.logger.Info.Printf("User '%s' has been authenticated", userId)
-
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

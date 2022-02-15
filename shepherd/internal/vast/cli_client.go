@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os/exec"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/host"
@@ -141,7 +142,7 @@ func (vc *VastCLIClient) run(cmdArgs ...string) ([]byte, error) {
 		return nil, NewVastCLIError(string(out.Bytes()), string(errOut.Bytes()))
 	}
 
-	return out.Bytes(), nil
+	return vc.sanitizeJSONOutput(out.Bytes()), nil
 }
 
 // parseInstances - helper function for parsing cmd result as VastInstance slice.
@@ -153,4 +154,29 @@ func (vc *VastCLIClient) parseInstances(cmdResult []byte) ([]*VastInstance, erro
 	}
 
 	return instances, nil
+}
+
+// sanitizeJSONOutput - makes sure vast CLI output has correct JSON format.
+// This helps with any vast CLI additional messages that can be added to the output,
+// as missing vast_pdf for example.
+func (vc *VastCLIClient) sanitizeJSONOutput(out []byte) []byte {
+	outString := string(out)
+	jsonArrayStartIndex := strings.Index(outString, "[")
+	jsonObjectStartIndex := strings.Index(outString, "{")
+
+	jsonStartIndex := 0
+
+	// Vast CLI can return both objects and arrays as root, depends on the command.
+	// Therefore, we need to check for both cases, and prioritize accordingly.
+	if (jsonArrayStartIndex != -1) && (jsonArrayStartIndex < jsonObjectStartIndex) {
+		jsonStartIndex = jsonArrayStartIndex
+	} else {
+		jsonStartIndex = jsonObjectStartIndex
+	}
+
+	if jsonStartIndex == -1 {
+		return out
+	}
+
+	return []byte(outString[jsonStartIndex:])
 }
