@@ -1,4 +1,4 @@
-package server
+package core
 
 import (
 	"log"
@@ -28,6 +28,7 @@ func NewServer(port, originAllowed string) *Server {
 	baseRouter := mux.NewRouter()
 
 	baseRouter.HandleFunc("/health", appController.GetHealth).Methods("GET")
+	baseRouter.HandleFunc("/getEnums", appController.GetEnums).Methods("GET")
 
 	baseRouter.HandleFunc("/login", authController.Login).Methods(http.MethodPost, http.MethodOptions)
 
@@ -35,7 +36,7 @@ func NewServer(port, originAllowed string) *Server {
 
 	protectedRouter.Use(authMiddleware.Middleware)
 
-	protectedRouter.HandleFunc("/me", authController.Me).Methods("GET", "OPTIONS")
+	protectedRouter.HandleFunc("/getMe", authController.Me).Methods("GET")
 	protectedRouter.HandleFunc("/logout", authController.Logout).Methods("GET")
 
 	protectedRouter.HandleFunc("/getActiveInstances", pitbullController.GetActiveInstances).Methods("GET")

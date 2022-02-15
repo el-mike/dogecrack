@@ -3,7 +3,7 @@ import {
   Navigate,
 } from 'react-router-dom';
 
-import { useAuth } from '../auth.hook';
+import { useAuth } from '../auth.context';
 
 export const PublicRoute: React.FC = props => {
   const { user } = useAuth();

@@ -7,7 +7,7 @@ import { ShepherdApiService } from './shepherd-api.service';
 
 export class AuthService {
   private static URLS = {
-    me: '/me',
+    me: '/getMe',
     login: '/login',
     logout: '/logout'
   };

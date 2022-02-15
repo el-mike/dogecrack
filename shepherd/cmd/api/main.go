@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
+	"github.com/el-mike/dogecrack/shepherd/internal/core"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
-	"github.com/el-mike/dogecrack/shepherd/internal/server"
 	"github.com/el-mike/dogecrack/shepherd/internal/vast"
 )
 
@@ -51,7 +51,7 @@ func main() {
 
 	persist.InitRedis(appConfig.RedisHost, appConfig.RedisPort)
 
-	server := server.NewServer(appConfig.APIPort, appConfig.OriginAllowed)
+	server := core.NewServer(appConfig.APIPort, appConfig.OriginAllowed)
 	server.Run()
 }
 

@@ -1,10 +1,12 @@
-package server
+package core
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 )
 
 // Controller - instance responsible for handling general, app-related endpoints.
@@ -27,4 +29,20 @@ func (ct *Controller) GetHealth(
 	r *http.Request,
 ) {
 	w.WriteHeader(http.StatusOK)
+}
+
+// GetEnums - returns application enums configuration.
+func (ct *Controller) GetEnums(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	enums := models.GetAppEnums()
+
+	response, err := json.Marshal(&enums)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.responseHelper.HandleJSONResponse(w, response)
 }

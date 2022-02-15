@@ -27,22 +27,24 @@ import {
 
 import { DashboardPage } from 'dashboard/pages';
 
-import { UnauthenticatedLayout } from './UnauthenticatedLayout';
-import { AuthenticatedLayout } from './AuthenticatedLayout';
-import { ShellLoader } from './ShellLoader';
+import {
+  ShellLoader,
+  AuthenticatedLayout,
+  UnauthenticatedLayout,
+} from './components';
 
 export const InnerShell: React.FC = () => {
   const {
     user,
     userLoading,
-    logout,
+    clear,
   } = useAuth();
 
   useEffect(() => {
     /**
-     * On 401 Unauthorized, we want to simply logout the user.
+     * On 401 Unauthorized, we want to simply clear the user data.
      */
-    // shepherdApiService.setInterceptors(() => logout());
+    shepherdApiService.setInterceptors(() => clear());
 
     /* eslint-disable-next-line */
   }, []);
@@ -74,6 +76,15 @@ export const InnerShell: React.FC = () => {
       <Route element={<AuthenticatedLayout />}>
         <Route
           path='/dashboard'
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path='/passchecks'
           element={
             <ProtectedRoute>
               <DashboardPage />

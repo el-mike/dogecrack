@@ -1,7 +1,6 @@
 import {
   useState,
   useEffect,
-  useCallback,
 } from 'react';
 
 import {
@@ -25,16 +24,13 @@ export const AuthProvider: React.FC = props => {
   const [userLoading, setUserLoading] = useState<boolean>(true);
   const [loginLoading, setLoginLoading] = useState<boolean>(false);
 
-  const loadUser = useCallback(
-    (callback?: LoginFnCallback) => authService.getMe()
-      .then(user => {
-        setUser(user);
-        callback?.(user);
-      })
-      .catch(() => setUser(null))
-      .finally(() => setUserLoading(false)),
-    [authService, setUser, setUserLoading],
-  );
+  const loadUser = (callback?: LoginFnCallback) => authService.getMe()
+    .then(user => {
+      setUser(user);
+      callback?.(user);
+    })
+    .catch(() => setUser(null))
+    .finally(() => setUserLoading(false));
 
   useEffect(() => {
     loadUser();
@@ -49,10 +45,12 @@ export const AuthProvider: React.FC = props => {
       .finally(() => setLoginLoading(false));
   };
 
+  const clear = () => setUser(null);
+
   const logout = (callback?: LogoutFnCallback) => {
     authService.logout()
       .then(() => {
-        setUser(null);
+        clear();
         callback?.()
       });
   };
@@ -63,6 +61,7 @@ export const AuthProvider: React.FC = props => {
     loginLoading,
     login,
     logout,
+    clear,
   } as AuthContext;
   
   return (

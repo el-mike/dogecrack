@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import styled from 'styled-components';
 
 import {
@@ -9,7 +7,7 @@ import {
 
 import { LoginForm } from '../components';
 
-import { useAuth } from '../auth.hook';
+import { useAuth } from '../auth.context';
 
 const LoginBox = styled(Box)`
   display: flex;

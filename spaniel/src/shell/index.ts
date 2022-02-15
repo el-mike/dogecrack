@@ -1,3 +1,3 @@
-export * from './UnauthenticatedLayout';
-export * from './AuthenticatedLayout';
+export * from './components';
+
 export * from './Shell';

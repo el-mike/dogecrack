@@ -1,4 +1,7 @@
-import { createContext } from 'react';
+import {
+  createContext,
+  useContext,
+} from 'react';
 
 import {
   User,
@@ -10,6 +13,7 @@ export type LogoutFnCallback = () => void;
 
 export type LoginFn = (creds: UserCredentials, callback?: LoginFnCallback) => void;
 export type LogoutFn = (callback?: LogoutFnCallback) => void;
+export type ClearAuthFn = () => void;
 
 export type AuthContext = {
   user: User;
@@ -17,6 +21,9 @@ export type AuthContext = {
   loginLoading: boolean;
   login: LoginFn;
   logout: LogoutFn;
-}
+  clear: ClearAuthFn;
+};
 
 export const authContext = createContext<AuthContext>(null!);
+
+export const useAuth = () => useContext(authContext);
