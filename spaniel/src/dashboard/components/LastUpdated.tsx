@@ -1,4 +1,4 @@
-import { useTimeAgo } from 'core/hooks';
+import { TimeAgo } from 'core/components';
 
 import  { LabeledInfo } from './LabeledInfo';
 
@@ -9,13 +9,10 @@ export type LastUpdatedProps = {
 export const LastUpdated: React.FC<LastUpdatedProps> = props => {
   const { updatedAt } = props;
 
-  const value = useTimeAgo(updatedAt);
-
   return (
-    <LabeledInfo
-      title='Last updated:'
-      value={value}
-    />
+    <LabeledInfo title='Last updated:'>
+      <TimeAgo from={updatedAt} />
+    </LabeledInfo>
   );
 };
 

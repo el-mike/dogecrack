@@ -28,3 +28,11 @@ export const getDurationFromNow = (date: Date) => {
     end: new Date(),
   });
 };
+
+export const getDuration = (start: Date, end: Date) => {
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return {};
+  }
+
+  return intervalToDuration({ start, end });
+}

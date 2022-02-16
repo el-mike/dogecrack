@@ -9,27 +9,27 @@ import { ContentCopy as ContentCopyIcon } from '@mui/icons-material';
 
 export type LabeledInfoProps = {
   title: string;
-  value: string | number;
-  allowCopy?: boolean;
+  value?: string | number;
+  toCopy?: LabeledInfoProps['value'];
 };
 
 const InfoContainer = styled.div``;
 
 export const LabeledInfo: React.FC<LabeledInfoProps> = props => {
-  const { title, value, allowCopy } = props;
+  const { title, value, toCopy: valueToCopy } = props;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${value}`);
+    navigator.clipboard.writeText(`${valueToCopy}`);
   };
 
   return (
     <InfoContainer>
       <Typography variant='caption' display='flex'>{title}</Typography>
-      <Typography variant='subtitle1' fontWeight='bold' display={allowCopy ? 'inline' : 'flex'}>
-        {value}
+      <Typography variant='subtitle1' fontWeight='bold' display={valueToCopy ? 'inline' : 'flex'}>
+        {props.children || value}
       </Typography>
       
-      {!!allowCopy && (
+      {!!valueToCopy && (
         <IconButton onClick={handleCopy} size='small'>
           <ContentCopyIcon fontSize='small' />
       </IconButton>

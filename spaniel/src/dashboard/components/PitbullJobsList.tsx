@@ -11,7 +11,7 @@ import { millisecondsInSecond } from 'date-fns';
 
 import { Spacer } from 'common/components';
 
-import { useTimeAgo } from 'core/hooks';
+import { TimeAgo } from 'core/components';
 
  import { usePitbullJobs } from '../pitbull-jobs.context';
 
@@ -22,7 +22,13 @@ const HeaderWrapper = styled.div`
   justify-content: space-between;
 `;
 
-export const PitbullJobsList: React.FC = props => {
+const NoJobsWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const PitbullJobsList: React.FC = () => {
   const [refreshedAt, setRefreshedAt] = useState(new Date());
   
   const {
@@ -48,24 +54,27 @@ export const PitbullJobsList: React.FC = props => {
     return () => clearInterval(interval);
   }, []);
 
-  const refreshedAgo = useTimeAgo(refreshedAt.toISOString());
-
   return (
     <>
     <HeaderWrapper>
       <Typography variant='h5'>Pitbull Jobs</Typography>
-      <Typography variant='h6'>Last refreshed: {refreshedAgo}</Typography>
+      <Typography variant='h6'>Last refreshed: <TimeAgo from={refreshedAt.toISOString()} /></Typography>
     </HeaderWrapper>
 
-    <Spacer mb={2} />
+    <Spacer mb={4} />
 
-    {jobs.map(job => (
-      <React.Fragment key={job.id}>
-        <PitbullJob job={job} />
-
-        <Spacer mb={3} />
-      </React.Fragment>
-    ))}
+    {!jobs.length
+      ? <NoJobsWrapper>
+          <Typography variant='h5'>No jobs found.</Typography>
+        </NoJobsWrapper>
+      : jobs.map(job => (
+        <React.Fragment key={job.id}>
+          <PitbullJob job={job} />
+  
+          <Spacer mb={3} />
+        </React.Fragment>
+      ))
+    }
     </>
   );
 };

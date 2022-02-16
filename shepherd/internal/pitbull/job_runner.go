@@ -2,6 +2,7 @@ package pitbull
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"runtime/debug"
 	"time"
@@ -78,7 +79,7 @@ func (ru *JobRunner) assignInstance(job *models.PitbullJob) {
 	if err != nil {
 		logger.Err.Printf("Assign instance failed. reason: %v\n", err)
 
-		ru.handleFailure(job)
+		ru.handleFailure(job, logger.DecorateErr(err))
 		return
 	}
 
@@ -95,7 +96,7 @@ func (ru *JobRunner) startHost(job *models.PitbullJob) {
 	if err != nil {
 		logger.Err.Printf("starting host failed. Reason: %s\n", err)
 
-		ru.handleFailure(job)
+		ru.handleFailure(job, logger.DecorateErr(err))
 		return
 	}
 
@@ -115,7 +116,7 @@ func (ru *JobRunner) startHost(job *models.PitbullJob) {
 
 			ticker.Stop()
 
-			ru.handleFailure(job)
+			ru.handleFailure(job, logger.DecorateErr(err))
 			return
 		}
 
@@ -153,7 +154,7 @@ func (ru *JobRunner) runPitbull(job *models.PitbullJob) {
 	if _, err := ru.instanceManager.RunPitbull(job.InstanceId.Hex()); err != nil {
 		logger.Err.Printf("starting Pitbull failed. Reason: %s\n", err)
 
-		ru.handleFailure(job)
+		ru.handleFailure(job, logger.DecorateErr(err))
 		return
 	}
 
@@ -166,7 +167,9 @@ func (ru *JobRunner) runPitbull(job *models.PitbullJob) {
 
 	for range ticker.C {
 		if retryCount >= checkStatusRetryLimit {
-			logger.Err.Printf("retries limit reached, stopping job and host\n")
+			err := fmt.Errorf("retries limit reached")
+
+			logger.Err.Printf("%s, stopping job and host\n", err)
 
 			if err := ru.instanceManager.StopHostInstance(job.InstanceId.Hex()); err != nil {
 				logger.Err.Printf("stopping host instance failed. Reason: %s\n", err)
@@ -174,7 +177,7 @@ func (ru *JobRunner) runPitbull(job *models.PitbullJob) {
 
 			ticker.Stop()
 
-			ru.handleFailure(job)
+			ru.handleFailure(job, logger.DecorateErr(err))
 			return
 		}
 
@@ -247,7 +250,7 @@ func (ru *JobRunner) runPitbull(job *models.PitbullJob) {
 
 			ticker.Stop()
 
-			ru.handleFailure(job)
+			ru.handleFailure(job, logger.DecorateErr(err))
 			return
 		}
 
@@ -271,7 +274,7 @@ func (ru *JobRunner) handleCompletion(job *models.PitbullJob) {
 
 // handleFailure - handles a failure scenario by rescheduling or rejecting the job,
 // based on its history and status.
-func (ru *JobRunner) handleFailure(job *models.PitbullJob) {
+func (ru *JobRunner) handleFailure(job *models.PitbullJob, reason error) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "cleanup", job.ID.Hex())
 
 	logger.Info.Printf("Failure handling started\n")
@@ -279,7 +282,7 @@ func (ru *JobRunner) handleFailure(job *models.PitbullJob) {
 	if job.RescheduleCount > rescheduleLimit {
 		logger.Info.Printf("Reschedule limit reached, rejecting\n")
 
-		if err := ru.jobManager.RejectJob(job); err != nil {
+		if err := ru.jobManager.RejectJob(job, reason); err != nil {
 			logger.Err.Printf("Rejecting failed. reason: %s\n", err)
 
 			return
@@ -287,7 +290,7 @@ func (ru *JobRunner) handleFailure(job *models.PitbullJob) {
 	} else {
 		logger.Info.Printf("Rescheduling.\n")
 
-		if err := ru.jobManager.RescheduleJob(job); err != nil {
+		if err := ru.jobManager.RescheduleJob(job, reason); err != nil {
 			logger.Err.Printf("Rescheduling failed. reason: %s\n", err)
 
 			return

@@ -11,6 +11,9 @@ import (
 type Logger struct {
 	Info *log.Logger
 	Err  *log.Logger
+
+	infoPrefix string
+	errPrefix  string
 }
 
 // NewLogger - returns new Logger instance.
@@ -23,8 +26,18 @@ func NewLogger(mainTag string, infoOut, errOut io.Writer, extraTags ...string) *
 
 	extraPrefix += ": "
 
+	infoPrefix := fmt.Sprintf("[%s][Info]%s", mainTag, extraPrefix)
+	errPrefix := fmt.Sprintf("[%s][Error]%s", mainTag, extraPrefix)
+
 	return &Logger{
-		Info: log.New(infoOut, fmt.Sprintf("[%s][Info]%s", mainTag, extraPrefix), log.Ldate|log.Ltime|log.Lmsgprefix),
-		Err:  log.New(errOut, fmt.Sprintf("[%s][Error]%s", mainTag, extraPrefix), log.Ldate|log.Ltime|log.Lmsgprefix),
+		Info:       log.New(infoOut, infoPrefix, log.Ldate|log.Ltime|log.Lmsgprefix),
+		Err:        log.New(errOut, errPrefix, log.Ldate|log.Ltime|log.Lmsgprefix),
+		infoPrefix: infoPrefix,
+		errPrefix:  errPrefix,
 	}
+}
+
+// DecorateErr - returns given error message with it's prefix.
+func (l Logger) DecorateErr(err error) error {
+	return fmt.Errorf("%s%s", l.errPrefix, err)
 }

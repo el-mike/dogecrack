@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
@@ -69,7 +68,7 @@ func (jr *JobRepository) RescheduleProcessingJobs(jobIds []string) error {
 	update := bson.D{
 		{"$set", bson.D{
 			{"status", models.JobRescheduled},
-			{"lastScheduledAt", time.Now()},
+			{"lastScheduledAt", models.NullableTimeNow()},
 		}},
 	}
 
@@ -115,8 +114,8 @@ func (jr *JobRepository) GetAll(statuses []models.JobStatus) ([]*models.PitbullJ
 func (jr *JobRepository) Create(job *models.PitbullJob) error {
 	collection := jr.db.Collection(jobsCollection)
 
-	job.CreatedAt = time.Now()
-	job.UpdatedAt = time.Now()
+	job.CreatedAt = models.NullableTimeNow()
+	job.UpdatedAt = models.NullableTimeNow()
 
 	result, err := collection.InsertOne(context.TODO(), job)
 	if err != nil {
@@ -132,7 +131,7 @@ func (jr *JobRepository) Create(job *models.PitbullJob) error {
 func (jr *JobRepository) Update(job *models.PitbullJob) error {
 	collection := jr.db.Collection(jobsCollection)
 
-	job.UpdatedAt = time.Now()
+	job.UpdatedAt = models.NullableTimeNow()
 
 	payload := bson.D{{Key: "$set", Value: job}}
 

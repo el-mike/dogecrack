@@ -1,7 +1,7 @@
 package models
 
 import (
-	"time"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -36,15 +36,17 @@ type PitbullJob struct {
 	InstanceId primitive.ObjectID `bson:"instanceId" json:"instanceId"`
 	Instance   *PitbullInstance   `bson:"instance,omitempty" json:"instance"`
 
-	StartedAt time.Time `bson:"startedAt" json:"startedAt"`
+	StartedAt NullableTime `bson:"startedAt" json:"startedAt"`
 
-	FirstScheduledAt time.Time `bson:"firstScheduledAt" json:"firstScheduledAt"`
-	LastScheduledAt  time.Time `bson:"lastScheduledAt" json:"lastScheduledAt"`
-	AcknowledgedAt   time.Time `bson:"acknowledgedAt" json:"acknowledgedAt"`
-	RejectedAt       time.Time `bson:"rejectedAt" json:"rejectedAt"`
+	FirstScheduledAt NullableTime `bson:"firstScheduledAt" json:"firstScheduledAt,omitempty"`
+	LastScheduledAt  NullableTime `bson:"lastScheduledAt" json:"lastScheduledAt,omitempty"`
+	AcknowledgedAt   NullableTime `bson:"acknowledgedAt" json:"acknowledgedAt,omitempty"`
+	RejectedAt       NullableTime `bson:"rejectedAt" json:"rejectedAt,omitempty"`
 
 	Status          JobStatus `bson:"status" json:"status"`
 	RescheduleCount int       `bson:"rescheduleCount" json:"rescheduleCount"`
+
+	ErrorLog string `bson:"errorLog" json:"errorLog"`
 }
 
 // NewPitbullJob - returns new PitbullJob instance.
@@ -59,4 +61,13 @@ func NewPitbullJob(keyword, passlistUrl, walletString string) *PitbullJob {
 	job.ID = primitive.NewObjectID()
 
 	return job
+}
+
+// AppendError - appends an error to PitbullJob's internal error log.
+func (pj *PitbullJob) AppendError(err error) {
+	if pj.ErrorLog == "" {
+		pj.ErrorLog = ""
+	}
+
+	pj.ErrorLog += fmt.Sprintf("%s\n", err.Error())
 }

@@ -9,8 +9,9 @@ import {
 
 import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 
-export type PitbullOutputProps = {
-  output: string;
+export type CollapsibleTerminalProps = {
+  title: string;
+  content: string;
 }
 
 const Output = styled.div`
@@ -21,8 +22,8 @@ const Terminal = styled(AccordionDetails)`
   background-color: ${props => props.theme.palette.background.default};
 `;
 
-export const PitbullOutput: React.FC<PitbullOutputProps> = props => {
-  const { output } = props;
+export const CollapsibleTerminal: React.FC<CollapsibleTerminalProps> = props => {
+  const { title, content: output } = props;
 
   const lines = (output || '').split('\n');
 
@@ -30,12 +31,18 @@ export const PitbullOutput: React.FC<PitbullOutputProps> = props => {
     <Output>
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant='overline'>Pitbull output</Typography>
+          <Typography variant='overline'>{title}</Typography>
         </AccordionSummary>
 
         <Terminal>
-          {(lines || []).map(line => (
-            <Typography fontFamily='inherit' fontSize='small'>{line}</Typography>
+          {(lines || []).map((line, i) => (
+            <Typography
+              key={i}
+              fontFamily='inherit'
+              fontSize='small'
+            >
+                {line}
+              </Typography>
           ))}
         </Terminal>
       </Accordion>

@@ -1,8 +1,6 @@
 package pitbull
 
 import (
-	"time"
-
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/repositories"
 )
@@ -32,8 +30,8 @@ func (js *JobManager) GetJobs(statuses []models.JobStatus) ([]*models.PitbullJob
 func (js *JobManager) CreateJob(keyword, passlistUrl, walletString string) (*models.PitbullJob, error) {
 	job := models.NewPitbullJob(keyword, passlistUrl, walletString)
 
-	job.FirstScheduledAt = time.Now()
-	job.LastScheduledAt = time.Now()
+	job.FirstScheduledAt = models.NullableTimeNow()
+	job.LastScheduledAt = models.NullableTimeNow()
 
 	if err := js.jobRepository.Create(job); err != nil {
 		return nil, err
@@ -78,7 +76,7 @@ func (js *JobManager) DequeueJob() (*models.PitbullJob, error) {
 	}
 
 	job.Status = models.JobProcessing
-	job.StartedAt = time.Now()
+	job.StartedAt = models.NullableTimeNow()
 
 	if err := js.jobRepository.Update(job); err != nil {
 		return nil, err
@@ -94,19 +92,21 @@ func (js *JobManager) AcknowledgeJob(job *models.PitbullJob) error {
 	}
 
 	job.Status = models.JobAcknowledged
-	job.AcknowledgedAt = time.Now()
+	job.AcknowledgedAt = models.NullableTimeNow()
 
 	return js.jobRepository.Update(job)
 }
 
 // RejectJob - rejects a single job, and marks related instances as "Interrupted".
-func (js *JobManager) RejectJob(job *models.PitbullJob) error {
+func (js *JobManager) RejectJob(job *models.PitbullJob, reason error) error {
 	if err := js.jobQueue.Reject(job.ID.Hex()); err != nil {
 		return err
 	}
 
+	job.AppendError(reason)
+
 	job.Status = models.JobRejected
-	job.RejectedAt = time.Now()
+	job.RejectedAt = models.NullableTimeNow()
 
 	if err := js.jobRepository.Update(job); err != nil {
 		return err
@@ -116,13 +116,15 @@ func (js *JobManager) RejectJob(job *models.PitbullJob) error {
 }
 
 // RescheduleJob - reschedules a single job and marks related instances as "Interrupted".
-func (js *JobManager) RescheduleJob(job *models.PitbullJob) error {
+func (js *JobManager) RescheduleJob(job *models.PitbullJob, reason error) error {
 	if err := js.jobQueue.Reschedule(job.ID.Hex()); err != nil {
 		return err
 	}
 
+	job.AppendError(reason)
+
 	job.Status = models.JobRescheduled
-	job.LastScheduledAt = time.Now()
+	job.LastScheduledAt = models.NullableTimeNow()
 	job.RescheduleCount += 1
 
 	if err := js.jobRepository.Update(job); err != nil {

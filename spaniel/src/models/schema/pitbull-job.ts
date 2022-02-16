@@ -26,6 +26,8 @@ export type PitbullJobDto = BaseEntityDto & {
   rejectedAt: string;
 
   rescheduleCount: number;
+
+  errorLog: string;
 };
 
 export type PitbullJob = BaseEntity

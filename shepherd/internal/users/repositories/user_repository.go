@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
@@ -68,8 +67,8 @@ func (ur *UserRepository) GetById(id string) (*models.User, error) {
 func (ur *UserRepository) Insert(user *models.User) error {
 	collection := ur.db.Collection(usersCollection)
 
-	user.CreatedAt = time.Now()
-	user.UpdatedAt = time.Now()
+	user.CreatedAt = models.NullableTimeNow()
+	user.UpdatedAt = models.NullableTimeNow()
 
 	result, err := collection.InsertOne(context.TODO(), user)
 	if err != nil {

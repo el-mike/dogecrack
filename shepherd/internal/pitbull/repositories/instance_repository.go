@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
@@ -51,8 +50,8 @@ func (ir *InstanceRepository) GetInstanceById(id string) (*models.PitbullInstanc
 func (ir *InstanceRepository) CreateInstance(pitbull *models.PitbullInstance) error {
 	collection := ir.db.Collection(instancesCollection)
 
-	pitbull.CreatedAt = time.Now()
-	pitbull.UpdatedAt = time.Now()
+	pitbull.CreatedAt = models.NullableTimeNow()
+	pitbull.UpdatedAt = models.NullableTimeNow()
 
 	result, err := collection.InsertOne(context.TODO(), pitbull)
 	if err != nil {
@@ -67,7 +66,7 @@ func (ir *InstanceRepository) CreateInstance(pitbull *models.PitbullInstance) er
 func (ir *InstanceRepository) UpdateInstance(pitbull *models.PitbullInstance) error {
 	collection := ir.db.Collection(instancesCollection)
 
-	pitbull.UpdatedAt = time.Now()
+	pitbull.UpdatedAt = models.NullableTimeNow()
 
 	payload := bson.D{{Key: "$set", Value: pitbull}}
 
