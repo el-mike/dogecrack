@@ -13,4 +13,4 @@ export type NavigationContext = {
 
 export const navigationContext = createContext<NavigationContext>(null!);
 
-export const useNavigation = () => useContext(navigationContext);
+export const useNavigationContext = () => useContext(navigationContext);

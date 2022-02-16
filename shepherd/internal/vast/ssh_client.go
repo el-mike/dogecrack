@@ -134,7 +134,7 @@ func (vs *VastSSHClient) run(cmd string) (string, error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		output += line
+		output += line + "\n"
 	}
 
 	return output, nil

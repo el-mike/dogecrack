@@ -14,15 +14,15 @@ import {
 
 import { Spacer } from 'common/components';
 
-import { useAuth } from 'auth';
+import { useAuthContext } from 'auth';
 
-import { useNavigation } from '../navigation.context';
+import { useNavigationContext } from '../navigation.context';
 
 const ActionsContainer = styled.div``;
 
 export const AppBar: React.FC = () => {
-  const { logout } = useAuth();
-  const { open } = useNavigation();
+  const { logout } = useAuthContext();
+  const { open } = useNavigationContext();
 
   const handleNavigationOpen = () => open();
   const handleLogout = () => logout();

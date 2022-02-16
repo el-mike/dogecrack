@@ -29,6 +29,7 @@ var nameByJobStatus = map[JobStatus]string{
 type PitbullJob struct {
 	BaseModel `bson:",inline"`
 
+	Keyword      string `bson:"keyword" json:"keyword"`
 	WalletString string `bson:"walletString" json:"walletString"`
 	PasslistUrl  string `bson:"passlistUrl" json:"passlistUrl"`
 
@@ -47,8 +48,9 @@ type PitbullJob struct {
 }
 
 // NewPitbullJob - returns new PitbullJob instance.
-func NewPitbullJob(passlistUrl, walletString string) *PitbullJob {
+func NewPitbullJob(keyword, passlistUrl, walletString string) *PitbullJob {
 	job := &PitbullJob{
+		Keyword:      keyword,
 		WalletString: walletString,
 		PasslistUrl:  passlistUrl,
 		Status:       JobScheduled,

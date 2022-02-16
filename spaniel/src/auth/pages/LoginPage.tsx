@@ -7,7 +7,7 @@ import {
 
 import { LoginForm } from '../components';
 
-import { useAuth } from '../auth.context';
+import { useAuthContext } from '../auth.context';
 
 const LoginBox = styled(Box)`
   display: flex;
@@ -20,7 +20,7 @@ export const LoginPage: React.FC = () => {
   const {
     loginLoading,
     login
-  } = useAuth();
+  } = useAuthContext();
 
   return (
     <LoginBox>

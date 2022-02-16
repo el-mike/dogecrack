@@ -26,4 +26,4 @@ export type AuthContext = {
 
 export const authContext = createContext<AuthContext>(null!);
 
-export const useAuth = () => useContext(authContext);
+export const useAuthContext = () => useContext(authContext);

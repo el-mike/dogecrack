@@ -29,8 +29,8 @@ func (js *JobManager) GetJobs(statuses []models.JobStatus) ([]*models.PitbullJob
 }
 
 // CreateJob - creates an empty job and saves it to DB.
-func (js *JobManager) CreateJob(passlistUrl, walletString string) (*models.PitbullJob, error) {
-	job := models.NewPitbullJob(passlistUrl, walletString)
+func (js *JobManager) CreateJob(keyword, passlistUrl, walletString string) (*models.PitbullJob, error) {
+	job := models.NewPitbullJob(keyword, passlistUrl, walletString)
 
 	job.FirstScheduledAt = time.Now()
 	job.LastScheduledAt = time.Now()

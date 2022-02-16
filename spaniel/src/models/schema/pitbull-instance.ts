@@ -1,23 +1,51 @@
 import { Dictionary } from '../structs/dictionary';
-import { BaseEntity } from './base-entity';
 
-export type HostInstance = Dictionary;
+import {
+  BaseEntityDto,
+  BaseEntity,
+} from './base-entity';
 
-export type ProgressInfo = {
+import {
+  VAST_PROVIDER_NAME,
+  VastInstanceDto,
+  VastInstance,
+  mapVastInstance,
+} from './vast-instance';
+
+export type HostInstanceDto = Dictionary & VastInstanceDto;
+export type HostInstance = Dictionary & VastInstance;
+
+export type ProgressInfoDto = {
   checked: number;
   total: number;
 };
 
-export type PitbullInstance = BaseEntity & {
+export type ProgressInfo = ProgressInfoDto;
+
+export type PitbullInstanceDto = BaseEntityDto & {
   rules: string[];
 
   walletString: string;
   passlistUrl: string;
 
   status: number;
-  progress: ProgressInfo;
+  progress: ProgressInfoDto;
   lastOutput: string;
 
   providerName: string;
-  hostInstance: HostInstance;
+  hostInstance: HostInstanceDto;
 };
+
+export type PitbullInstance = BaseEntity
+  & Omit<PitbullInstanceDto, 'progress' | 'hostInstance'>
+  & {
+    progress: ProgressInfo;
+    hostInstance: HostInstance;
+  };
+
+export const mapPitbullInstance = (dto: PitbullInstanceDto) => ({
+  ...dto,
+  hostInstance: dto.providerName === VAST_PROVIDER_NAME
+    ? mapVastInstance(dto.hostInstance)
+    : {},
+} as PitbullInstance);

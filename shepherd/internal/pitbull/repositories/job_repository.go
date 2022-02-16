@@ -95,7 +95,9 @@ func (jr *JobRepository) GetAll(statuses []models.JobStatus) ([]*models.PitbullJ
 
 	lookup, unwind := jr.lookupAndUnwindInstance()
 
-	cursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{match, lookup, unwind})
+	sort := bson.D{{"$sort", bson.D{{"createdAt", -1}}}}
+
+	cursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{match, lookup, unwind, sort})
 	if err != nil {
 		return nil, err
 	}

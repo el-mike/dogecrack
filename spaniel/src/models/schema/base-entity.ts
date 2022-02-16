@@ -1,5 +1,8 @@
-export type BaseEntity = {
+export type BaseEntityDto = {
   id: string;
   createdAt: string;
   updatedAt: string;
 };
+
+
+export type BaseEntity = BaseEntityDto;

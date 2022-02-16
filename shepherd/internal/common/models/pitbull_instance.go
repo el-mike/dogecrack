@@ -60,10 +60,8 @@ func (pi *ProgressInfo) Formatted() string {
 type PitbullInstance struct {
 	BaseModel `bson:",inline"`
 
-	Name         string   `bson:"name" json:"name"`
-	Rules        []string `bson:"rules" json:"rules"`
-	WalletString string   `bson:"walletString" json:"walletString"`
-	PasslistUrl  string   `bson:"passlistUrl" json:"passlistUrl"`
+	WalletString string `bson:"walletString" json:"walletString"`
+	PasslistUrl  string `bson:"passlistUrl" json:"passlistUrl"`
 
 	Status     PitbullStatus `bson:"status" json:"status"`
 	Progress   *ProgressInfo `bson:"progress" json:"progress"`

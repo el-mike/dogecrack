@@ -16,12 +16,7 @@ import {
 
 import { Link } from 'react-router-dom';
 
-import { useNavigation } from '../navigation.context';
-
-enum NavigationKey {
-  DASHBOARD = 'dashboard',
-  PASSCHEKS = 'passchecks'
-}
+import { useNavigationContext } from '../navigation.context';
 
 const NavigationContainer = styled(Box)`
   width: 200px;
@@ -31,11 +26,11 @@ export const Navigation: React.FC = () => {
   const {
     isOpen,
     close,
-  } = useNavigation();
+  } = useNavigationContext();
 
   return (
     <Drawer open={isOpen} onClose={close}>
-      <NavigationContainer>
+      <NavigationContainer onClick={close}>
         <List>
           <ListItem
             button

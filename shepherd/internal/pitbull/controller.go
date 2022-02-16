@@ -103,14 +103,26 @@ func (ct *Controller) Crack(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	generatorResult, err := ct.passwordGenerator.Generate("testPassword1", []string{})
+	var payload *models.CrackPayload
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if payload.Keyword == "" {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("Keyword is required"))
+		return
+	}
+
+	generatorResult, err := ct.passwordGenerator.Generate(payload.Keyword, payload.Rules)
 
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	job, err := ct.jobScheduler.ScheduleRun(generatorResult.PasslistUrl, ct.appConfig.WalletString)
+	job, err := ct.jobScheduler.ScheduleRun(generatorResult.Keyword, generatorResult.PasslistUrl, ct.appConfig.WalletString)
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return

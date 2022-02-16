@@ -17,11 +17,14 @@ import { darkTheme } from 'config/theming';
 
 import { shepherdApiService } from 'core/services';
 
+import { useGeneralContext } from 'core/contexts';
+import { GeneralProvider } from 'core/components';
+
 import {
   AuthProvider,
   ProtectedRoute,
   PublicRoute,
-  useAuth,
+  useAuthContext,
   LoginPage,
 } from 'auth';
 
@@ -35,10 +38,13 @@ import {
 
 export const InnerShell: React.FC = () => {
   const {
-    user,
     userLoading,
     clear,
-  } = useAuth();
+  } = useAuthContext();
+
+  const {
+    enumsLoading,
+  } = useGeneralContext();
 
   useEffect(() => {
     /**
@@ -49,7 +55,8 @@ export const InnerShell: React.FC = () => {
     /* eslint-disable-next-line */
   }, []);
 
-  const initializing = userLoading;
+  const initializing = userLoading
+    || enumsLoading;
 
   if (initializing) {
     return (
@@ -101,7 +108,9 @@ export const Shell: React.FC = () => {
     <ThemeShell>
       <BrowserRouter>
         <AuthProvider>
-          <InnerShell />
+          <GeneralProvider>
+            <InnerShell />
+          </GeneralProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeShell>

@@ -1,5 +1,6 @@
 import {
-  PitbullJob,
+  PitbullJobDto,
+  mapPitbullJob,
 } from 'models';
 
 import { ShepherdApiService } from './shepherd-api.service';
@@ -15,8 +16,8 @@ export class PitbullJobService {
     const url = PitbullJobService.URLS.jobs;
 
     return this.apiClient
-      .get<PitbullJob[]>(url)
-      .then(response => response.data);
+      .get<PitbullJobDto[]>(url)
+      .then(response => (response.data || []).map(job => mapPitbullJob(job)));
   }
 }
 

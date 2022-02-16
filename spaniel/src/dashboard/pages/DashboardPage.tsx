@@ -15,7 +15,7 @@ export const DashboardPage: React.FC = () => {
   return (
     <DashboardWrapper>
       <PitbullJobsProvider>
-        <Typography variant='h5'>
+        <Typography variant='h4'>
           Dashboard
         </Typography>
 
