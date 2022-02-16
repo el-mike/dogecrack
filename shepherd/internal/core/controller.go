@@ -6,12 +6,13 @@ import (
 	"os"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/api"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 )
 
 // Controller - instance responsible for handling general, app-related endpoints.
 type Controller struct {
-	responseHelper common.ResponseHelper
+	responseHelper api.ResponseHelper
 }
 
 // NewController - returns new Controller instance.
@@ -19,7 +20,7 @@ func NewController() *Controller {
 	logger := common.NewLogger("AppController", os.Stdout, os.Stderr)
 
 	return &Controller{
-		responseHelper: *common.NewResponseHelper(logger),
+		responseHelper: *api.NewResponseHelper(logger),
 	}
 }
 

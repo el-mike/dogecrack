@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/api"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
 	"github.com/el-mike/dogecrack/shepherd/internal/generator"
@@ -17,7 +18,7 @@ import (
 // Controller - responsible for handling all endpoints related to Pitbull
 // instances and jobs.
 type Controller struct {
-	responseHelper common.ResponseHelper
+	responseHelper api.ResponseHelper
 	logger         *common.Logger
 
 	appConfig *config.AppConfig
@@ -35,7 +36,7 @@ func NewController() *Controller {
 	logger := common.NewLogger("Controller", os.Stdout, os.Stderr)
 
 	return &Controller{
-		responseHelper: *common.NewResponseHelper(logger),
+		responseHelper: *api.NewResponseHelper(logger),
 		appConfig:      config.GetAppConfig(),
 
 		instanceManager: instanceManager,

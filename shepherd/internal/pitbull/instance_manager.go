@@ -4,11 +4,12 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/el-mike/dogecrack/shepherd/internal/common/host"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
-	"github.com/el-mike/dogecrack/shepherd/internal/host"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/repositories"
 	"github.com/el-mike/dogecrack/shepherd/internal/vast"
+	vastmodels "github.com/el-mike/dogecrack/shepherd/internal/vast/models"
 )
 
 // InstanceManager - main managing entity responsible for Pitbull instances.
@@ -23,7 +24,7 @@ func NewInstanceManager() *InstanceManager {
 
 	var hostManager host.HostManager
 
-	if appConfig.HostProvider == vast.ProviderName {
+	if appConfig.HostProvider == vastmodels.ProviderName {
 		vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage, appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, appConfig.SSHPrivateKey, appConfig.RootPath)
 		hostManager = host.HostManager(vastManager)
 	}
@@ -45,12 +46,12 @@ func (im *InstanceManager) GetInstanceById(id string) (*models.PitbullInstance, 
 }
 
 func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, error) {
-	pitbullInstance, err := im.GetInstanceById(id)
+	instance, err := im.GetInstanceById(id)
 	if err != nil {
 		return nil, err
 	}
 
-	hostInstanceId := pitbullInstance.HostInstance.ProviderId()
+	hostInstanceId := instance.HostInstance.ProviderId()
 
 	hostInstance, err := im.hostManager.GetInstance(hostInstanceId)
 	if err != nil {
@@ -61,32 +62,36 @@ func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, err
 		return nil, host.NewHostInstanceNotAvailable(hostInstanceId)
 	}
 
-	pitbullInstance.HostInstance = hostInstance
+	instance.HostInstance = hostInstance
 
 	// We want to update pitbullInstance's status and progress when host is in "running" state.
 	if hostInstance.HostStatus() == host.Running {
-		statusRaw, err := im.hostManager.GetPitbullStatus(pitbullInstance.HostInstance)
+		statusRaw, err := im.hostManager.GetPitbullStatus(instance.HostInstance)
 		if err != nil {
 			return nil, err
 		}
 
-		progressRaw, err := im.hostManager.GetPitbullProgress(pitbullInstance.HostInstance)
+		progressRaw, err := im.hostManager.GetPitbullProgress(instance.HostInstance)
 		if err != nil {
 			return nil, err
 		}
 
-		pitbullInstance.SetStatus(statusRaw)
+		instance.SetStatus(statusRaw)
 
-		if err := pitbullInstance.SetProgress(progressRaw); err != nil {
+		if err := instance.SetProgress(progressRaw); err != nil {
 			return nil, err
 		}
 	}
 
-	if err := im.UpdateInstance(pitbullInstance); err != nil {
+	if instance.Completed() {
+		instance.CompletedAt = models.NullableTimeNow()
+	}
+
+	if err := im.UpdateInstance(instance); err != nil {
 		return nil, err
 	}
 
-	return pitbullInstance, nil
+	return instance, nil
 }
 
 func (im *InstanceManager) CreateInstance(passlistUrl, walletString string) (*models.PitbullInstance, error) {
@@ -149,6 +154,12 @@ func (im *InstanceManager) RunPitbull(id string) (*models.PitbullInstance, error
 	}
 
 	if err := im.hostManager.RunPitbull(instance.HostInstance, instance.PasslistUrl, instance.WalletString); err != nil {
+		return nil, err
+	}
+
+	instance.StartedAt = models.NullableTimeNow()
+
+	if err := im.instanceRepository.UpdateInstance(instance); err != nil {
 		return nil, err
 	}
 

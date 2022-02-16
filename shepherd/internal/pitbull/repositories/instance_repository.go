@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const instancesCollection = "instances"
+const InstancesCollection = "instances"
 
 // InstanceRepository - MongoDB-backed repository for handling Pitbull instances.
 type InstanceRepository struct {
@@ -26,7 +26,7 @@ func NewInstanceRepository() *InstanceRepository {
 
 // GetInstanceById - returns an instance with given id.
 func (ir *InstanceRepository) GetInstanceById(id string) (*models.PitbullInstance, error) {
-	collection := ir.db.Collection(instancesCollection)
+	collection := ir.db.Collection(InstancesCollection)
 
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -48,7 +48,7 @@ func (ir *InstanceRepository) GetInstanceById(id string) (*models.PitbullInstanc
 
 // CreateInstance - saves a new Pitbull instance to the DB.
 func (ir *InstanceRepository) CreateInstance(pitbull *models.PitbullInstance) error {
-	collection := ir.db.Collection(instancesCollection)
+	collection := ir.db.Collection(InstancesCollection)
 
 	pitbull.CreatedAt = models.NullableTimeNow()
 	pitbull.UpdatedAt = models.NullableTimeNow()
@@ -64,7 +64,7 @@ func (ir *InstanceRepository) CreateInstance(pitbull *models.PitbullInstance) er
 }
 
 func (ir *InstanceRepository) UpdateInstance(pitbull *models.PitbullInstance) error {
-	collection := ir.db.Collection(instancesCollection)
+	collection := ir.db.Collection(InstancesCollection)
 
 	pitbull.UpdatedAt = models.NullableTimeNow()
 
@@ -80,7 +80,7 @@ func (ir *InstanceRepository) UpdateInstance(pitbull *models.PitbullInstance) er
 // GetActiveInstances - returns all instances that are active, i.e. thepir status is different
 // than FINISHED (4).
 func (ir *InstanceRepository) GetActiveInstances() ([]*models.PitbullInstance, error) {
-	collection := ir.db.Collection(instancesCollection)
+	collection := ir.db.Collection(InstancesCollection)
 
 	filter := bson.D{
 		{"status", bson.D{{"$nin", bson.A{models.Finished, models.Success}}}},
@@ -104,7 +104,7 @@ func (ir *InstanceRepository) GetActiveInstances() ([]*models.PitbullInstance, e
 // has no job assigned (meaning the job has been assiged with different instance), or that
 // has one of the "active" statuses, but its job is already rejected/acknowledged.
 func (ir *InstanceRepository) GetOrphanInstances() ([]*models.PitbullInstance, error) {
-	collection := ir.db.Collection(instancesCollection)
+	collection := ir.db.Collection(InstancesCollection)
 
 	lookup := bson.D{
 		{"$lookup", bson.D{

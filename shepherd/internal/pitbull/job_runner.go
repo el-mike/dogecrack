@@ -200,8 +200,7 @@ func (ru *JobRunner) runPitbull(job *models.PitbullJob) {
 
 		logger.Info.Printf("[Process]: %s | %s\n", instance.Status.Formatted(), instance.Progress.Formatted())
 
-		if instance.Status == models.Finished ||
-			instance.Status == models.Success {
+		if instance.Completed() {
 			logger.Info.Printf("pitbull finished, stopping host instance\n")
 
 			output, err := ru.instanceManager.GetInstanceOutput(instance)

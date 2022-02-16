@@ -8,7 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/el-mike/dogecrack/shepherd/internal/host"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/host"
+	"github.com/el-mike/dogecrack/shepherd/internal/vast/models"
 )
 
 const (
@@ -36,7 +37,7 @@ func NewVastCLI(apiSecret, pitbullImage string) *VastCLIClient {
 }
 
 // GetInstances - returns current instances.
-func (vc *VastCLIClient) GetInstances() ([]*VastInstance, error) {
+func (vc *VastCLIClient) GetInstances() ([]*models.Instance, error) {
 	vc.Lock()
 	defer vc.Unlock()
 
@@ -49,7 +50,7 @@ func (vc *VastCLIClient) GetInstances() ([]*VastInstance, error) {
 }
 
 // StartInstance - starts new Vast.ai instance. Waits for starting process to be over.
-func (vc *VastCLIClient) StartInstance(offerId int) (*VastCreateResponse, error) {
+func (vc *VastCLIClient) StartInstance(offerId int) (*models.CreateResponse, error) {
 	vc.Lock()
 	defer vc.Unlock()
 
@@ -58,7 +59,7 @@ func (vc *VastCLIClient) StartInstance(offerId int) (*VastCreateResponse, error)
 		return nil, err
 	}
 
-	var response *VastCreateResponse
+	var response *models.CreateResponse
 
 	if err := json.Unmarshal(result, &response); err != nil {
 		return nil, err
@@ -81,7 +82,7 @@ func (vc *VastCLIClient) DestroyInstance(instanceId int) error {
 }
 
 // GetInstance - returns single, existing (rented) instance based on passed id.
-func (vc *VastCLIClient) GetInstance(instanceId int) (*VastInstance, error) {
+func (vc *VastCLIClient) GetInstance(instanceId int) (*models.Instance, error) {
 	instances, err := vc.GetInstances()
 	if err != nil {
 		return nil, err
@@ -97,7 +98,7 @@ func (vc *VastCLIClient) GetInstance(instanceId int) (*VastInstance, error) {
 }
 
 // GetOfferByCriteria - returns first offer matching the criteria.
-func (vc *VastCLIClient) GetOfferByCriteria(criteria string) (*VastOffer, error) {
+func (vc *VastCLIClient) GetOfferByCriteria(criteria string) (*models.Offer, error) {
 	offers, err := vc.GetOffers(criteria)
 	if err != nil {
 		return nil, err
@@ -107,7 +108,7 @@ func (vc *VastCLIClient) GetOfferByCriteria(criteria string) (*VastOffer, error)
 }
 
 // GetOffers - returns current Vast.ai machine offers.
-func (vc *VastCLIClient) GetOffers(filter string) ([]*VastOffer, error) {
+func (vc *VastCLIClient) GetOffers(filter string) ([]*models.Offer, error) {
 	vc.Lock()
 	defer vc.Unlock()
 
@@ -116,7 +117,7 @@ func (vc *VastCLIClient) GetOffers(filter string) ([]*VastOffer, error) {
 		return nil, err
 	}
 
-	var offers []*VastOffer
+	var offers []*models.Offer
 
 	if err := json.Unmarshal(result, &offers); err != nil {
 		return nil, err
@@ -146,8 +147,8 @@ func (vc *VastCLIClient) run(cmdArgs ...string) ([]byte, error) {
 }
 
 // parseInstances - helper function for parsing cmd result as VastInstance slice.
-func (vc *VastCLIClient) parseInstances(cmdResult []byte) ([]*VastInstance, error) {
-	var instances []*VastInstance
+func (vc *VastCLIClient) parseInstances(cmdResult []byte) ([]*models.Instance, error) {
+	var instances []*models.Instance
 
 	if err := json.Unmarshal(cmdResult, &instances); err != nil {
 		return nil, err

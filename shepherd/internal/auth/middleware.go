@@ -6,12 +6,13 @@ import (
 	"os"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/api"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
 )
 
 // Middleware - responsible for auth validation.
 type Middleware struct {
-	responseHelper *common.ResponseHelper
+	responseHelper *api.ResponseHelper
 	logger         *common.Logger
 	cache          *Cache
 }
@@ -23,7 +24,7 @@ func NewMiddleware() *Middleware {
 	appConfig := config.GetAppConfig()
 
 	return &Middleware{
-		responseHelper: common.NewResponseHelper(logger),
+		responseHelper: api.NewResponseHelper(logger),
 		logger:         logger,
 		cache:          NewCache(appConfig.SessionExpiration),
 	}

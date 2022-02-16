@@ -26,7 +26,7 @@ export const LabeledInfo: React.FC<LabeledInfoProps> = props => {
     <InfoContainer>
       <Typography variant='caption' display='flex'>{title}</Typography>
       <Typography variant='subtitle1' fontWeight='bold' display={valueToCopy ? 'inline' : 'flex'}>
-        {props.children || value}
+        {props.children || value || '-'}
       </Typography>
       
       {!!valueToCopy && (

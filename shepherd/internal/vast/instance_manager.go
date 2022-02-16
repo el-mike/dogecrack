@@ -3,7 +3,8 @@ package vast
 import (
 	"errors"
 
-	"github.com/el-mike/dogecrack/shepherd/internal/host"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/host"
+	"github.com/el-mike/dogecrack/shepherd/internal/vast/models"
 )
 
 // VastManager - entity responsible for managing Vast.ai machine instances.
@@ -32,7 +33,7 @@ func NewVastManager(apiSecret, pitbullImage, sshUser, sshPassword, sshDir, sshPr
 
 // CreateInstance - HostManager implementation.
 func (vm *VastManager) CreateInstance() host.HostInstance {
-	return &VastInstance{}
+	return &models.Instance{}
 }
 
 // RunInstance - HostManager implementation.
@@ -120,7 +121,7 @@ func (vm *VastManager) RunDirectCommand(instance host.HostInstance, cmd string) 
 
 // getSSHClient - helper function for getting sshClient instance.
 func (vm *VastManager) getSSHClient(instance host.HostInstance) (*VastSSHClient, error) {
-	vastInstance, ok := instance.(*VastInstance)
+	vastInstance, ok := instance.(*models.Instance)
 	if !ok {
 		return nil, errors.New("HostInstance is not VastInstance!")
 	}

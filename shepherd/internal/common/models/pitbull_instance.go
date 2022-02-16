@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/el-mike/dogecrack/shepherd/internal/host"
-	"github.com/el-mike/dogecrack/shepherd/internal/vast"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/host"
+	"github.com/el-mike/dogecrack/shepherd/internal/vast/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -63,6 +63,9 @@ type PitbullInstance struct {
 	WalletString string `bson:"walletString" json:"walletString"`
 	PasslistUrl  string `bson:"passlistUrl" json:"passlistUrl"`
 
+	StartedAt   NullableTime `bson:"startedAt" json:"startedAt"`
+	CompletedAt NullableTime `bson:"completedAt" json:"completedAt"`
+
 	Status     PitbullStatus `bson:"status" json:"status"`
 	Progress   *ProgressInfo `bson:"progress" json:"progress"`
 	LastOutput string        `bson:"lastOutput" json:"lastOutput"`
@@ -102,14 +105,9 @@ func (pi *PitbullInstance) Active() bool {
 		pi.Status == Running
 }
 
-// Completed - returns true if all passwords have been checked for given Pitbull instance,
-// false otherwise.
+// Completed - returns true if instance's status is either Finished or Success.
 func (pi *PitbullInstance) Completed() bool {
-	if pi.Progress == nil || pi.Progress.Total == 0 {
-		return false
-	}
-
-	return pi.Progress.Checked == pi.Progress.Total
+	return pi.Status == Finished || pi.Status == Success
 }
 
 // SetStatus - helper function for converting raw status command output into
@@ -174,8 +172,8 @@ func (pi *PitbullInstance) UnmarshalBSON(data []byte) error {
 		return err
 	}
 
-	if pi.ProviderName == vast.ProviderName {
-		vastInstance := &vast.VastInstance{}
+	if pi.ProviderName == models.ProviderName {
+		vastInstance := &models.Instance{}
 		if err := bson.Unmarshal(pi.HostInstanceRaw, &vastInstance); err != nil {
 			return err
 		}

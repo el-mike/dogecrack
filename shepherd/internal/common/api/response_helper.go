@@ -1,18 +1,20 @@
-package common
+package api
 
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/el-mike/dogecrack/shepherd/internal/common"
 )
 
 // ResponseHelper - a helper entity, containg a common Controller logic
 // for handling requests and responses.
 type ResponseHelper struct {
-	logger *Logger
+	logger *common.Logger
 }
 
 // NewResponseHelper - return new BaseController instance.
-func NewResponseHelper(logger *Logger) *ResponseHelper {
+func NewResponseHelper(logger *common.Logger) *ResponseHelper {
 	return &ResponseHelper{
 		logger: logger,
 	}
@@ -23,7 +25,7 @@ func (ct *ResponseHelper) HandleError(w http.ResponseWriter, status int, err err
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)
 
-	WithStackTrace(ct.logger.Err, err)
+	common.WithStackTrace(ct.logger.Err, err)
 
 	apiError := NewApiError(status, err)
 

@@ -8,13 +8,14 @@ import (
 	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/api"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
 )
 
 // Controller - responsible for auth-related routes.
 type Controller struct {
-	responseHelper *common.ResponseHelper
+	responseHelper *api.ResponseHelper
 	logger         *common.Logger
 
 	manager *Manager
@@ -28,7 +29,7 @@ func NewController() *Controller {
 	logger := common.NewLogger("AuthController", os.Stdout, os.Stderr)
 
 	return &Controller{
-		responseHelper: common.NewResponseHelper(logger),
+		responseHelper: api.NewResponseHelper(logger),
 		logger:         logger,
 
 		manager: NewManager(),

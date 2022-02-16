@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const jobsCollection = "jobs"
+const JobsCollection = "jobs"
 
 // JobRepository - MongoDB-backed repository for handling Pitbull jobs.
 type JobRepository struct {
@@ -26,7 +26,7 @@ func NewJobRepository() *JobRepository {
 
 // GetById - returns a single Job with given id.
 func (jr *JobRepository) GetById(id string) (*models.PitbullJob, error) {
-	collection := jr.db.Collection(jobsCollection)
+	collection := jr.db.Collection(JobsCollection)
 
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -48,7 +48,7 @@ func (jr *JobRepository) GetById(id string) (*models.PitbullJob, error) {
 
 // RescheduleProcessingJobs - marks all "processing" jobs as "rescheduled".
 func (jr *JobRepository) RescheduleProcessingJobs(jobIds []string) error {
-	collection := jr.db.Collection(jobsCollection)
+	collection := jr.db.Collection(JobsCollection)
 
 	objectIds := []primitive.ObjectID{}
 
@@ -80,7 +80,7 @@ func (jr *JobRepository) RescheduleProcessingJobs(jobIds []string) error {
 }
 
 func (jr *JobRepository) GetAll(statuses []models.JobStatus) ([]*models.PitbullJob, error) {
-	collection := jr.db.Collection(jobsCollection)
+	collection := jr.db.Collection(JobsCollection)
 
 	filter := bson.D{}
 
@@ -112,7 +112,7 @@ func (jr *JobRepository) GetAll(statuses []models.JobStatus) ([]*models.PitbullJ
 
 // Create - saves a new PitbullJob to the DB.
 func (jr *JobRepository) Create(job *models.PitbullJob) error {
-	collection := jr.db.Collection(jobsCollection)
+	collection := jr.db.Collection(JobsCollection)
 
 	job.CreatedAt = models.NullableTimeNow()
 	job.UpdatedAt = models.NullableTimeNow()
@@ -129,7 +129,7 @@ func (jr *JobRepository) Create(job *models.PitbullJob) error {
 
 // Update - updates given PitbullJob in the DB.
 func (jr *JobRepository) Update(job *models.PitbullJob) error {
-	collection := jr.db.Collection(jobsCollection)
+	collection := jr.db.Collection(JobsCollection)
 
 	job.UpdatedAt = models.NullableTimeNow()
 

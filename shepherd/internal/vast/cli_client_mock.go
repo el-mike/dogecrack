@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+
+	"github.com/el-mike/dogecrack/shepherd/internal/vast/models"
 )
 
 type fakeInstance struct {
@@ -35,19 +37,19 @@ func NewVastCLIClientMock(rootDir string) *VastCLIClientMock {
 }
 
 // GetOfferByCriteria - returns first offer matching the criteria.
-func (vc *VastCLIClientMock) GetOfferByCriteria(criteria string) (*VastOffer, error) {
+func (vc *VastCLIClientMock) GetOfferByCriteria(criteria string) (*models.Offer, error) {
 	vc.simulateRequest()
 
-	return &VastOffer{
+	return &models.Offer{
 		ID: 1111,
 	}, nil
 }
 
 // GetInstance - returns single, existing (rented) instance based on passed id.
-func (vc *VastCLIClientMock) GetInstance(instanceId int) (*VastInstance, error) {
+func (vc *VastCLIClientMock) GetInstance(instanceId int) (*models.Instance, error) {
 	vc.simulateRequest()
 
-	var instance *VastInstance
+	var instance *models.Instance
 
 	for _, fakeInstance := range vc.state {
 		if fakeInstance.id == instanceId {
@@ -69,7 +71,7 @@ func (vc *VastCLIClientMock) GetInstance(instanceId int) (*VastInstance, error) 
 }
 
 // StartInstance - starts new Vast.ai instance. Waits for starting process to be over.
-func (vc *VastCLIClientMock) StartInstance(offerId int) (*VastCreateResponse, error) {
+func (vc *VastCLIClientMock) StartInstance(offerId int) (*models.CreateResponse, error) {
 	vc.simulateRequest()
 
 	if len(vc.state) >= fakeInstancesLimit {
@@ -103,7 +105,7 @@ func (vc *VastCLIClientMock) StartInstance(offerId int) (*VastCreateResponse, er
 		preStartChecks: 0,
 	})
 
-	return &VastCreateResponse{
+	return &models.CreateResponse{
 		Success:    true,
 		InstanceId: id,
 	}, nil
@@ -126,10 +128,10 @@ func (vc *VastCLIClientMock) DestroyInstance(instanceId int) error {
 }
 
 // GetInstances - returns current instances.
-func (vc *VastCLIClientMock) GetInstances() ([]*VastInstance, error) {
+func (vc *VastCLIClientMock) GetInstances() ([]*models.Instance, error) {
 	vc.simulateRequest()
 
-	instances := []*VastInstance{}
+	instances := []*models.Instance{}
 
 	for _, fakeInstance := range vc.state {
 		instances = append(instances, vc.buildVastInstance(fakeInstance))
@@ -143,7 +145,7 @@ func (vc *VastCLIClientMock) simulateRequest() {
 	time.Sleep(time.Duration(timeout))
 }
 
-func (vc *VastCLIClientMock) buildVastInstance(fakeInstance *fakeInstance) *VastInstance {
+func (vc *VastCLIClientMock) buildVastInstance(fakeInstance *fakeInstance) *models.Instance {
 	var status string
 
 	if fakeInstance.preStartChecks < preStartChecksLimit {
@@ -152,7 +154,7 @@ func (vc *VastCLIClientMock) buildVastInstance(fakeInstance *fakeInstance) *Vast
 		status = "running"
 	}
 
-	return &VastInstance{
+	return &models.Instance{
 		ID:          fakeInstance.id,
 		SSHHost:     fakeInstance.ipAddress,
 		SSHPort:     22,

@@ -28,6 +28,9 @@ export type PitbullInstanceDto = BaseEntityDto & {
   walletString: string;
   passlistUrl: string;
 
+  startedAt: string;
+  completedAt: string;
+
   status: number;
   progress: ProgressInfoDto;
   lastOutput: string;
