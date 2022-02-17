@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
-	"strings"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/api"
@@ -143,33 +141,26 @@ func (ct *Controller) GetJobs(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	statusesParam := r.URL.Query().Get("statuses")
+	payload := models.NewPitbullJobsListPayload()
 
-	statusesParam = strings.Trim(statusesParam, ",")
-
-	statuses := []models.JobStatus{}
-
-	if statusesParam != "" {
-		statusesRaw := strings.Split(statusesParam, ",")
-
-		for _, statusRaw := range statusesRaw {
-			status, err := strconv.Atoi(statusRaw)
-			if err != nil {
-				ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("Status: '%s' is not valid", statusRaw))
-				return
-			}
-
-			statuses = append(statuses, models.JobStatus(status))
-		}
+	if err := payload.Populate(r); err != nil {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, err)
+		return
 	}
 
-	jobs, err := ct.jobManager.GetJobs(statuses)
+	jobs, totalCount, err := ct.jobManager.GetJobs(payload)
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	response, err := json.Marshal(jobs)
+	jobsRaw, err := json.Marshal(jobs)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response, err := json.Marshal(api.NewListResponse(jobsRaw, payload.Page, totalCount))
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return

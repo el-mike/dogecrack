@@ -28,6 +28,8 @@ export const TimeAgo: React.FC<TimeAgoProps> = props => {
   const [seconds, setSeconds] = useState(secondsPassed);
 
   useEffect(() => {
+    setSeconds(secondsPassed);
+  
     if (duration?.hours === 0) {
       const interval = setInterval(
         () => setSeconds(seconds + 1),
@@ -36,7 +38,8 @@ export const TimeAgo: React.FC<TimeAgoProps> = props => {
   
       return () => clearInterval(interval);
     }
-  }, [timestamp]);
+    /* eslint-disable-next-line */
+  }, [secondsPassed]);
 
   const timeAgo = duration?.hours === 0
     ? seconds > 60

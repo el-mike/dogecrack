@@ -18,6 +18,7 @@ export enum PitbullInstanceStatusKey {
   FINISHED = 'FINISHED',
   SUCCESS = 'SUCCESS',
   INTERRUPTED = 'INTERRUPTED',
+  FAILED = 'FAILED',
 }
 
 export type Enum = Dictionary<number>;

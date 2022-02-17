@@ -36,7 +36,12 @@ export type PitbullJob = BaseEntity
     instance: PitbullInstance;
   };
 
+export type PitbullJobsFilters = Partial<{
+  statuses: number[];
+  keyword: string;
+}>;
+
 export const mapPitbullJob = (dto: PitbullJobDto) => ({
   ...dto,
-  instance: mapPitbullInstance(dto.instance),
+  instance: mapPitbullInstance(dto.instance || {}),
 } as PitbullJob);

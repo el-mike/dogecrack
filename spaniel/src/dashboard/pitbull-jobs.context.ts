@@ -5,14 +5,24 @@ import {
 
 import {
   PitbullJob,
+  PitbullJobsFilters,
 } from 'models';
 
-export type LoadJobsFn = () => void;
+export type ReloadJobsFn = () => void;
+export type FilterFn = (filters: PitbullJobsFilters) => void;
+export type ChangePageFn = (page: number) => void;
 
 export type PitbullJobsContext = {
+  filters: PitbullJobsFilters;
+  page: number;
+  pageSize: number;
+  totalCount: number;
   jobs: PitbullJob[];
   loading: boolean;
-  load: LoadJobsFn;
+  lastLoaded: Date;
+  reload: ReloadJobsFn;
+  filter: FilterFn;
+  changePage: ChangePageFn;
 }
 
 export const pitbullJobsContext = createContext<PitbullJobsContext>(null!);

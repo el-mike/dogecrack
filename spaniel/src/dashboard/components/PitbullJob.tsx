@@ -4,17 +4,14 @@ import {
   Divider,
   Grid,
   IconButton,
+  Card,
+  CardContent,
+  Typography,
 } from '@mui/material';
 
 import { ContentCopy as ContentCopyIcon } from '@mui/icons-material';
 
 import { PitbullJob as PitbullJobModel } from 'models';
-
-import {
-  Card,
-  CardContent,
-  Typography,
-} from '@mui/material';
 
 import { Spacer } from 'common/components';
 

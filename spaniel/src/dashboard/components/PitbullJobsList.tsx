@@ -1,11 +1,14 @@
 import React, {
   useEffect,
-  useState,
 } from 'react';
 
 import styled from 'styled-components';
 
-import { Typography } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Pagination,
+} from '@mui/material';
 
 import { millisecondsInSecond } from 'date-fns';
 
@@ -16,6 +19,7 @@ import { TimeAgo } from 'core/components';
  import { usePitbullJobs } from '../pitbull-jobs.context';
 
 import { PitbullJob } from './PitbullJob';
+import { PitbullJobsFilters } from './PitbullJobsFilters';
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -28,22 +32,21 @@ const NoJobsWrapper = styled.div`
   align-items: center;
 `;
 
-export const PitbullJobsList: React.FC = () => {
-  const [refreshedAt, setRefreshedAt] = useState(new Date());
-  
+export const PitbullJobsList: React.FC = () => {  
   const {
     jobs,
-    loading,
-    load,
+    reload,
+    lastLoaded,
+    totalCount,
+    pageSize,
+    page,
+    changePage,
   } = usePitbullJobs();
 
   useEffect(() => {
-    load();
-
     const interval = setInterval(
       () => {
-        load();
-        setRefreshedAt(new Date());
+        reload();
       },
       /**
        * Every 30 seconds.
@@ -52,29 +55,45 @@ export const PitbullJobsList: React.FC = () => {
     );
 
     return () => clearInterval(interval);
+    /* eslint-disable-next-line */
   }, []);
 
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+    changePage(value);
+  }
+
   return (
-    <>
-    <HeaderWrapper>
-      <Typography variant='h5'>Pitbull Jobs</Typography>
-      <Typography variant='h6'>Last refreshed: <TimeAgo from={refreshedAt.toISOString()} /></Typography>
-    </HeaderWrapper>
+    <Box>
+      <HeaderWrapper>
+        <Typography variant='h5'>Pitbull Jobs</Typography>
+        <Typography variant='h6'>Last refreshed: <TimeAgo from={lastLoaded.toISOString()} /></Typography>
+      </HeaderWrapper>
 
-    <Spacer mb={4} />
+      <Spacer mb={4} />
 
-    {!jobs.length
-      ? <NoJobsWrapper>
-          <Typography variant='h5'>No jobs found.</Typography>
-        </NoJobsWrapper>
-      : jobs.map(job => (
-        <React.Fragment key={job.id}>
-          <PitbullJob job={job} />
-  
-          <Spacer mb={3} />
-        </React.Fragment>
-      ))
-    }
-    </>
+      <PitbullJobsFilters />
+
+      <Spacer mb={4} />
+
+      {!jobs.length
+        ? <NoJobsWrapper>
+            <Typography variant='h5'>No jobs found.</Typography>
+          </NoJobsWrapper>
+        : jobs.map(job => (
+          <React.Fragment key={job.id}>
+            <PitbullJob job={job} />
+    
+            <Spacer mb={3} />
+          </React.Fragment>
+        ))
+      }
+
+      <Spacer mb={4} />
+
+      <Box display='flex' justifyContent='flex-end'>
+      <Pagination page={page} count={Math.floor((totalCount || 0) / pageSize)} onChange={handlePageChange} />
+      </Box>
+
+    </Box>
   );
 };

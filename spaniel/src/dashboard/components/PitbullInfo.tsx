@@ -132,7 +132,7 @@ export const PitbullInfo: React.FC<PitbullInfoProps> = props => {
           <Grid item xs={6} md={3}>
             <LabeledInfo
               title='USD/Hour:'
-              value={`${hostInstance?.dphTotal?.toFixed(3)} $`}
+              value={`${hostInstance?.dphTotal?.toFixed(2)} $`}
             />
           </Grid>
 

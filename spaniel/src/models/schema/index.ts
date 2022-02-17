@@ -1,3 +1,5 @@
+export * from './api';
+
 export * from './base-entity';
 
 export * from './user-credentials';

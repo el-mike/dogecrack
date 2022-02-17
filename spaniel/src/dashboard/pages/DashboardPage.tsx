@@ -12,6 +12,7 @@ import {
 const DashboardWrapper = styled.div``;
 
 export const DashboardPage: React.FC = () => {
+
   return (
     <DashboardWrapper>
       <PitbullJobsProvider>

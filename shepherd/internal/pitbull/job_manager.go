@@ -22,8 +22,8 @@ func NewJobManager(instanceManager *InstanceManager) *JobManager {
 }
 
 // GetJobs - returns all existing jobs.
-func (js *JobManager) GetJobs(statuses []models.JobStatus) ([]*models.PitbullJob, error) {
-	return js.jobRepository.GetAll(statuses)
+func (js *JobManager) GetJobs(payload *models.PitbullJobsListPayload) ([]*models.PitbullJob, int, error) {
+	return js.jobRepository.GetAll(payload)
 }
 
 // CreateJob - creates an empty job and saves it to DB.

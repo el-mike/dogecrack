@@ -23,6 +23,7 @@ const (
 	Finished
 	Success
 	Interrupted
+	Failed
 )
 
 var pitbullStatusNames = map[PitbullStatus]string{
@@ -33,6 +34,7 @@ var pitbullStatusNames = map[PitbullStatus]string{
 	Finished:       "FINISHED",
 	Success:        "SUCCESS",
 	Interrupted:    "INTERRUPTED",
+	Failed:         "FAILED",
 }
 
 // Formatted - returns status in human-readable format.
@@ -108,6 +110,16 @@ func (pi *PitbullInstance) Active() bool {
 // Completed - returns true if instance's status is either Finished or Success.
 func (pi *PitbullInstance) Completed() bool {
 	return pi.Status == Finished || pi.Status == Success
+}
+
+// AllPasswordsChecked - returns true if all password have been checked, according to
+// ProgressInfo.
+func (pi *PitbullInstance) AllPasswordsChecked() bool {
+	if pi.Progress == nil {
+		return false
+	}
+
+	return pi.Progress.Total > 0 && (pi.Progress.Checked == pi.Progress.Total)
 }
 
 // SetStatus - helper function for converting raw status command output into

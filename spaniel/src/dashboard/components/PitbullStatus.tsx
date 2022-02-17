@@ -42,7 +42,10 @@ export const PitbullStatus: React.FC<PitbullStatusProps> = props => {
           || status === statusEnum[PitbullInstanceStatusKey.WAITING]
         }
         pending={status === statusEnum[PitbullInstanceStatusKey.RUNNING]}
-        error={status === statusEnum[PitbullInstanceStatusKey.INTERRUPTED]}
+        error={
+          status === statusEnum[PitbullInstanceStatusKey.INTERRUPTED]
+          || status === statusEnum[PitbullInstanceStatusKey.FAILED]
+        }
         finished={status === statusEnum[PitbullInstanceStatusKey.FINISHED]}
         success={status === statusEnum[PitbullInstanceStatusKey.SUCCESS]}
       />

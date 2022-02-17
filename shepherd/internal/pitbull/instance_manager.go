@@ -85,6 +85,12 @@ func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, err
 
 	if instance.Completed() {
 		instance.CompletedAt = models.NullableTimeNow()
+
+		// If instance finished (not succeded), but not all passwords have been checked,
+		// that means some problem occurred and instance should be marked as "failed".
+		if instance.Status == models.Finished && !instance.AllPasswordsChecked() {
+			instance.Status = models.Failed
+		}
 	}
 
 	if err := im.UpdateInstance(instance); err != nil {

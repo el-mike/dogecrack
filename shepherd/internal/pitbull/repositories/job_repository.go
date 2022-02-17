@@ -79,35 +79,90 @@ func (jr *JobRepository) RescheduleProcessingJobs(jobIds []string) error {
 	return nil
 }
 
-func (jr *JobRepository) GetAll(statuses []models.JobStatus) ([]*models.PitbullJob, error) {
+func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*models.PitbullJob, int, error) {
 	collection := jr.db.Collection(JobsCollection)
 
-	filter := bson.D{}
+	statuses := payload.Statuses
+	pageSize := payload.PageSize
+	page := payload.Page
+	keyword := payload.Keyword
+
+	statusesFilter := bson.D{}
 
 	if len(statuses) > 0 {
-		filter = bson.D{
+		statusesFilter = bson.D{
 			{"status", bson.D{{"$in", statuses}}},
 		}
 	}
 
-	match := bson.D{{"$match", filter}}
+	keywordFilter := bson.D{}
+
+	if keyword != "" {
+		keywordFilter = bson.D{
+			{"keyword", primitive.Regex{Pattern: keyword, Options: ""}},
+		}
+	}
+
+	match := bson.D{{"$match", bson.D{
+		{"$or", bson.A{statusesFilter, keywordFilter}},
+	}}}
 
 	lookup, unwind := jr.lookupAndUnwindInstance()
 
 	sort := bson.D{{"$sort", bson.D{{"createdAt", -1}}}}
 
-	cursor, err := collection.Aggregate(context.TODO(), mongo.Pipeline{match, lookup, unwind, sort})
+	// Page is 1-based, so we need to subtract one.
+	skip := pageSize * (page - 1)
+	limit := pageSize
+
+	facet := bson.D{
+		{"$facet", bson.D{
+			{"pageInfo", bson.A{
+				bson.D{{"$count", "total"}},
+				bson.D{{"$addFields", bson.D{
+					{"page", page},
+					{"pageSize", pageSize},
+				}}},
+			}},
+			{"data", bson.A{
+				bson.D{{"$skip", skip}},
+				bson.D{{"$limit", limit}},
+				lookup,
+				unwind,
+			}},
+		}},
+	}
+
+	unwindPageInfo := bson.D{
+		{"$unwind", bson.D{{"path", "$pageInfo"}}},
+	}
+
+	pipeline := mongo.Pipeline{match, sort, facet, unwindPageInfo}
+
+	cursor, err := collection.Aggregate(context.TODO(), pipeline)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	var jobs []*models.PitbullJob
+	result := []*models.PagedPitbullJobs{}
 
-	if err = cursor.All(context.TODO(), &jobs); err != nil {
-		return nil, err
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		return nil, 0, err
 	}
 
-	return jobs, nil
+	paged := models.NewPagedPitbullJobs()
+	// cursor.All() always returns a slice, therefore we need to get the first element.
+	if len(result) > 0 {
+		paged = result[0]
+	}
+
+	jobs := paged.Data
+
+	if jobs == nil {
+		jobs = []*models.PitbullJob{}
+	}
+
+	return jobs, paged.PageInfo.Total, nil
 }
 
 // Create - saves a new PitbullJob to the DB.

@@ -22,10 +22,9 @@ const TOKEN_PREFIX = 'Bearer';
 const UNAUTHORIZED_STATUS = 401;
 
 /**
- * ConnectApiService - service that provides logic for communicating with
- * ConnectAPI. Most of the ConnectAdmin app's requests go through this entity.
+ * ShepherdApiService - service that provides logic for communicating with ShepherdAPI.
  *
- * ConnectApiService uses Axios under the hood, and provides a way to set up custom interceptors.
+ * ShepherdApiService uses Axios under the hood, and provides a way to set up custom interceptors.
  */
 export class ShepherdApiService extends BaseApiService {
   public constructor (

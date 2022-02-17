@@ -24,6 +24,7 @@ func GetAppEnums() *AppEnums {
 			"FINISHED":         Finished,
 			"SUCCESS":          Success,
 			"INTERRUPTED":      Interrupted,
+			"FAILED":           Failed,
 		},
 	}
 }

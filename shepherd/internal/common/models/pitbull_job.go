@@ -2,7 +2,11 @@ package models
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
 
+	"github.com/el-mike/dogecrack/shepherd/internal/common/api"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -70,4 +74,68 @@ func (pj *PitbullJob) AppendError(err error) {
 	}
 
 	pj.ErrorLog += fmt.Sprintf("%s\n", err.Error())
+}
+
+// PitbullJobsListPayload - describes a payload for PitbullJobs list.
+type PitbullJobsListPayload struct {
+	api.BaseListPayload
+
+	Statuses []JobStatus
+	Keyword  string
+}
+
+// NewPitbullJobsListPayload - returns new PitbullJobsListPayload instance.
+func NewPitbullJobsListPayload() *PitbullJobsListPayload {
+	return &PitbullJobsListPayload{}
+}
+
+// FromRequest - populates payload values from request.
+func (pj *PitbullJobsListPayload) Populate(r *http.Request) error {
+	page, pageSize, err := api.GetBaseListPayload(r)
+	if err != nil {
+		return err
+	}
+
+	statusesParam := strings.Trim(r.URL.Query().Get("statuses"), ",")
+	statuses := []JobStatus{}
+
+	if statusesParam != "" {
+		statusesRaw := strings.Split(statusesParam, ",")
+
+		for _, statusRaw := range statusesRaw {
+			status, err := strconv.Atoi(statusRaw)
+			if err != nil {
+				return err
+			}
+
+			statuses = append(statuses, JobStatus(status))
+		}
+	}
+
+	keyword := r.URL.Query().Get("keyword")
+
+	pj.Statuses = statuses
+	pj.Page = page
+	pj.PageSize = pageSize
+	pj.Keyword = keyword
+
+	return nil
+}
+
+// PagedPitbullJobs - paged DB result from PitbullJobs.
+type PagedPitbullJobs struct {
+	Data     []*PitbullJob `bson:"data" json:"data"`
+	PageInfo *PageInfo     `bson:"pageInfo" json:"pageInfo"`
+}
+
+// NewPagedPitbullJobs - returns new PagedPitbullJobs instance.
+func NewPagedPitbullJobs() *PagedPitbullJobs {
+	return &PagedPitbullJobs{
+		Data: []*PitbullJob{},
+		PageInfo: &PageInfo{
+			Page:     0,
+			PageSize: 0,
+			Total:    0,
+		},
+	}
 }

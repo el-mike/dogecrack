@@ -41,7 +41,7 @@ export const PitbullProgress: React.FC<PitbullProgressProps> = props => {
 
       <ProgressInfoWrapper>
         <Typography variant='caption'>Passwords checked:</Typography>
-        <Typography variant='h5' fontWeight='bold'>{`${checked || 0} / ${total || 'Calculating...'}`}</Typography>
+        <Typography variant='h5' fontWeight='bold'>{`${checked || 0} / ${total || '...'}`}</Typography>
       </ProgressInfoWrapper>
 
     </ProgressContainer>

@@ -5,6 +5,8 @@ import {
   Dictionary,
 } from 'models';
 
+import { InputOption } from 'common/components';
+
 export const enumLabelMap = {
   /**
    * JobStatus enums.
@@ -34,3 +36,14 @@ export const getLabelForEnum = (
 
   return (enumKey && enumLabelMap[enumKey]) || '';
 };
+
+export const getEnumAsInputOptions = (
+  e: Enum,
+) => Object
+  .values(e)
+  .map(enumValue => ({
+    label: getLabelForEnum(e, enumValue),
+    value: enumValue,
+  } as InputOption<number>))
+
+  

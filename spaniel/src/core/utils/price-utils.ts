@@ -23,5 +23,5 @@ export const getInstanceEstimatedCost = (instance: PitbullInstance) => {
     + ((duration?.minutes || 0) / minutesInHour)
     + ((duration?.seconds || 0) / secondsInHour);
 
-  return +(hoursTotal * instance.hostInstance.dphTotal).toFixed(3);
+  return +(hoursTotal * instance.hostInstance.dphTotal).toFixed(2);
 };
