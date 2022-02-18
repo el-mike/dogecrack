@@ -52,7 +52,6 @@ export const PitbullJobsProvider: React.FC = props => {
   };
 
   const filter = (filters: PitbullJobsFilters) => {
-    console.log();
     setLastLoaded(new Date());
     setRequest({
       ...request,

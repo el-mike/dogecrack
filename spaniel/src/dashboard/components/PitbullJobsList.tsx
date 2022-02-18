@@ -51,12 +51,12 @@ export const PitbullJobsList: React.FC = () => {
       /**
        * Every 30 seconds.
        */
-      millisecondsInSecond * 30,
+      millisecondsInSecond * 5,
     );
 
     return () => clearInterval(interval);
     /* eslint-disable-next-line */
-  }, []);
+  }, [reload]);
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     changePage(value);

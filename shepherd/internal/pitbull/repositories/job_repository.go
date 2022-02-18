@@ -104,7 +104,7 @@ func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*mode
 	}
 
 	match := bson.D{{"$match", bson.D{
-		{"$or", bson.A{statusesFilter, keywordFilter}},
+		{"$and", bson.A{statusesFilter, keywordFilter}},
 	}}}
 
 	lookup, unwind := jr.lookupAndUnwindInstance()
