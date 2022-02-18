@@ -51,7 +51,7 @@ export const PitbullJobsList: React.FC = () => {
       /**
        * Every 30 seconds.
        */
-      millisecondsInSecond * 5,
+      millisecondsInSecond * 30,
     );
 
     return () => clearInterval(interval);
