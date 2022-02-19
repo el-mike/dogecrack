@@ -4,6 +4,7 @@ import {
   Divider,
   IconButton,
   Card,
+  Paper,
   CardContent,
   Typography,
 } from '@mui/material';
@@ -20,7 +21,10 @@ import {
 import { JobStatus } from 'core/components';
 
 import { PitbullInfo } from './PitbullInfo';
+import { PitbullHostInfo } from './PitbullHostInfo';
+import { PitbullOutput } from './PitbullOutput';
 import { PitbullJobInfo } from './PitbullJobInfo';
+import { PitbullJobErrorLog } from './PitbullJobErrorLog';
 
 export type PitbullJobProps = {
   job: PitbullJobModel;
@@ -39,7 +43,7 @@ export const PitbullJob: React.FC<PitbullJobProps> = props => {
   };
 
   return (
-    <Card>
+    <Paper>
       <CardHeader>
         <JobIdWrapper>
           <Typography variant='subtitle1'>Job ID:</Typography>
@@ -57,17 +61,11 @@ export const PitbullJob: React.FC<PitbullJobProps> = props => {
 
       <Divider />
       
-      <CardContent>
-        <PitbullInfo instance={instance} />
-
-        <Spacer mb={2} />
-        <Divider />
-        <Spacer mb={2} />
-
-    
-        <PitbullJobInfo job={job} />
-
-      </CardContent>
-    </Card>
+      <PitbullInfo instance={instance} />
+      <PitbullHostInfo instance={instance} />
+      <PitbullOutput output={instance?.lastOutput || ''} />
+      <PitbullJobInfo job={job} />
+      <PitbullJobErrorLog errorLog={job?.errorLog || ''} />
+    </Paper>
   );
 };

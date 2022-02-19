@@ -5,11 +5,10 @@ import {
 
 import { PitbullJob as PitbullJobModel } from 'models';
 
-import { Typography } from '@mui/material';
-
 import {
   Spacer,
-  CollapsibleTerminal,
+  Terminal,
+  Accordion,
 } from 'common/components';
 
 import { toDateTimeString } from 'core/utils';
@@ -28,12 +27,9 @@ export const PitbullJobInfo: React.FC<PitbullJobInfoProps> = props => {
   const lastFinishedAt = job.acknowledgedAt || job.rejectedAt;
 
   return (
-    <Box>      
+    <Accordion title='Job info'>
+      
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Typography variant='overline'>Job info</Typography>
-        </Grid>
-
         <Grid container item xs={12}>
           <Grid item xs={6} md={3}>
             <LabeledInfo
@@ -91,15 +87,6 @@ export const PitbullJobInfo: React.FC<PitbullJobInfoProps> = props => {
           </Grid>
         </Grid>
       </Grid>
-
-      <Grid container>
-        <Grid item xs={12}>
-          <CollapsibleTerminal
-            title='Job errors'
-            content={job.errorLog || ''}
-          />
-        </Grid>
-      </Grid>
-    </Box>
+    </Accordion>
   );
 };

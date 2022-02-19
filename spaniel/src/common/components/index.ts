@@ -5,6 +5,6 @@ export * from './Spacer';
 export * from './Button';
 export * from './CircularProgressWithLabel';
 export * from './CircularStatusIndicator';
-export * from './CollapsibleTerminal';
+export * from './Terminal';
 export * from './LabeledInfo';
-
+export * from './Accordion';
