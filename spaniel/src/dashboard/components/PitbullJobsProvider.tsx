@@ -9,6 +9,7 @@ import {
   PitbullJob,
   PitbullJobsFilters,
   JobStatusKey,
+  RunPitbullJobPayload,
 } from 'models';
 
 import { useGeneralContext } from 'core/contexts';
@@ -66,6 +67,11 @@ export const PitbullJobsProvider: React.FC = props => {
       page,
     })
   };
+
+  const run = (keyword: RunPitbullJobPayload) => {
+    pitbullJobService.runJob(keyword)
+      .then(() => reload());
+  };
   
   const { page, pageSize, ...filters } = request;
 
@@ -80,6 +86,7 @@ export const PitbullJobsProvider: React.FC = props => {
     reload,
     filter,
     changePage,
+    run,
   } as PitbullJobsContext;
 
   /**

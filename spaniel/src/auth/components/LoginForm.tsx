@@ -1,13 +1,11 @@
-import {
-  Box,
-  TextField,
-} from '@mui/material';
+import { Box } from '@mui/material';
 
 import { UserCredentials } from 'models';
 
 import {
   Spacer,
   Button,
+  TextInput,
 } from 'common/components';
 
 enum FormKeys {
@@ -41,20 +39,18 @@ export const LoginForm: React.FC<LoginFormProps> = props => {
       onSubmit={handleSubmit}
       noValidate
     >
-      <TextField
+      <TextInput
         margin='normal'
         required
-        fullWidth
         id={FormKeys.NAME}
         name={FormKeys.NAME}
         label='Username'
         autoFocus
       />
 
-      <TextField
+      <TextInput
         margin='normal'
         required
-        fullWidth
         id={FormKeys.PASSWORD}
         name={FormKeys.PASSWORD}
         label='Password'

@@ -41,6 +41,10 @@ export type PitbullJobsFilters = Partial<{
   keyword: string;
 }>;
 
+export type RunPitbullJobPayload = {
+  keyword: string;
+};
+
 export const mapPitbullJob = (dto: PitbullJobDto) => ({
   ...dto,
   instance: mapPitbullInstance(dto.instance || {}),

@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
 
-import styled from 'styled-components';
-
 import {
   Grid,
   Card,
@@ -18,6 +16,7 @@ import {
   SelectInput,
   TextInput,
   InputOption,
+  CardHeader,
 } from 'common/components';
 
 import { getEnumAsInputOptions } from 'core/utils';
@@ -27,7 +26,6 @@ import { useDebouncedInput } from 'core/hooks';
 import { useGeneralContext } from 'core/contexts';
 
 import { usePitbullJobs } from '../pitbull-jobs.context';
-import React from 'react';
 
   /**
    * Empty string causes rendering issues with MUI select, therefore we use
@@ -45,13 +43,6 @@ const ALL_OPTION = {
   label: 'All',
   value: ALL_VALUE,
 } as InputOption;
-
-const CardHeader = styled(Grid)`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: ${props => props.theme.spacing(2)};
-`;
 
 export const PitbullJobsFilters: React.FC = () => {
   const { enums } = useGeneralContext();

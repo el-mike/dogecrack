@@ -6,6 +6,7 @@ import {
   ListResponse,
   ListResponseResult,
   PitbullJob,
+  RunPitbullJobPayload,
 } from 'models';
 
 import { ShepherdApiService } from './shepherd-api.service';
@@ -13,6 +14,7 @@ import { ShepherdApiService } from './shepherd-api.service';
 export class PitbullJobService {
   private static URLS = {
     jobs: '/getJobs',
+    crack: '/crack',
   };
 
   public constructor(private apiClient: ShepherdApiService) {}
@@ -27,6 +29,14 @@ export class PitbullJobService {
         page: response.data.page,
         totalCount: response.data.totalCount,
       } as ListResponseResult<PitbullJob>));
+  }
+
+  public runJob(payload: RunPitbullJobPayload) {
+    const url = this.apiClient.buildUrl(PitbullJobService.URLS.crack);
+
+    return this.apiClient
+      .post<PitbullJobDto>(url, payload)
+      .then(response => mapPitbullJob(response.data));
   }
 }
 

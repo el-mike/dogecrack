@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 import {
   Divider,
-  Grid,
   IconButton,
   Card,
   CardContent,
@@ -13,7 +12,10 @@ import { ContentCopy as ContentCopyIcon } from '@mui/icons-material';
 
 import { PitbullJob as PitbullJobModel } from 'models';
 
-import { Spacer } from 'common/components';
+import {
+  Spacer,
+  CardHeader,
+} from 'common/components';
 
 import { JobStatus } from 'core/components';
 
@@ -23,14 +25,6 @@ import { PitbullJobInfo } from './PitbullJobInfo';
 export type PitbullJobProps = {
   job: PitbullJobModel;
 };
-
-const CardHeader = styled(Grid)`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: ${props => props.theme.spacing(2)};
-`;
-
 const JobIdWrapper = styled.div`
   display: flex;
 `;

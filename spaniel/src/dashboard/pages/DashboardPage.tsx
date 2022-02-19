@@ -7,6 +7,7 @@ import { Spacer } from 'common/components';
 import {
   PitbullJobsProvider,
   PitbullJobsList,
+  RunPitbullJob
 } from '../components';
 
 const DashboardWrapper = styled.div``;
@@ -19,6 +20,10 @@ export const DashboardPage: React.FC = () => {
         <Typography variant='h4'>
           Dashboard
         </Typography>
+
+        <Spacer mb={4} />
+
+        <RunPitbullJob />
 
         <Spacer mb={4} />
 
