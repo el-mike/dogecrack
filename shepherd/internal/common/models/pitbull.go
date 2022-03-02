@@ -73,6 +73,11 @@ func (pl *Pitbull) AllPasswordsChecked() bool {
 	return pl.Progress.Total > 0 && (pl.Progress.Checked == pl.Progress.Total)
 }
 
+// Done - returns true if status is either Finished or Success.
+func (pl *Pitbull) Done() bool {
+	return pl.Status == PitbullStatus.Finished || pl.Status == PitbullStatus.Success
+}
+
 // ParseRawStatus - helper function for converting raw status command output into
 // PitbullStatus enum.
 func (pl *Pitbull) ParseRawStatus(rawStatus string) {

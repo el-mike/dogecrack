@@ -18,6 +18,7 @@ var PitbullInstanceStatus = struct {
 	Completed      PitbullInstanceStatusEnum
 	Failed         PitbullInstanceStatusEnum
 	Interrupted    PitbullInstanceStatusEnum
+	Success        PitbullInstanceStatusEnum
 }{
 	WaitingForHost: 0,
 	HostStarting:   1,
@@ -25,6 +26,7 @@ var PitbullInstanceStatus = struct {
 	Completed:      3,
 	Failed:         4,
 	Interrupted:    5,
+	Success:        6,
 }
 
 var pitbullInstanceStatusByName = map[PitbullInstanceStatusEnum]string{
@@ -34,6 +36,7 @@ var pitbullInstanceStatusByName = map[PitbullInstanceStatusEnum]string{
 	PitbullInstanceStatus.Completed:      "COMPLETED",
 	PitbullInstanceStatus.Failed:         "FAILED",
 	PitbullInstanceStatus.Interrupted:    "INTERRUPTED",
+	PitbullInstanceStatus.Success:        "SUCCESS",
 }
 
 // PitbullInstance - an abstract representation of Pitbull process running on some host machine.
@@ -78,41 +81,11 @@ func (pi *PitbullInstance) SetHost(hostInstance host.HostInstance) {
 	pi.ProviderName = hostInstance.ProviderName()
 }
 
-// ParsePitbullStatus - parses PitbullStatus and sets PitbullInstance to Completed
-// if Pitbull process is done.
-func (pi *PitbullInstance) ParsePitbullStatus(status string) {
-	if pi.Pitbull == nil {
-		return
-	}
-
-	pi.Pitbull.ParseRawStatus(status)
-
-	if pi.Pitbull.Status == PitbullStatus.Finished ||
-		pi.Pitbull.Status == PitbullStatus.Success {
-		pi.Status = PitbullInstanceStatus.Completed
-	}
-}
-
-// ParsePitbullProgress - proxy method for Pitbull.ParseProgress.
-func (pi *PitbullInstance) ParsePitbullProgress(progress string) error {
-	return pi.Pitbull.ParseProgress(progress)
-}
-
 // Active - returns true if PitbullInstance is in one of the "active" states,
 // false otherwise.
 func (pi *PitbullInstance) Active() bool {
 	return pi.Status == PitbullInstanceStatus.HostStarting ||
 		pi.Status == PitbullInstanceStatus.Running
-}
-
-// Completed - returns true if instance's status is Completed.
-func (pi *PitbullInstance) Completed() bool {
-	return pi.Status == PitbullInstanceStatus.Completed
-}
-
-// AllPasswordsChecked - proxy method for Pitbull.AllPasswordsChecked.
-func (pi *PitbullInstance) AllPasswordsChecked() bool {
-	return pi.Pitbull.AllPasswordsChecked()
 }
 
 // UnmarshalBSON - Unmarshaler interface implementation.

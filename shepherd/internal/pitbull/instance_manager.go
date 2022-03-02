@@ -63,6 +63,8 @@ func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, err
 
 	instance.HostInstance = hostInstance
 
+	pitbull := instance.Pitbull
+
 	// We want to update pitbullInstance's status and progress when host is in "running" state.
 	if hostInstance.HostStatus() == host.Running {
 		// If previous instance's status was HostStarting, we want to update it
@@ -71,31 +73,36 @@ func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, err
 			instance.Status = models.PitbullInstanceStatus.Running
 		}
 
-		statusRaw, err := im.hostManager.GetPitbullStatus(instance.HostInstance)
+		rawStatus, err := im.hostManager.GetPitbullStatus(instance.HostInstance)
 		if err != nil {
 			return nil, err
 		}
 
-		progressRaw, err := im.hostManager.GetPitbullProgress(instance.HostInstance)
+		rawProgress, err := im.hostManager.GetPitbullProgress(instance.HostInstance)
 		if err != nil {
 			return nil, err
 		}
 
-		instance.ParsePitbullStatus(statusRaw)
+		pitbull.ParseRawStatus(rawStatus)
 
-		if err := instance.ParsePitbullProgress(progressRaw); err != nil {
+		if err := pitbull.ParseProgress(rawProgress); err != nil {
 			return nil, err
 		}
 	}
 
-	if instance.Completed() {
+	if pitbull.Done() {
 		instance.CompletedAt = models.NullableTimeNow()
 
-		// If Pitbull process finished (not succeded), but not all passwords have been checked,
-		// that means some problem occurred and instance should be marked as Failed.
-		if instance.Pitbull.Status == models.PitbullStatus.Finished &&
-			!instance.AllPasswordsChecked() {
-			instance.Status = models.PitbullInstanceStatus.Failed
+		if pitbull.Status == models.PitbullStatus.Success {
+			instance.Status = models.PitbullInstanceStatus.Success
+		} else {
+			// If Pitbull process finished (not succeded), but not all passwords have been checked,
+			// that means some problem occurred and instance should be marked as Failed.
+			if !pitbull.AllPasswordsChecked() {
+				instance.Status = models.PitbullInstanceStatus.Failed
+			} else {
+				instance.Status = models.PitbullInstanceStatus.Completed
+			}
 		}
 	}
 
