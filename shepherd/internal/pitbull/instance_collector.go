@@ -11,8 +11,6 @@ import (
 // InstanceCollector - an entity responsible for detecting and disposing
 // orphaned Pitbull instances (the ones with inactive parent PitbullJob).
 type InstanceCollector struct {
-	jobManager      *JobManager
-	queue           *JobQueue
 	instanceManager *InstanceManager
 
 	interval time.Duration
@@ -25,8 +23,6 @@ type InstanceCollector struct {
 // NewInstanceCollector - returns new Collector instance.
 func NewInstanceCollector(instanceManager *InstanceManager, interval time.Duration) *InstanceCollector {
 	return &InstanceCollector{
-		jobManager:      NewJobManager(instanceManager),
-		queue:           NewJobQueue(),
 		instanceManager: instanceManager,
 
 		interval: interval,
@@ -81,7 +77,7 @@ func (cl *InstanceCollector) Start() {
 
 				cl.logger.Info.Printf("Instance '%s' has been stopped.\n", instance.ID.Hex())
 
-				if err := cl.jobManager.MarkInstanceAsInterrupted(instance); err != nil {
+				if err := cl.instanceManager.MarkInstanceAsInterrupted(instance); err != nil {
 					cl.logger.Err.Printf("Marking instance '%s' as interrupted failed. reason: %v\n", instance.ID.Hex(), err)
 				}
 			}

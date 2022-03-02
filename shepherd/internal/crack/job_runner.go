@@ -1,4 +1,4 @@
-package pitbull
+package crack
 
 import (
 	"errors"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -23,13 +24,13 @@ const (
 
 // JobRunner - entity responsible for running and monitoring Pitbull jobs.
 type JobRunner struct {
-	instanceManager *InstanceManager
+	instanceManager *pitbull.InstanceManager
 	jobQueue        *JobQueue
 	jobManager      *JobManager
 }
 
 // NewJobRunner - returns new PitbullRunner instance.
-func NewJobRunner(instanceManager *InstanceManager) *JobRunner {
+func NewJobRunner(instanceManager *pitbull.InstanceManager) *JobRunner {
 	return &JobRunner{
 		instanceManager: instanceManager,
 		jobQueue:        NewJobQueue(),
@@ -38,11 +39,11 @@ func NewJobRunner(instanceManager *InstanceManager) *JobRunner {
 }
 
 // Run - starts single Pitbull run.
-func (ru *JobRunner) Run(job *models.PitbullJob) {
+func (ru *JobRunner) Run(job *models.CrackJob) {
 	go ru.runSingle(job)
 }
 
-func (ru *JobRunner) runSingle(job *models.PitbullJob) {
+func (ru *JobRunner) runSingle(job *models.CrackJob) {
 	defer func() {
 		if r := recover(); r != nil {
 			logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "recovery", job.ID.Hex())
@@ -57,7 +58,7 @@ func (ru *JobRunner) runSingle(job *models.PitbullJob) {
 
 // createInstance - creates and attaches a new PitbullInstance to PitbullJob.
 // If rescheduled, it tries to destroy the previous HostInstance.
-func (ru *JobRunner) assignInstance(job *models.PitbullJob) {
+func (ru *JobRunner) assignInstance(job *models.CrackJob) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "assignInstance", job.ID.Hex())
 
 	if job.InstanceId != primitive.NilObjectID {
@@ -87,7 +88,7 @@ func (ru *JobRunner) assignInstance(job *models.PitbullJob) {
 }
 
 // startHost - starts a single host for Pitbull process to work in.
-func (ru *JobRunner) startHost(job *models.PitbullJob) {
+func (ru *JobRunner) startHost(job *models.CrackJob) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "startHost", job.ID.Hex())
 
 	logger.Info.Println("starting host.")
@@ -135,7 +136,7 @@ func (ru *JobRunner) startHost(job *models.PitbullJob) {
 
 		logger.Info.Printf("host status: %s\n", instance.HostInstance.HostStatus().Formatted())
 
-		if instance.Status == models.Waiting {
+		if instance.Status == models.PitbullInstanceStatus.Running {
 			logger.Info.Printf("host started\n")
 
 			go ru.runPitbull(job)
@@ -146,7 +147,7 @@ func (ru *JobRunner) startHost(job *models.PitbullJob) {
 	}
 }
 
-func (ru *JobRunner) runPitbull(job *models.PitbullJob) {
+func (ru *JobRunner) runPitbull(job *models.CrackJob) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "runPitbull", job.ID.Hex())
 
 	logger.Info.Printf("starting Pitbull\n")
@@ -198,7 +199,9 @@ func (ru *JobRunner) runPitbull(job *models.PitbullJob) {
 		// reset retry counter.
 		retryCount = 0
 
-		logger.Info.Printf("[Process]: %s | %s\n", instance.Status.Formatted(), instance.Progress.Formatted())
+		pitbull := instance.Pitbull
+
+		logger.Info.Printf("[Process]: %s | %s\n", pitbull.Status.Formatted(), pitbull.Progress.Formatted())
 
 		if instance.Completed() {
 			logger.Info.Printf("pitbull finished, stopping host instance\n")
@@ -215,7 +218,7 @@ func (ru *JobRunner) runPitbull(job *models.PitbullJob) {
 			logger.Info.Printf("host instance stopped \n")
 
 			if output != "" {
-				instance.LastOutput = output
+				pitbull.LastOutput = output
 
 				if err := ru.instanceManager.UpdateInstance(instance); err != nil {
 					logger.Err.Printf("saving last output failed. Reason: %s\n", err)
@@ -230,7 +233,7 @@ func (ru *JobRunner) runPitbull(job *models.PitbullJob) {
 			return
 		}
 
-		currentProgress := instance.Progress.Checked
+		currentProgress := pitbull.Progress.Checked
 
 		// If progress did not change since the last iteration, we increment
 		// the counter. Otherwise we want to reset it, since progress has been made.
@@ -253,13 +256,13 @@ func (ru *JobRunner) runPitbull(job *models.PitbullJob) {
 			return
 		}
 
-		lastProgress = instance.Progress.Checked
+		lastProgress = pitbull.Progress.Checked
 
 	}
 }
 
 // handleCompletion - performs any cleanups and updates after completing the job.
-func (ru *JobRunner) handleCompletion(job *models.PitbullJob) {
+func (ru *JobRunner) handleCompletion(job *models.CrackJob) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "cleanup", job.ID.Hex())
 
 	if err := ru.jobManager.AcknowledgeJob(job); err != nil {
@@ -273,7 +276,7 @@ func (ru *JobRunner) handleCompletion(job *models.PitbullJob) {
 
 // handleFailure - handles a failure scenario by rescheduling or rejecting the job,
 // based on its history and status.
-func (ru *JobRunner) handleFailure(job *models.PitbullJob, reason error) {
+func (ru *JobRunner) handleFailure(job *models.CrackJob, reason error) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "cleanup", job.ID.Hex())
 
 	logger.Info.Printf("Failure handling started\n")

@@ -1,33 +1,33 @@
-package pitbull
+package crack
 
 import (
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
-	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/repositories"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 )
 
 // JobManager - simple facade for operations on PitbullJobs.
 type JobManager struct {
-	jobRepository   *repositories.JobRepository
-	instanceManager *InstanceManager
+	jobRepository   *JobRepository
+	instanceManager *pitbull.InstanceManager
 	jobQueue        *JobQueue
 }
 
 // NewJobManager - returns new JobService instance.
-func NewJobManager(instanceManager *InstanceManager) *JobManager {
+func NewJobManager(instanceManager *pitbull.InstanceManager) *JobManager {
 	return &JobManager{
-		jobRepository:   repositories.NewJobRepository(),
 		instanceManager: instanceManager,
+		jobRepository:   NewJobRepository(),
 		jobQueue:        NewJobQueue(),
 	}
 }
 
 // GetJobs - returns all existing jobs.
-func (js *JobManager) GetJobs(payload *models.PitbullJobsListPayload) ([]*models.PitbullJob, int, error) {
+func (js *JobManager) GetJobs(payload *models.PitbullJobsListPayload) ([]*models.CrackJob, int, error) {
 	return js.jobRepository.GetAll(payload)
 }
 
 // CreateJob - creates an empty job and saves it to DB.
-func (js *JobManager) CreateJob(keyword, passlistUrl, walletString string) (*models.PitbullJob, error) {
+func (js *JobManager) CreateJob(keyword, passlistUrl, walletString string) (*models.CrackJob, error) {
 	job := models.NewPitbullJob(keyword, passlistUrl, walletString)
 
 	job.FirstScheduledAt = models.NullableTimeNow()
@@ -42,7 +42,7 @@ func (js *JobManager) CreateJob(keyword, passlistUrl, walletString string) (*mod
 
 // AssignInstance - creates a PitbullInstance and assignes it to passed PitbullJob.
 // If job has been rescheduled, it will attempt to destroy previous HostInstance.
-func (js *JobManager) AssignInstance(job *models.PitbullJob) (*models.PitbullJob, error) {
+func (js *JobManager) AssignInstance(job *models.CrackJob) (*models.CrackJob, error) {
 	instance, err := js.instanceManager.CreateInstance(job.PasslistUrl, job.WalletString)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (js *JobManager) AssignInstance(job *models.PitbullJob) (*models.PitbullJob
 }
 
 // DequeueJob - dequeues a job and marks it as "Processing".
-func (js *JobManager) DequeueJob() (*models.PitbullJob, error) {
+func (js *JobManager) DequeueJob() (*models.CrackJob, error) {
 	jobId, err := js.jobQueue.Dequeue()
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (js *JobManager) DequeueJob() (*models.PitbullJob, error) {
 		return nil, err
 	}
 
-	job.Status = models.JobProcessing
+	job.Status = models.JobStatus.Processing
 	job.StartedAt = models.NullableTimeNow()
 
 	if err := js.jobRepository.Update(job); err != nil {
@@ -86,44 +86,44 @@ func (js *JobManager) DequeueJob() (*models.PitbullJob, error) {
 }
 
 // AcknowledgeJob - ackes a single job.
-func (js *JobManager) AcknowledgeJob(job *models.PitbullJob) error {
+func (js *JobManager) AcknowledgeJob(job *models.CrackJob) error {
 	if err := js.jobQueue.Ack(job.ID.Hex()); err != nil {
 		return err
 	}
 
-	job.Status = models.JobAcknowledged
+	job.Status = models.JobStatus.Acknowledged
 	job.AcknowledgedAt = models.NullableTimeNow()
 
 	return js.jobRepository.Update(job)
 }
 
 // RejectJob - rejects a single job, and marks related instances as "Interrupted".
-func (js *JobManager) RejectJob(job *models.PitbullJob, reason error) error {
+func (js *JobManager) RejectJob(job *models.CrackJob, reason error) error {
 	if err := js.jobQueue.Reject(job.ID.Hex()); err != nil {
 		return err
 	}
 
 	job.AppendError(reason)
 
-	job.Status = models.JobRejected
+	job.Status = models.JobStatus.Rejected
 	job.RejectedAt = models.NullableTimeNow()
 
 	if err := js.jobRepository.Update(job); err != nil {
 		return err
 	}
 
-	return js.MarkInstanceAsInterrupted(job.Instance)
+	return js.instanceManager.MarkInstanceAsInterrupted(job.Instance)
 }
 
 // RescheduleJob - reschedules a single job and marks related instances as "Interrupted".
-func (js *JobManager) RescheduleJob(job *models.PitbullJob, reason error) error {
+func (js *JobManager) RescheduleJob(job *models.CrackJob, reason error) error {
 	if err := js.jobQueue.Reschedule(job.ID.Hex()); err != nil {
 		return err
 	}
 
 	job.AppendError(reason)
 
-	job.Status = models.JobRescheduled
+	job.Status = models.JobStatus.Rescheduled
 	job.LastScheduledAt = models.NullableTimeNow()
 	job.RescheduleCount += 1
 
@@ -131,7 +131,7 @@ func (js *JobManager) RescheduleJob(job *models.PitbullJob, reason error) error 
 		return err
 	}
 
-	return js.MarkInstanceAsInterrupted(job.Instance)
+	return js.instanceManager.MarkInstanceAsInterrupted(job.Instance)
 }
 
 // RescheduleProcessingJobs - reschedules all jobs in "processingQueue".
@@ -149,16 +149,4 @@ func (js *JobManager) RescheduleProcessingJobs() ([]string, error) {
 	}
 
 	return jobIds, nil
-}
-
-// MarkInstanceAsInterrupted - marks given instance as "Interrupted" and updates it
-// in the DB.
-func (js *JobManager) MarkInstanceAsInterrupted(instance *models.PitbullInstance) error {
-	if instance == nil {
-		return nil
-	}
-
-	instance.Status = models.Interrupted
-
-	return js.instanceManager.UpdateInstance(instance)
 }

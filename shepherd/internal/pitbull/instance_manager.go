@@ -7,7 +7,6 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/common/host"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
-	"github.com/el-mike/dogecrack/shepherd/internal/pitbull/repositories"
 	"github.com/el-mike/dogecrack/shepherd/internal/vast"
 	vastmodels "github.com/el-mike/dogecrack/shepherd/internal/vast/models"
 )
@@ -15,7 +14,7 @@ import (
 // InstanceManager - main managing entity responsible for Pitbull instances.
 type InstanceManager struct {
 	hostManager        host.HostManager
-	instanceRepository *repositories.InstanceRepository
+	instanceRepository *InstanceRepository
 }
 
 // NewInstanceManager - returns new Shepherd instance.
@@ -31,7 +30,7 @@ func NewInstanceManager() *InstanceManager {
 
 	return &InstanceManager{
 		hostManager:        hostManager,
-		instanceRepository: repositories.NewInstanceRepository(),
+		instanceRepository: NewInstanceRepository(),
 	}
 }
 
@@ -66,6 +65,12 @@ func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, err
 
 	// We want to update pitbullInstance's status and progress when host is in "running" state.
 	if hostInstance.HostStatus() == host.Running {
+		// If previous instance's status was HostStarting, we want to update it
+		// to running when host instance is Running as well.
+		if instance.Status == models.PitbullInstanceStatus.HostStarting {
+			instance.Status = models.PitbullInstanceStatus.Running
+		}
+
 		statusRaw, err := im.hostManager.GetPitbullStatus(instance.HostInstance)
 		if err != nil {
 			return nil, err
@@ -76,9 +81,9 @@ func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, err
 			return nil, err
 		}
 
-		instance.SetStatus(statusRaw)
+		instance.ParsePitbullStatus(statusRaw)
 
-		if err := instance.SetProgress(progressRaw); err != nil {
+		if err := instance.ParsePitbullProgress(progressRaw); err != nil {
 			return nil, err
 		}
 	}
@@ -86,10 +91,11 @@ func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, err
 	if instance.Completed() {
 		instance.CompletedAt = models.NullableTimeNow()
 
-		// If instance finished (not succeded), but not all passwords have been checked,
-		// that means some problem occurred and instance should be marked as "failed".
-		if instance.Status == models.Finished && !instance.AllPasswordsChecked() {
-			instance.Status = models.Failed
+		// If Pitbull process finished (not succeded), but not all passwords have been checked,
+		// that means some problem occurred and instance should be marked as Failed.
+		if instance.Pitbull.Status == models.PitbullStatus.Finished &&
+			!instance.AllPasswordsChecked() {
+			instance.Status = models.PitbullInstanceStatus.Failed
 		}
 	}
 
@@ -128,7 +134,7 @@ func (im *InstanceManager) RunHostForInstance(id string) (*models.PitbullInstanc
 	}
 
 	instance.SetHost(hostInstance)
-	instance.Status = models.HostStarting
+	instance.Status = models.PitbullInstanceStatus.HostStarting
 
 	if err := im.instanceRepository.UpdateInstance(instance); err != nil {
 		return nil, err
@@ -170,6 +176,18 @@ func (im *InstanceManager) RunPitbull(id string) (*models.PitbullInstance, error
 	}
 
 	return instance, nil
+}
+
+// MarkInstanceAsInterrupted - marks given instance as "Interrupted" and updates it
+// in the DB.
+func (im *InstanceManager) MarkInstanceAsInterrupted(instance *models.PitbullInstance) error {
+	if instance == nil {
+		return nil
+	}
+
+	instance.Status = models.PitbullInstanceStatus.Interrupted
+
+	return im.UpdateInstance(instance)
 }
 
 // UpdateInstance - updates Pitbull instance.

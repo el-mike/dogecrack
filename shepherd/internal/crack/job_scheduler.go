@@ -1,10 +1,11 @@
-package pitbull
+package crack
 
 import (
 	"os"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 )
 
 const INSTANCES_LIMIT = 5
@@ -19,7 +20,7 @@ type Scheduler struct {
 }
 
 // NewScheduler - returns new PitbullScheduler instance.
-func NewScheduler(instanceManager *InstanceManager) *Scheduler {
+func NewScheduler(instanceManager *pitbull.InstanceManager) *Scheduler {
 	return &Scheduler{
 		jobQueue:   NewJobQueue(),
 		jobManager: NewJobManager(instanceManager),
@@ -30,7 +31,7 @@ func NewScheduler(instanceManager *InstanceManager) *Scheduler {
 
 // ScheduleRun - schedules a single Pitbull run. If instances limit is not reach yet,
 // it will run it immediately.
-func (sc *Scheduler) ScheduleRun(keyword, passlistUrl, walletString string) (*models.PitbullJob, error) {
+func (sc *Scheduler) ScheduleRun(keyword, passlistUrl, walletString string) (*models.CrackJob, error) {
 	job, err := sc.jobManager.CreateJob(keyword, passlistUrl, walletString)
 	if err != nil {
 		return nil, err

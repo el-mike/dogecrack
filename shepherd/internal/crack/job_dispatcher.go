@@ -1,4 +1,4 @@
-package pitbull
+package crack
 
 import (
 	"os"
@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
+	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 )
 
 // JobDispatcher - observes redis-based PitbullQueue with BLPOP
@@ -23,7 +24,7 @@ type JobDispatcher struct {
 }
 
 // NewJobDispatcher - returns new JobDispatcher.
-func NewJobDispatcher(instanceManager *InstanceManager, jobRunner *JobRunner, pollInterval time.Duration) *JobDispatcher {
+func NewJobDispatcher(instanceManager *pitbull.InstanceManager, jobRunner *JobRunner, pollInterval time.Duration) *JobDispatcher {
 	return &JobDispatcher{
 		jobRunner:  jobRunner,
 		jobManager: NewJobManager(instanceManager),

@@ -1,4 +1,4 @@
-package pitbull
+package crack
 
 import (
 	"context"
@@ -30,8 +30,8 @@ func NewJobQueue() *JobQueue {
 }
 
 // QueueRun - adds specified jobIds to the waiting queue.
-func (jq *JobQueue) Enqueue(jobId ...string) error {
-	_, err := jq.redisClient.LPush(ctx, jq.waitingQueue, jobId).Result()
+func (jq *JobQueue) Enqueue(jobIds ...string) error {
+	_, err := jq.redisClient.LPush(ctx, jq.waitingQueue, jobIds).Result()
 
 	return err
 }

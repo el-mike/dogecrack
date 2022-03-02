@@ -1,4 +1,4 @@
-package repositories
+package crack
 
 import (
 	"context"
@@ -25,7 +25,7 @@ func NewJobRepository() *JobRepository {
 }
 
 // GetById - returns a single Job with given id.
-func (jr *JobRepository) GetById(id string) (*models.PitbullJob, error) {
+func (jr *JobRepository) GetById(id string) (*models.CrackJob, error) {
 	collection := jr.db.Collection(JobsCollection)
 
 	objectId, err := primitive.ObjectIDFromHex(id)
@@ -37,7 +37,7 @@ func (jr *JobRepository) GetById(id string) (*models.PitbullJob, error) {
 
 	result := collection.FindOne(context.TODO(), filter)
 
-	job := &models.PitbullJob{}
+	job := &models.CrackJob{}
 
 	if err := result.Decode(job); err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (jr *JobRepository) RescheduleProcessingJobs(jobIds []string) error {
 
 	update := bson.D{
 		{"$set", bson.D{
-			{"status", models.JobRescheduled},
+			{"status", models.JobStatus.Rescheduled},
 			{"lastScheduledAt", models.NullableTimeNow()},
 		}},
 	}
@@ -79,7 +79,7 @@ func (jr *JobRepository) RescheduleProcessingJobs(jobIds []string) error {
 	return nil
 }
 
-func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*models.PitbullJob, int, error) {
+func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*models.CrackJob, int, error) {
 	collection := jr.db.Collection(JobsCollection)
 
 	statuses := payload.Statuses
@@ -159,14 +159,14 @@ func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*mode
 	jobs := paged.Data
 
 	if jobs == nil {
-		jobs = []*models.PitbullJob{}
+		jobs = []*models.CrackJob{}
 	}
 
 	return jobs, paged.PageInfo.Total, nil
 }
 
 // Create - saves a new PitbullJob to the DB.
-func (jr *JobRepository) Create(job *models.PitbullJob) error {
+func (jr *JobRepository) Create(job *models.CrackJob) error {
 	collection := jr.db.Collection(JobsCollection)
 
 	job.CreatedAt = models.NullableTimeNow()
@@ -183,7 +183,7 @@ func (jr *JobRepository) Create(job *models.PitbullJob) error {
 }
 
 // Update - updates given PitbullJob in the DB.
-func (jr *JobRepository) Update(job *models.PitbullJob) error {
+func (jr *JobRepository) Update(job *models.CrackJob) error {
 	collection := jr.db.Collection(JobsCollection)
 
 	job.UpdatedAt = models.NullableTimeNow()

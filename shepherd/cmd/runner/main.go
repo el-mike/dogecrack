@@ -8,6 +8,7 @@ import (
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
+	"github.com/el-mike/dogecrack/shepherd/internal/crack"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 )
@@ -47,8 +48,8 @@ func main() {
 	persist.InitRedis(appConfig.RedisHost, appConfig.RedisPort)
 
 	instanceManager := pitbull.NewInstanceManager()
-	jobManager := pitbull.NewJobManager(instanceManager)
-	runner := pitbull.NewJobRunner(instanceManager)
+	jobManager := crack.NewJobManager(instanceManager)
+	runner := crack.NewJobRunner(instanceManager)
 
 	// On service start, we want to reschedule all jobs from "processingQueue",
 	// as since the worker has been restarted, there is no thread working on those tasks anymore.
@@ -62,7 +63,7 @@ func main() {
 	}
 
 	collector := pitbull.NewInstanceCollector(instanceManager, 15*time.Second)
-	dispatcher := pitbull.NewJobDispatcher(instanceManager, runner, 15*time.Second)
+	dispatcher := crack.NewJobDispatcher(instanceManager, runner, 15*time.Second)
 
 	go collector.Start()
 

@@ -1,4 +1,4 @@
-package repositories
+package pitbull
 
 import (
 	"context"
@@ -83,7 +83,7 @@ func (ir *InstanceRepository) GetActiveInstances() ([]*models.PitbullInstance, e
 	collection := ir.db.Collection(InstancesCollection)
 
 	filter := bson.D{
-		{"status", bson.D{{"$nin", bson.A{models.Finished, models.Success}}}},
+		{"status", bson.D{{"$nin", bson.A{models.PitbullStatus.Finished, models.PitbullStatus.Success}}}},
 	}
 
 	cursor, err := collection.Find(context.TODO(), filter)
@@ -125,12 +125,12 @@ func (ir *InstanceRepository) GetOrphanInstances() ([]*models.PitbullInstance, e
 	match := bson.D{
 		{"$match", bson.D{
 			{"status", bson.D{
-				{"$in", bson.A{models.HostStarting, models.Waiting, models.Running}},
+				{"$in", bson.A{models.PitbullInstanceStatus.HostStarting, models.PitbullInstanceStatus.Running}},
 			}},
 			{"$or", bson.A{
 				bson.D{{"job", nil}},
 				bson.D{{"job.status", bson.D{
-					{"$in", bson.A{models.JobRejected, models.JobAcknowledged}},
+					{"$in", bson.A{models.JobStatus.Rejected, models.JobStatus.Acknowledged}},
 				}}},
 			}},
 		}},

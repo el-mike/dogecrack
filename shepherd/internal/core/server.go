@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/auth"
+	"github.com/el-mike/dogecrack/shepherd/internal/crack"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -24,6 +25,7 @@ func NewServer(port, originAllowed string) *Server {
 	authMiddleware := auth.NewMiddleware()
 
 	pitbullController := pitbull.NewController()
+	crackController := crack.NewController()
 
 	baseRouter := mux.NewRouter()
 
@@ -41,11 +43,10 @@ func NewServer(port, originAllowed string) *Server {
 
 	protectedRouter.HandleFunc("/getActiveInstances", pitbullController.GetActiveInstances).Methods("GET")
 	protectedRouter.HandleFunc("/getInstance", pitbullController.GetInstance).Methods("GET")
-
-	protectedRouter.HandleFunc("/getJobs", pitbullController.GetJobs).Methods("GET")
-
 	protectedRouter.HandleFunc("/runCommand", pitbullController.RunCommand).Methods("POST")
-	protectedRouter.HandleFunc("/crack", pitbullController.Crack).Methods("POST")
+
+	protectedRouter.HandleFunc("/getJobs", crackController.GetJobs).Methods("GET")
+	protectedRouter.HandleFunc("/crack", crackController.Crack).Methods("POST")
 
 	http.Handle("/", baseRouter)
 
