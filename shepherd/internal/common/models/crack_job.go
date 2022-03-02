@@ -95,15 +95,15 @@ func (pj *PitbullJobsListPayload) Populate(r *http.Request) error {
 	return nil
 }
 
-// PagedPitbullJobs - paged DB result from PitbullJobs.
-type PagedPitbullJobs struct {
+// PagedCrackJobs - paged DB result from PitbullJobs.
+type PagedCrackJobs struct {
 	Data     []*CrackJob `bson:"data" json:"data"`
 	PageInfo *PageInfo   `bson:"pageInfo" json:"pageInfo"`
 }
 
-// NewPagedPitbullJobs - returns new PagedPitbullJobs instance.
-func NewPagedPitbullJobs() *PagedPitbullJobs {
-	return &PagedPitbullJobs{
+// NewPagedCrackJobs - returns new PagedPitbullJobs instance.
+func NewPagedCrackJobs() *PagedCrackJobs {
+	return &PagedCrackJobs{
 		Data: []*CrackJob{},
 		PageInfo: &PageInfo{
 			Page:     0,

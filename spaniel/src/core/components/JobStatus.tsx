@@ -65,10 +65,10 @@ export const JobStatus: React.FC<JobStatusProps> = props => {
       <Spacer mr={2} />
 
       <StatusLight
-        $queued={status === statusEnum[JobStatusKey.JOB_SCHEDULED] || status === statusEnum[JobStatusKey.JOB_RESCHEDULED]}
-        $processing={status === statusEnum[JobStatusKey.JOB_PROCESSING]}
-        $rejected={status === statusEnum[JobStatusKey.JOB_REJECTED]}
-        $acknowledged={status === statusEnum[JobStatusKey.JOB_ACKNOWLEDGED]}
+        $queued={status === statusEnum[JobStatusKey.SCHEDULED] || status === statusEnum[JobStatusKey.RESCHEDULED]}
+        $processing={status === statusEnum[JobStatusKey.PROCESSING]}
+        $rejected={status === statusEnum[JobStatusKey.REJECTED]}
+        $acknowledged={status === statusEnum[JobStatusKey.ACKNOWLEDGED]}
       />
     </StatusContainer>
   );

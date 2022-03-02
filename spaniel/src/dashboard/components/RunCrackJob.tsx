@@ -9,35 +9,30 @@ import {
   CardActions,
   Typography,
   Divider,
-  SelectChangeEvent,
-  CircularProgress,
 } from '@mui/material';
 
 import { PlayArrow as PlayArrowIcon } from '@mui/icons-material';
 
-import { RunPitbullJobPayload } from 'models';
+import { RunCrackJobPayload } from 'models';
 
 import {
-  SelectInput,
   TextInput,
-  InputOption,
   CardHeader,
   Button,
-  Spacer,
 } from 'common/components';
 
-import { usePitbullJobs } from '../pitbull-jobs.context';
+import { useCrackJobs } from '../crack-jobs.context';
 
-export type RunPitbulLJobProps = {};
+export type RunCrackJobProps = {};
 
 const CardFooter = styled(CardActions)`
   justify-content: flex-end;
 `;
 
-export const RunPitbullJob: React.FC<RunPitbulLJobProps> = () => {
-  const [payload, setPayload] = useState<RunPitbullJobPayload>({ keyword: '' });
+export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
+  const [payload, setPayload] = useState<RunCrackJobPayload>({ keyword: '' });
 
-  const { run } = usePitbullJobs();
+  const { run } = useCrackJobs();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setPayload({
@@ -54,7 +49,7 @@ export const RunPitbullJob: React.FC<RunPitbulLJobProps> = () => {
   return (
     <Card>
       <CardHeader>
-        <Typography variant='h5'>Run Pitbull</Typography>
+        <Typography variant='h5'>Run Crack Job</Typography>
       </CardHeader>
       
       <Divider />

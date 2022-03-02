@@ -11,7 +11,7 @@ import {
 
 import { ContentCopy as ContentCopyIcon } from '@mui/icons-material';
 
-import { PitbullJob as PitbullJobModel } from 'models';
+import { CrackJob as PitbullJobModel } from 'models';
 
 import {
   Spacer,
@@ -20,23 +20,24 @@ import {
 
 import { JobStatus } from 'core/components';
 
-import { PitbullInfo } from './PitbullInfo';
+import { PitbullInstanceInfo } from './PitbullInstanceInfo';
 import { PitbullHostInfo } from './PitbullHostInfo';
 import { PitbullOutput } from './PitbullOutput';
-import { PitbullJobInfo } from './PitbullJobInfo';
-import { PitbullJobErrorLog } from './PitbullJobErrorLog';
+import { CrackJobInfo } from './CrackJobInfo';
+import { CrackJobErrorLog } from './CrackJobErrorLog';
 
-export type PitbullJobProps = {
+export type CrackJobProps = {
   job: PitbullJobModel;
 };
 const JobIdWrapper = styled.div`
   display: flex;
 `;
 
-export const PitbullJob: React.FC<PitbullJobProps> = props => {
+export const CrackJob: React.FC<CrackJobProps> = props => {
   const { job } = props;
   
   const { instance } = job;
+  const { pitbull } = instance;
 
   const handleCopyJobId = () => {
     navigator.clipboard.writeText(job.id);
@@ -61,11 +62,11 @@ export const PitbullJob: React.FC<PitbullJobProps> = props => {
 
       <Divider />
       
-      <PitbullInfo instance={instance} />
+      <PitbullInstanceInfo instance={instance} />
       <PitbullHostInfo instance={instance} />
-      <PitbullOutput output={instance?.lastOutput || ''} />
-      <PitbullJobInfo job={job} />
-      <PitbullJobErrorLog errorLog={job?.errorLog || ''} />
+      <PitbullOutput output={pitbull?.lastOutput || ''} />
+      <CrackJobInfo job={job} />
+      <CrackJobErrorLog errorLog={job?.errorLog || ''} />
     </Paper>
   );
 };

@@ -5,9 +5,9 @@ import { Typography } from '@mui/material';
 import { Spacer } from 'common/components';
 
 import {
-  PitbullJobsProvider,
-  PitbullJobsList,
-  RunPitbullJob
+  CrackJobsProvider,
+  CrackJobsList,
+  RunCrackJob
 } from '../components';
 
 const DashboardWrapper = styled.div``;
@@ -16,19 +16,19 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <DashboardWrapper>
-      <PitbullJobsProvider>
+      <CrackJobsProvider>
         <Typography variant='h4'>
           Dashboard
         </Typography>
 
         <Spacer mb={4} />
 
-        <RunPitbullJob />
+        <RunCrackJob />
 
         <Spacer mb={4} />
 
-        <PitbullJobsList />
-      </PitbullJobsProvider>
+        <CrackJobsList />
+      </CrackJobsProvider>
     </DashboardWrapper>
   );
 };

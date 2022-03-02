@@ -3,7 +3,7 @@ import {
   Grid,
 } from '@mui/material';
 
-import { PitbullJob as PitbullJobModel } from 'models';
+import { CrackJob as CrackJobModel } from 'models';
 
 import {
   Spacer,
@@ -17,11 +17,11 @@ import { timeForPipe } from 'core/pipes';
 
 import { LabeledInfo } from 'common/components';
 
-export type PitbullJobInfoProps = {
-  job: PitbullJobModel;
+export type CrackJobInfoProps = {
+  job: CrackJobModel;
 };
 
-export const PitbullJobInfo: React.FC<PitbullJobInfoProps> = props => {
+export const CrackJobInfo: React.FC<CrackJobInfoProps> = props => {
   const { job } = props;
 
   const lastFinishedAt = job.acknowledgedAt || job.rejectedAt;

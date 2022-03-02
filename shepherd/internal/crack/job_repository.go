@@ -144,13 +144,13 @@ func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*mode
 		return nil, 0, err
 	}
 
-	result := []*models.PagedPitbullJobs{}
+	result := []*models.PagedCrackJobs{}
 
 	if err = cursor.All(context.TODO(), &result); err != nil {
 		return nil, 0, err
 	}
 
-	paged := models.NewPagedPitbullJobs()
+	paged := models.NewPagedCrackJobs()
 	// cursor.All() always returns a slice, therefore we need to get the first element.
 	if len(result) > 0 {
 		paged = result[0]

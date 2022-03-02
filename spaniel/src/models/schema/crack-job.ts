@@ -9,7 +9,7 @@ import {
   mapPitbullInstance,
 } from './pitbull-instance';
 
-export type PitbullJobDto = BaseEntityDto & {
+export type CrackJobDto = BaseEntityDto & {
   keyword: string;
   walletString: string;
   passlistUrl: string;
@@ -30,22 +30,22 @@ export type PitbullJobDto = BaseEntityDto & {
   errorLog: string;
 };
 
-export type PitbullJob = BaseEntity
-  & Omit<PitbullJobDto, 'instance'>
+export type CrackJob = BaseEntity
+  & Omit<CrackJobDto, 'instance'>
   & {
     instance: PitbullInstance;
   };
 
-export type PitbullJobsFilters = Partial<{
+export type CrackJobsFilters = Partial<{
   statuses: number[];
   keyword: string;
 }>;
 
-export type RunPitbullJobPayload = {
+export type RunCrackJobPayload = {
   keyword: string;
 };
 
-export const mapPitbullJob = (dto: PitbullJobDto) => ({
+export const mapCrackJob = (dto: CrackJobDto) => ({
   ...dto,
   instance: mapPitbullInstance(dto.instance || {}),
-} as PitbullJob);
+} as CrackJob);

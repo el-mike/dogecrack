@@ -16,10 +16,10 @@ import { Spacer } from 'common/components';
 
 import { TimeAgo } from 'core/components';
 
- import { usePitbullJobs } from '../pitbull-jobs.context';
+ import { useCrackJobs } from '../crack-jobs.context';
 
-import { PitbullJob } from './PitbullJob';
-import { PitbullJobsFilters } from './PitbullJobsFilters';
+import { CrackJob } from './CrackJob';
+import { CrackJobsFilters } from './CrackJobsFilters';
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -32,7 +32,7 @@ const NoJobsWrapper = styled.div`
   align-items: center;
 `;
 
-export const PitbullJobsList: React.FC = () => {  
+export const CrackJobsList: React.FC = () => {  
   const {
     jobs,
     reload,
@@ -41,7 +41,7 @@ export const PitbullJobsList: React.FC = () => {
     pageSize,
     page,
     changePage,
-  } = usePitbullJobs();
+  } = useCrackJobs();
 
   useEffect(() => {
     const interval = setInterval(
@@ -65,13 +65,13 @@ export const PitbullJobsList: React.FC = () => {
   return (
     <Box>
       <HeaderWrapper>
-        <Typography variant='h5'>Pitbull Jobs</Typography>
+        <Typography variant='h5'>Crack Jobs</Typography>
         <Typography variant='h6'>Last refreshed: <TimeAgo from={lastLoaded.toISOString()} /></Typography>
       </HeaderWrapper>
 
       <Spacer mb={4} />
 
-      <PitbullJobsFilters />
+      <CrackJobsFilters />
 
       <Spacer mb={4} />
 
@@ -81,7 +81,7 @@ export const PitbullJobsList: React.FC = () => {
           </NoJobsWrapper>
         : jobs.map(job => (
           <React.Fragment key={job.id}>
-            <PitbullJob job={job} />
+            <CrackJob job={job} />
     
             <Spacer mb={3} />
           </React.Fragment>

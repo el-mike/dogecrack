@@ -1,17 +1,17 @@
 import {
-  PitbullJobDto,
-  mapPitbullJob,
-  PitbullJobsFilters,
+  CrackJobDto,
+  mapCrackJob,
+  CrackJobsFilters,
   ListRequest,
   ListResponse,
   ListResponseResult,
-  PitbullJob,
-  RunPitbullJobPayload,
+  CrackJob,
+  RunCrackJobPayload,
 } from 'models';
 
 import { ShepherdApiService } from './shepherd-api.service';
 
-export class PitbullJobService {
+export class CrackJobService {
   private static URLS = {
     jobs: '/getJobs',
     crack: '/crack',
@@ -19,24 +19,24 @@ export class PitbullJobService {
 
   public constructor(private apiClient: ShepherdApiService) {}
 
-  public getJobs(request: ListRequest<PitbullJobsFilters>) {
-    const url = this.apiClient.buildUrl(PitbullJobService.URLS.jobs, request);
+  public getJobs(request: ListRequest<CrackJobsFilters>) {
+    const url = this.apiClient.buildUrl(CrackJobService.URLS.jobs, request);
 
     return this.apiClient
-      .get<ListResponse<PitbullJobDto>>(url)
+      .get<ListResponse<CrackJobDto>>(url)
       .then(response => ({
-        entities: (response.data.data || []).map(job => mapPitbullJob(job)),
+        entities: (response.data.data || []).map(job => mapCrackJob(job)),
         page: response.data.page,
         totalCount: response.data.totalCount,
-      } as ListResponseResult<PitbullJob>));
+      } as ListResponseResult<CrackJob>));
   }
 
-  public runJob(payload: RunPitbullJobPayload) {
-    const url = this.apiClient.buildUrl(PitbullJobService.URLS.crack);
+  public runJob(payload: RunCrackJobPayload) {
+    const url = this.apiClient.buildUrl(CrackJobService.URLS.crack);
 
     return this.apiClient
-      .post<PitbullJobDto>(url, payload)
-      .then(response => mapPitbullJob(response.data));
+      .post<CrackJobDto>(url, payload)
+      .then(response => mapCrackJob(response.data));
   }
 }
 

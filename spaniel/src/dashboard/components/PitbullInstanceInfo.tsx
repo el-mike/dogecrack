@@ -24,7 +24,7 @@ import {
 } from 'core/components';
 
 import { PitbullProgress } from './PitbullProgress';
-import { PitbullStatus } from './PitbullStatus';
+import { PitbullInstanceStatus } from './PitbullStatus';
 
 export type PitbullInfoProps = {
   instance: PitbullInstance;
@@ -34,8 +34,10 @@ const InfoWrapper = styled(Box)`
   padding: ${props => props.theme.spacing(2)};
 `;
 
-export const PitbullInfo: React.FC<PitbullInfoProps> = props => {
+export const PitbullInstanceInfo: React.FC<PitbullInfoProps> = props => {
   const { instance } = props;
+
+  const { pitbull } = instance;
   
   return (
     <InfoWrapper>
@@ -46,13 +48,13 @@ export const PitbullInfo: React.FC<PitbullInfoProps> = props => {
       <Grid container spacing={2}>
         <Grid container spacing={2} item xs={12} md={6} lg={4}>
           <Grid item xs={12}>
-            <PitbullStatus status={instance?.status || -1} />
+            <PitbullInstanceStatus status={instance?.status || -1} />
           </Grid>
         
           <Spacer mb={2} />
         
           <Grid item xs={12}>
-            <PitbullProgress progress={instance?.progress || {}} />
+            <PitbullProgress progress={pitbull?.progress || {}} />
           </Grid>
         </Grid>
 

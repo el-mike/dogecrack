@@ -7,7 +7,7 @@ import {
   Terminal,
 } from 'common/components';
 
-export type PitbullJobErrorLogProps = {
+export type CrackJobErrorLogProps = {
   errorLog: string;
 }
 
@@ -15,7 +15,7 @@ const TerminalWindow = styled(AccordionDetails)`
   background-color: ${props => props.theme.palette.background.default};
 `;
 
-export const PitbullJobErrorLog: React.FC<PitbullJobErrorLogProps> = props => {
+export const CrackJobErrorLog: React.FC<CrackJobErrorLogProps> = props => {
   const { errorLog } = props;
 
   return (

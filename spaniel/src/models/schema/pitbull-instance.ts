@@ -22,6 +22,16 @@ export type ProgressInfoDto = {
 
 export type ProgressInfo = ProgressInfoDto;
 
+export type PitbullDto = {
+  status: number;
+  progress: ProgressInfoDto;
+  lastOutput: string;
+};
+
+export type Pitbull = Omit<PitbullDto, 'progress'> & {
+  progress: ProgressInfo;
+}
+
 export type PitbullInstanceDto = BaseEntityDto & {
   rules: string[];
 
@@ -32,17 +42,17 @@ export type PitbullInstanceDto = BaseEntityDto & {
   completedAt: string;
 
   status: number;
-  progress: ProgressInfoDto;
-  lastOutput: string;
+
+  pitbull: PitbullDto;
 
   providerName: string;
   hostInstance: HostInstanceDto;
 };
 
 export type PitbullInstance = BaseEntity
-  & Omit<PitbullInstanceDto, 'progress' | 'hostInstance'>
+  & Omit<PitbullInstanceDto, 'pitbull' | 'hostInstance'>
   & {
-    progress: ProgressInfo;
+    pitbull: Pitbull;
     hostInstance: HostInstance;
   };
 

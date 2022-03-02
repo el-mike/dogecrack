@@ -1,6 +1,7 @@
 import {
   JobStatusKey,
   PitbullInstanceStatusKey,
+  PitbullStatusKey,
   Enum,
   Dictionary,
 } from 'models';
@@ -11,21 +12,29 @@ export const enumLabelMap = {
   /**
    * JobStatus enums.
    */
-  [JobStatusKey.JOB_SCHEDULED]: 'Scheduled',
-  [JobStatusKey.JOB_PROCESSING]: 'Processing',
-  [JobStatusKey.JOB_RESCHEDULED]: 'Rescheduled',
-  [JobStatusKey.JOB_REJECTED]: 'Rejected',
-  [JobStatusKey.JOB_ACKNOWLEDGED]: 'Acknowledged',
+  [JobStatusKey.SCHEDULED]: 'Scheduled',
+  [JobStatusKey.PROCESSING]: 'Processing',
+  [JobStatusKey.RESCHEDULED]: 'Rescheduled',
+  [JobStatusKey.REJECTED]: 'Rejected',
+  [JobStatusKey.ACKNOWLEDGED]: 'Acknowledged',
   /**
    * PitbullInstanceStatus enums.
    */
   [PitbullInstanceStatusKey.WAITING_FOR_HOST]: 'Waiting for host',
   [PitbullInstanceStatusKey.HOST_STARTING]: 'Host starting',
-  [PitbullInstanceStatusKey.WAITING]: 'Waiting',
   [PitbullInstanceStatusKey.RUNNING]: 'Running',
-  [PitbullInstanceStatusKey.FINISHED]: 'Finished',
+  [PitbullInstanceStatusKey.COMPLETED]: 'Completed',
   [PitbullInstanceStatusKey.SUCCESS]: 'Success',
+  [PitbullInstanceStatusKey.FAILED]: 'Finished',
   [PitbullInstanceStatusKey.INTERRUPTED]: 'Interrupted',
+
+  /**
+   * PitbullStatus enums.
+   */
+   [PitbullStatusKey.WAITING]: 'Waiting',
+   [PitbullStatusKey.RUNNING]: 'Running',
+   [PitbullStatusKey.FINISHED]: 'Finished',
+   [PitbullStatusKey.SUCCESS]: 'Success',
 } as Dictionary<string>;
 
 export const getLabelForEnum = (

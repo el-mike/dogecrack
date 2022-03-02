@@ -25,7 +25,7 @@ import { useDebouncedInput } from 'core/hooks';
 
 import { useGeneralContext } from 'core/contexts';
 
-import { usePitbullJobs } from '../pitbull-jobs.context';
+import { useCrackJobs } from '../crack-jobs.context';
 
   /**
    * Empty string causes rendering issues with MUI select, therefore we use
@@ -44,14 +44,14 @@ const ALL_OPTION = {
   value: ALL_VALUE,
 } as InputOption;
 
-export const PitbullJobsFilters: React.FC = () => {
+export const CrackJobsFilters: React.FC = () => {
   const { enums } = useGeneralContext();
 
   const {
     filters,
     filter,
     loading,
-  } = usePitbullJobs();
+  } = useCrackJobs();
 
   const { jobStatus: statusEnum } = enums;
 

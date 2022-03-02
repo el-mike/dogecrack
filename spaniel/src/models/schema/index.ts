@@ -8,4 +8,4 @@ export * from './enums';
 export * from './user';
 export * from './vast-instance';
 export * from './pitbull-instance';
-export * from './pitbull-job';
+export * from './crack-job';

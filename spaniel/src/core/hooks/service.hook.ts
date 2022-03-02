@@ -1,9 +1,9 @@
 import {
   authService,
-  pitbullJobService,
+  crackJobService,
   generalService,
 } from '../services';
 
 export const useAuthService = () => authService;
-export const usePitbullJobService = () => pitbullJobService;
+export const useCrackJobService = () => crackJobService;
 export const useGeneralService = () => generalService;

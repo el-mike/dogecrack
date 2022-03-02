@@ -24,7 +24,7 @@ const ProgressContainer = styled.div`
 
 const StatusInfoWrapper = styled.div``;
 
-export const PitbullStatus: React.FC<PitbullStatusProps> = props => {
+export const PitbullInstanceStatus: React.FC<PitbullStatusProps> = props => {
   const { status } = props;
 
   const { enums } = useGeneralContext();
@@ -39,14 +39,13 @@ export const PitbullStatus: React.FC<PitbullStatusProps> = props => {
         waiting={
           status === statusEnum[PitbullInstanceStatusKey.WAITING_FOR_HOST]
           || status === statusEnum[PitbullInstanceStatusKey.HOST_STARTING]
-          || status === statusEnum[PitbullInstanceStatusKey.WAITING]
         }
         pending={status === statusEnum[PitbullInstanceStatusKey.RUNNING]}
         error={
           status === statusEnum[PitbullInstanceStatusKey.INTERRUPTED]
           || status === statusEnum[PitbullInstanceStatusKey.FAILED]
         }
-        finished={status === statusEnum[PitbullInstanceStatusKey.FINISHED]}
+        finished={status === statusEnum[PitbullInstanceStatusKey.COMPLETED]}
         success={status === statusEnum[PitbullInstanceStatusKey.SUCCESS]}
       />
 

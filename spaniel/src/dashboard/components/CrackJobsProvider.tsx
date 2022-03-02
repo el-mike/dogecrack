@@ -6,41 +6,41 @@ import {
 
 import {
   ListRequest,
-  PitbullJob,
-  PitbullJobsFilters,
+  CrackJob,
+  CrackJobsFilters,
   JobStatusKey,
-  RunPitbullJobPayload,
+  RunCrackJobPayload,
 } from 'models';
 
 import { useGeneralContext } from 'core/contexts';
 
-import { usePitbullJobService } from 'core/hooks';
+import { useCrackJobService } from 'core/hooks';
 
 import {
-  pitbullJobsContext,
-  PitbullJobsContext,
-} from '../pitbull-jobs.context';
+  crackJobsContext,
+  CrackJobsContext,
+} from '../crack-jobs.context';
 
 const DEFAULT_PAGE_SIZE = 10;
 
-export const PitbullJobsProvider: React.FC = props => {
+export const CrackJobsProvider: React.FC = props => {
   const { enums } = useGeneralContext();
 
-  const pitbullJobService = usePitbullJobService();
+  const crackJobService = useCrackJobService();
 
   const defaultRequest = useMemo(
     () => ({
       page: 1,
       pageSize: DEFAULT_PAGE_SIZE,
-      statuses: [enums.jobStatus[JobStatusKey.JOB_PROCESSING]],
-    } as ListRequest<PitbullJobsFilters>),
+      statuses: [enums.jobStatus[JobStatusKey.PROCESSING]],
+    } as ListRequest<CrackJobsFilters>),
     /* eslint-disable-next-line */
     [],
   );
 
-  const [request, setRequest] = useState<ListRequest<PitbullJobsFilters>>(defaultRequest);
+  const [request, setRequest] = useState<ListRequest<CrackJobsFilters>>(defaultRequest);
   const [totalCount, setTotalCount] = useState(0);
-  const [jobs, setJobs] = useState<PitbullJob[]>([]);
+  const [jobs, setJobs] = useState<CrackJob[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastLoaded, setLastLoaded] = useState(new Date());
 
@@ -52,7 +52,7 @@ export const PitbullJobsProvider: React.FC = props => {
     setLastLoaded(new Date());
   };
 
-  const filter = (filters: PitbullJobsFilters) => {
+  const filter = (filters: CrackJobsFilters) => {
     setLastLoaded(new Date());
     setRequest({
       ...request,
@@ -68,8 +68,8 @@ export const PitbullJobsProvider: React.FC = props => {
     })
   };
 
-  const run = (keyword: RunPitbullJobPayload) => {
-    pitbullJobService.runJob(keyword)
+  const run = (keyword: RunCrackJobPayload) => {
+    crackJobService.runJob(keyword)
       .then(() => reload());
   };
   
@@ -87,7 +87,7 @@ export const PitbullJobsProvider: React.FC = props => {
     filter,
     changePage,
     run,
-  } as PitbullJobsContext;
+  } as CrackJobsContext;
 
   /**
    * We want to refresh the list every time request or lastLoaded change.
@@ -95,7 +95,7 @@ export const PitbullJobsProvider: React.FC = props => {
   useEffect(() => {
     setLoading(true);
   
-    pitbullJobService.getJobs(request)
+    crackJobService.getJobs(request)
       .then(result => {
         setJobs(result.entities || []);
         setTotalCount(result.totalCount);
@@ -105,6 +105,6 @@ export const PitbullJobsProvider: React.FC = props => {
   }, [request]);
 
   return (
-    <pitbullJobsContext.Provider value={value}>{props.children}</pitbullJobsContext.Provider>
+    <crackJobsContext.Provider value={value}>{props.children}</crackJobsContext.Provider>
   );
 };
