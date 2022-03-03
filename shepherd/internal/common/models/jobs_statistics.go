@@ -1,5 +1,6 @@
 package models
 
+// JobsStatistics - a struct containing counts of jobs according to statuses.
 type JobsStatistics struct {
 	All          int `bson:"all" json:"all"`
 	Acknowledged int `bson:"acknowledged" json:"acknowledged"`

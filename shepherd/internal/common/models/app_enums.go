@@ -24,6 +24,7 @@ func GetAppEnums() *AppEnums {
 			"COMPLETED":        PitbullInstanceStatus.Completed,
 			"INTERRUPTED":      PitbullInstanceStatus.Interrupted,
 			"FAILED":           PitbullInstanceStatus.Failed,
+			"SUCCESS":          PitbullInstanceStatus.Success,
 		},
 		PitbullStatus: map[string]PitbullStatusEnum{
 			"WAITING":  PitbullStatus.Waiting,

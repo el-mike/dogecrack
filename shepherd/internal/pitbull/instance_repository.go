@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const InstancesCollection = "instances"
+const InstancesCollection = "pitbull_instances"
 
 // InstanceRepository - MongoDB-backed repository for handling Pitbull instances.
 type InstanceRepository struct {
@@ -108,7 +108,7 @@ func (ir *InstanceRepository) GetOrphanInstances() ([]*models.PitbullInstance, e
 
 	lookup := bson.D{
 		{"$lookup", bson.D{
-			{"from", "jobs"},
+			{"from", "crack_jobs"},
 			{"localField", "_id"},
 			{"foreignField", "instanceId"},
 			{"as", "job"},
@@ -148,4 +148,70 @@ func (ir *InstanceRepository) GetOrphanInstances() ([]*models.PitbullInstance, e
 	}
 
 	return instances, nil
+}
+
+// GetStatistics - returns PitbullInstance statistics.
+func (ir *InstanceRepository) GetStatistics() (*models.PitbullInstancesStatistics, error) {
+	collection := ir.db.Collection(InstancesCollection)
+
+	byStatusDescription := func(field string, status models.PitbullInstanceStatusEnum) bson.E {
+		return bson.E{
+			field, bson.A{
+				bson.D{{"$match", bson.D{{"status", status}}}},
+				bson.D{{"$count", field}},
+			},
+		}
+	}
+
+	flattenCountDescription := func(field string) bson.E {
+		// Resolves to { $arrayElemAt: ["$field.field", 0] }
+		return bson.E{field, bson.D{{"$arrayElemAt", bson.A{"$" + field + "." + field, 0}}}}
+	}
+
+	facet := bson.D{
+		{"$facet", bson.D{
+			{"all", bson.A{
+				bson.D{{"$count", "all"}},
+			}},
+			byStatusDescription("waitingForHost", models.PitbullInstanceStatus.WaitingForHost),
+			byStatusDescription("hostStarting", models.PitbullInstanceStatus.HostStarting),
+			byStatusDescription("running", models.PitbullInstanceStatus.Running),
+			byStatusDescription("completed", models.PitbullInstanceStatus.Completed),
+			byStatusDescription("failed", models.PitbullInstanceStatus.Failed),
+			byStatusDescription("interrupted", models.PitbullInstanceStatus.Interrupted),
+			byStatusDescription("success", models.PitbullInstanceStatus.Success),
+		}},
+	}
+
+	project := bson.D{
+		{"$project", bson.D{
+			flattenCountDescription("all"),
+			flattenCountDescription("waitingForHost"),
+			flattenCountDescription("hostStarting"),
+			flattenCountDescription("running"),
+			flattenCountDescription("completed"),
+			flattenCountDescription("failed"),
+			flattenCountDescription("interrupted"),
+			flattenCountDescription("success"),
+		}},
+	}
+
+	pipeline := mongo.Pipeline{facet, project}
+
+	cursor, err := collection.Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	result := []*models.PitbullInstancesStatistics{}
+
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		return nil, err
+	}
+
+	if result == nil || len(result) == 0 {
+		return &models.PitbullInstancesStatistics{}, nil
+	}
+
+	return result[0], nil
 }

@@ -53,7 +53,7 @@ export const PitbullInstanceStatus: React.FC<PitbullStatusProps> = props => {
 
       <StatusInfoWrapper>
         <Typography variant='caption'>Status:</Typography>
-        <Typography variant='h5' fontWeight='bold'>{label || 'Starting Pitbull'}</Typography>
+        <Typography variant='h5' fontWeight='bold'>{label || 'Waiting for host'}</Typography>
       </StatusInfoWrapper>
 
     </ProgressContainer>

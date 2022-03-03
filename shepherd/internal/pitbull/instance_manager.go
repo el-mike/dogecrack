@@ -39,6 +39,11 @@ func (im *InstanceManager) GetActiveInstances() ([]*models.PitbullInstance, erro
 	return im.instanceRepository.GetActiveInstances()
 }
 
+// GetStatistics - returns PitbullInstance statistics.
+func (im *InstanceManager) GetStatistics() (*models.PitbullInstancesStatistics, error) {
+	return im.instanceRepository.GetStatistics()
+}
+
 // GetInstanceById - returns a PitbullInstance with given id.
 func (im *InstanceManager) GetInstanceById(id string) (*models.PitbullInstance, error) {
 	return im.instanceRepository.GetInstanceById(id)

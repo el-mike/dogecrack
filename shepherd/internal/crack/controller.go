@@ -118,3 +118,23 @@ func (ct *Controller) GetJobs(
 
 	ct.responseHelper.HandleJSONResponse(w, response)
 }
+
+// GetJobsStatistics - returns CrackJob statistics.
+func (ct *Controller) GetStatistics(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	statistics, err := ct.jobManager.GetJobsStatistics()
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response, err := json.Marshal(statistics)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.responseHelper.HandleJSONResponse(w, response)
+}

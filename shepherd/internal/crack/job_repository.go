@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const JobsCollection = "jobs"
+const JobsCollection = "crack_jobs"
 
 // JobRepository - MongoDB-backed repository for handling Pitbull jobs.
 type JobRepository struct {
@@ -68,7 +68,7 @@ func (jr *JobRepository) RescheduleProcessingJobs(jobIds []string) error {
 	update := bson.D{
 		{"$set", bson.D{
 			{"status", models.JobStatus.Rescheduled},
-			{"lastScheduledAt", models.NullableTimeNow()},
+			{"lastScheduledAt", models.NullableTimeNow().Time},
 		}},
 	}
 
@@ -197,10 +197,73 @@ func (jr *JobRepository) Update(job *models.CrackJob) error {
 	return nil
 }
 
+// GetStatistics - returns statistics for CrackJobs.
+func (jr *JobRepository) GetStatistics() (*models.CrackJobsStatistics, error) {
+	collection := jr.db.Collection(JobsCollection)
+
+	flattenCountDescription := func(field string) bson.E {
+		// Resolves to { $arrayElemAt: ["$field.field", 0] }
+		return bson.E{field, bson.D{{"$arrayElemAt", bson.A{"$" + field + "." + field, 0}}}}
+	}
+
+	facet := bson.D{
+		{"$facet", bson.D{
+			{"all", bson.A{
+				bson.D{{"$count", "all"}},
+			}},
+			{"acknowledged", bson.A{
+				bson.D{{"$match", bson.D{{"status", models.JobStatus.Acknowledged}}}},
+				bson.D{{"$count", "acknowledged"}},
+			}},
+			{"processing", bson.A{
+				bson.D{{"$match", bson.D{{"status", models.JobStatus.Processing}}}},
+				bson.D{{"$count", "processing"}},
+			}},
+			{"queued", bson.A{
+				bson.D{{"$match", bson.D{{"status", bson.D{{"$in", bson.A{models.JobStatus.Scheduled, models.JobStatus.Rescheduled}}}}}}},
+				bson.D{{"$count", "queued"}},
+			}},
+			{"rejected", bson.A{
+				bson.D{{"$match", bson.D{{"status", models.JobStatus.Acknowledged}}}},
+				bson.D{{"$count", "rejected"}},
+			}},
+		}},
+	}
+
+	project := bson.D{
+		{"$project", bson.D{
+			flattenCountDescription("all"),
+			flattenCountDescription("acknowledged"),
+			flattenCountDescription("processing"),
+			flattenCountDescription("queued"),
+			flattenCountDescription("rejected"),
+		}},
+	}
+
+	pipeline := mongo.Pipeline{facet, project}
+
+	cursor, err := collection.Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	result := []*models.CrackJobsStatistics{}
+
+	if err = cursor.All(context.TODO(), &result); err != nil {
+		return nil, err
+	}
+
+	if result == nil || len(result) == 0 {
+		return &models.CrackJobsStatistics{}, nil
+	}
+
+	return result[0], nil
+}
+
 func (jr *JobRepository) lookupAndUnwindInstance() (bson.D, bson.D) {
 	lookup := bson.D{
 		{"$lookup", bson.D{
-			{"from", "instances"},
+			{"from", "pitbull_instances"},
 			{"localField", "instanceId"},
 			{"foreignField", "_id"},
 			{"as", "instance"}},

@@ -25,7 +25,7 @@ export const enumLabelMap = {
   [PitbullInstanceStatusKey.RUNNING]: 'Running',
   [PitbullInstanceStatusKey.COMPLETED]: 'Completed',
   [PitbullInstanceStatusKey.SUCCESS]: 'Success',
-  [PitbullInstanceStatusKey.FAILED]: 'Finished',
+  [PitbullInstanceStatusKey.FAILED]: 'Failed',
   [PitbullInstanceStatusKey.INTERRUPTED]: 'Interrupted',
 
   /**

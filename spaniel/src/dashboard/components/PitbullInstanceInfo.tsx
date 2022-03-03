@@ -24,7 +24,7 @@ import {
 } from 'core/components';
 
 import { PitbullProgress } from './PitbullProgress';
-import { PitbullInstanceStatus } from './PitbullStatus';
+import { PitbullInstanceStatus } from './PitbullInstanceStatus';
 
 export type PitbullInfoProps = {
   instance: PitbullInstance;
