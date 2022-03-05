@@ -1,8 +1,3 @@
-import {
-  PitbullInstancesStatisticsDto,
-  PitbullInstancesStatistics,
-} from 'models';
-
 import { ShepherdApiService } from './shepherd-api.service';
 
 export class PitbullInstanceService {
@@ -11,13 +6,5 @@ export class PitbullInstanceService {
   };
 
   public constructor(private apiClient: ShepherdApiService) {}
-
-  public getStatistics() {
-    const url = this.apiClient.buildUrl(PitbullInstanceService.URLS.statistics);
-
-    return this.apiClient
-      .get<PitbullInstancesStatisticsDto>(url)
-      .then(response => response.data as PitbullInstancesStatistics);
-  }
 }
 

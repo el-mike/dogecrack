@@ -4,13 +4,11 @@ import {
 } from 'react';
 
 import {
-  CrackJobsStatistics,
-  PitbullInstancesStatistics,
+  Statistics,
 } from 'models';
 
 import {
-  usePitbullInstanceService,
-  useCrackJobService,
+  useGeneralService,
 } from 'core/hooks';
 
 import {
@@ -19,29 +17,19 @@ import {
 } from '../statistics.context';
 
 export const StatisticsProvider: React.FC = props => {
-  const crackJobService = useCrackJobService();
-  const pitbullInstanceService = usePitbullInstanceService();
+  const generalService = useGeneralService();
 
-  const [crackJobs, setCrackJobs] =
-    useState<CrackJobsStatistics>({} as CrackJobsStatistics);
-
-  const [pitbullInstances, setPitbullInstances] =
-    useState<PitbullInstancesStatistics>({} as PitbullInstancesStatistics);
+  const [statistics, setStatistics] =
+    useState<Statistics>({} as Statistics);
 
   const load = () => {
-    Promise.all([
-      crackJobService.getStatistics(),
-      pitbullInstanceService.getStatistics(),
-    ]).then(([crackJobsStatistics, pitbullInstancesStatistics]) => {
-      setCrackJobs(crackJobsStatistics);
-      setPitbullInstances(pitbullInstancesStatistics);
-    });
+    generalService.getStatistics()
+      .then(statistics => setStatistics(statistics));
   };
 
   const value = {
     load,
-    crackJobs,
-    pitbullInstances,
+    statistics
   } as StatisticsContext;
 
   useEffect(() => {

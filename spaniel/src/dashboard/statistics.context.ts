@@ -4,16 +4,14 @@ import {
 } from 'react';
 
 import {
-  CrackJobsStatistics,
-  PitbullInstancesStatistics,
+  Statistics,
 } from 'models';
 
 export type LoadFn = () => void;
 
 export type StatisticsContext = {
   load: LoadFn;
-  crackJobs: CrackJobsStatistics;
-  pitbullInstances: PitbullInstancesStatistics;
+  statistics: Statistics;
 };
 
 export const statisticsContext = createContext<StatisticsContext>(null!);
