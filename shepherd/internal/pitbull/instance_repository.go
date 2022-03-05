@@ -175,10 +175,12 @@ func (ir *InstanceRepository) GetStatistics() (*models.PitbullInstancesStatistic
 					{"vars", bson.D{
 						{"endDate", bson.D{
 							{"$cond", bson.D{
-								// If completedAt is great than startedAt, that means it's defined, and we should use it.
+								// If completedAt is greater than startedAt or equal, that means it's defined, and we should use it.
 								// Otherwise, instance is not finished yet, and we should use $$NOW to get duration until now.
+								// Please note that equality is important here, as before instance is run, both
+								// completedAt and startedAt are equal zero.
 								{"if", bson.D{
-									{"$gt", bson.A{"$completedAt", "$startedAt"}},
+									{"$gte", bson.A{"$completedAt", "$startedAt"}},
 								}},
 								{"then", "$completedAt"},
 								{"else", "$$NOW"},
@@ -195,7 +197,13 @@ func (ir *InstanceRepository) GetStatistics() (*models.PitbullInstancesStatistic
 										(60 * 60 * 1000),
 									}},
 								},
-								"$hostInstanceRaw.dphtotal",
+								bson.D{
+									{"$cond", bson.D{
+										{"if", "$hostInstanceRaw.dphtotal"},
+										{"then", "$hostInstanceRaw.dphtotal"},
+										{"else", 0},
+									}},
+								},
 							}},
 						}},
 					}},
