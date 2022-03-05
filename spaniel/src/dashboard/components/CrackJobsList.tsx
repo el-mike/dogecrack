@@ -10,13 +10,12 @@ import {
   Pagination,
 } from '@mui/material';
 
-import { millisecondsInSecond } from 'date-fns';
-
 import { Spacer } from 'common/components';
 
 import { TimeAgo } from 'core/components';
 
- import { useCrackJobs } from '../crack-jobs.context';
+import { useCrackJobsContext } from '../crack-jobs.context';
+import { useStatisticsContext } from '../statistics.context';
 
 import { CrackJob } from './CrackJob';
 import { CrackJobsFilters } from './CrackJobsFilters';
@@ -35,28 +34,18 @@ const NoJobsWrapper = styled.div`
 export const CrackJobsList: React.FC = () => {  
   const {
     jobs,
-    reload,
+    reload: reloadJobs,
     lastLoaded,
     totalCount,
     pageSize,
     page,
     changePage,
-  } = useCrackJobs();
+  } = useCrackJobsContext();
 
-  useEffect(() => {
-    const interval = setInterval(
-      () => {
-        reload();
-      },
-      /**
-       * Every 30 seconds.
-       */
-      millisecondsInSecond * 30,
-    );
+  const {
+    load: loadStatistics,
+  } = useStatisticsContext();
 
-    return () => clearInterval(interval);
-    /* eslint-disable-next-line */
-  }, [reload]);
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     changePage(value);

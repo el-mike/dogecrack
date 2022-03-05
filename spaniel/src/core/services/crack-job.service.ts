@@ -7,6 +7,8 @@ import {
   ListResponseResult,
   CrackJob,
   RunCrackJobPayload,
+  CrackJobsStatisticsDto,
+  CrackJobsStatistics,
 } from 'models';
 
 import { ShepherdApiService } from './shepherd-api.service';
@@ -14,6 +16,7 @@ import { ShepherdApiService } from './shepherd-api.service';
 export class CrackJobService {
   private static URLS = {
     jobs: '/getJobs',
+    statistics: '/getJobsStatistics',
     crack: '/crack',
   };
 
@@ -29,6 +32,14 @@ export class CrackJobService {
         page: response.data.page,
         totalCount: response.data.totalCount,
       } as ListResponseResult<CrackJob>));
+  }
+
+  public getStatistics() {
+    const url = this.apiClient.buildUrl(CrackJobService.URLS.statistics);
+
+    return this.apiClient
+      .get<CrackJobsStatisticsDto>(url)
+      .then(response => response.data as CrackJobsStatistics);
   }
 
   public runJob(payload: RunCrackJobPayload) {

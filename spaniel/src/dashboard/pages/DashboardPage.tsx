@@ -1,34 +1,76 @@
+import { useEffect } from 'react';
+
 import styled from 'styled-components';
 
-import { Typography } from '@mui/material';
+import {
+  Typography,
+  Grid,
+} from '@mui/material';
+
+import { millisecondsInSecond } from 'date-fns';
 
 import { Spacer } from 'common/components';
 
 import {
   CrackJobsProvider,
+  StatisticsProvider,
   CrackJobsList,
-  RunCrackJob
+  RunCrackJob,
 } from '../components';
+
+import { useCrackJobsContext } from '../crack-jobs.context';
+import { useStatisticsContext } from '../statistics.context';
 
 const DashboardWrapper = styled.div``;
 
-export const DashboardPage: React.FC = () => {
+const InnerDashboardPage: React.FC = () => {
+  const { reload: reloadJobs } = useCrackJobsContext();
+  const { load: loadStatistics } = useStatisticsContext();
+
+  useEffect(() => {
+    const interval = setInterval(
+      () => {
+        reloadJobs();
+        loadStatistics();
+      },
+      /**
+       * Every 30 seconds.
+       */
+      millisecondsInSecond * 30,
+    );
+
+    return () => clearInterval(interval);
+    /* eslint-disable-next-line */
+  }, [reloadJobs]);
 
   return (
     <DashboardWrapper>
-      <CrackJobsProvider>
-        <Typography variant='h4'>
-          Dashboard
-        </Typography>
+      <Typography variant='h4'>
+        Dashboard
+      </Typography>
 
-        <Spacer mb={4} />
+      <Spacer mb={4} />
 
-        <RunCrackJob />
+      <Grid container>
+        <Grid item xs={12}>
+          <RunCrackJob />
 
-        <Spacer mb={4} />
+          <Spacer mb={4} />
+        
+          <CrackJobsList />
+        </Grid>
 
-        <CrackJobsList />
-      </CrackJobsProvider>
+      </Grid>
     </DashboardWrapper>
+  );
+}
+
+export const DashboardPage: React.FC = () => {
+  return (
+      <CrackJobsProvider>
+        <StatisticsProvider>
+          <InnerDashboardPage />
+        </StatisticsProvider>
+      </CrackJobsProvider>
   );
 };

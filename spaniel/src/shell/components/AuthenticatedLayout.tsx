@@ -27,7 +27,7 @@ export const AuthenticatedLayout: React.FC = props => {
     
     <Navigation />
 
-    <ContentContainer>
+    <ContentContainer maxWidth='xl'>
       <Outlet />
     </ContentContainer>
     

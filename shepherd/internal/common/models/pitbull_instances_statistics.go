@@ -10,4 +10,8 @@ type PitbullInstancesStatistics struct {
 	Failed         int `bson:"failed" json:"failed"`
 	Interrupted    int `bson:"interrupted" json:"interrupted"`
 	Success        int `bson:"success" json:"success"`
+
+	PasswordsChecked int     `bson:"passwordsChecked" json:"passwordsChecked"`
+	TotalCost        float64 `bson:"totalCost" json:"totalCost"`
+	AverageCost      float64 `bson:"averageCost" json:"averageCost"`
 }

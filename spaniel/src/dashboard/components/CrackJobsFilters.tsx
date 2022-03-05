@@ -25,7 +25,7 @@ import { useDebouncedInput } from 'core/hooks';
 
 import { useGeneralContext } from 'core/contexts';
 
-import { useCrackJobs } from '../crack-jobs.context';
+import { useCrackJobsContext } from '../crack-jobs.context';
 
   /**
    * Empty string causes rendering issues with MUI select, therefore we use
@@ -51,7 +51,7 @@ export const CrackJobsFilters: React.FC = () => {
     filters,
     filter,
     loading,
-  } = useCrackJobs();
+  } = useCrackJobsContext();
 
   const { jobStatus: statusEnum } = enums;
 

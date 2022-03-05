@@ -154,7 +154,7 @@ func (ir *InstanceRepository) GetOrphanInstances() ([]*models.PitbullInstance, e
 func (ir *InstanceRepository) GetStatistics() (*models.PitbullInstancesStatistics, error) {
 	collection := ir.db.Collection(InstancesCollection)
 
-	byStatusDescription := func(field string, status models.PitbullInstanceStatusEnum) bson.E {
+	byStatusSpec := func(field string, status models.PitbullInstanceStatusEnum) bson.E {
 		return bson.E{
 			field, bson.A{
 				bson.D{{"$match", bson.D{{"status", status}}}},
@@ -163,9 +163,45 @@ func (ir *InstanceRepository) GetStatistics() (*models.PitbullInstancesStatistic
 		}
 	}
 
-	flattenCountDescription := func(field string) bson.E {
+	flattenCountSpec := func(field string) bson.E {
 		// Resolves to { $arrayElemAt: ["$field.field", 0] }
 		return bson.E{field, bson.D{{"$arrayElemAt", bson.A{"$" + field + "." + field, 0}}}}
+	}
+
+	costSpec := func() bson.E {
+		return bson.E{
+			"cost", bson.D{
+				{"$let", bson.D{
+					{"vars", bson.D{
+						{"endDate", bson.D{
+							{"$cond", bson.D{
+								// If completedAt is great than startedAt, that means it's defined, and we should use it.
+								// Otherwise, instance is not finished yet, and we should use $$NOW to get duration until now.
+								{"if", bson.D{
+									{"$gt", bson.A{"$completedAt", "$startedAt"}},
+								}},
+								{"then", "$completedAt"},
+								{"else", "$$NOW"},
+							}},
+						}},
+					}},
+					{"in", bson.D{
+						{"$sum", bson.D{
+							{"$multiply", bson.A{
+								bson.D{
+									{"$divide", bson.A{
+										// Get duration in miliseconds and multiply it to get hours.
+										bson.D{{"$subtract", bson.A{"$$endDate", "$startedAt"}}},
+										(60 * 60 * 1000),
+									}},
+								},
+								"$hostInstanceRaw.dphtotal",
+							}},
+						}},
+					}},
+				}},
+			},
+		}
 	}
 
 	facet := bson.D{
@@ -173,28 +209,47 @@ func (ir *InstanceRepository) GetStatistics() (*models.PitbullInstancesStatistic
 			{"all", bson.A{
 				bson.D{{"$count", "all"}},
 			}},
-			byStatusDescription("waitingForHost", models.PitbullInstanceStatus.WaitingForHost),
-			byStatusDescription("hostStarting", models.PitbullInstanceStatus.HostStarting),
-			byStatusDescription("running", models.PitbullInstanceStatus.Running),
-			byStatusDescription("completed", models.PitbullInstanceStatus.Completed),
-			byStatusDescription("failed", models.PitbullInstanceStatus.Failed),
-			byStatusDescription("interrupted", models.PitbullInstanceStatus.Interrupted),
-			byStatusDescription("success", models.PitbullInstanceStatus.Success),
-		}},
+			byStatusSpec("waitingForHost", models.PitbullInstanceStatus.WaitingForHost),
+			byStatusSpec("hostStarting", models.PitbullInstanceStatus.HostStarting),
+			byStatusSpec("running", models.PitbullInstanceStatus.Running),
+			byStatusSpec("completed", models.PitbullInstanceStatus.Completed),
+			byStatusSpec("failed", models.PitbullInstanceStatus.Failed),
+			byStatusSpec("interrupted", models.PitbullInstanceStatus.Interrupted),
+			byStatusSpec("success", models.PitbullInstanceStatus.Success),
+			{"summary", bson.A{
+				bson.D{{"$addFields", bson.D{costSpec()}}},
+				bson.D{
+					{"$group", bson.D{
+						{"_id", nil},
+						{"passwordsChecked", bson.D{{"$sum", "$pitbull.progress.checked"}}},
+						{"totalCost", bson.D{{"$sum", "$cost"}}},
+						{"averageCost", bson.D{{"$avg", "$cost"}}},
+					}},
+				}},
+			}},
+		},
 	}
 
 	project := bson.D{
 		{"$project", bson.D{
-			flattenCountDescription("all"),
-			flattenCountDescription("waitingForHost"),
-			flattenCountDescription("hostStarting"),
-			flattenCountDescription("running"),
-			flattenCountDescription("completed"),
-			flattenCountDescription("failed"),
-			flattenCountDescription("interrupted"),
-			flattenCountDescription("success"),
-		}},
-	}
+			flattenCountSpec("all"),
+			flattenCountSpec("waitingForHost"),
+			flattenCountSpec("hostStarting"),
+			flattenCountSpec("running"),
+			flattenCountSpec("completed"),
+			flattenCountSpec("failed"),
+			flattenCountSpec("interrupted"),
+			flattenCountSpec("success"),
+			{"passwordsChecked", bson.D{
+				{"$arrayElemAt", bson.A{"$summary.passwordsChecked", 0}},
+			}},
+			{"totalCost", bson.D{
+				{"$arrayElemAt", bson.A{"$summary.totalCost", 0}},
+			}},
+			{"averageCost", bson.D{
+				{"$arrayElemAt", bson.A{"$summary.averageCost", 0}}},
+			}},
+		}}
 
 	pipeline := mongo.Pipeline{facet, project}
 
@@ -213,5 +268,7 @@ func (ir *InstanceRepository) GetStatistics() (*models.PitbullInstancesStatistic
 		return &models.PitbullInstancesStatistics{}, nil
 	}
 
-	return result[0], nil
+	statistics := result[0]
+
+	return statistics, nil
 }

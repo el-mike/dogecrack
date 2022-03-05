@@ -41,13 +41,13 @@ func NewServer(port, originAllowed string) *Server {
 	protectedRouter.HandleFunc("/getMe", authController.Me).Methods("GET")
 	protectedRouter.HandleFunc("/logout", authController.Logout).Methods("GET")
 
+	protectedRouter.HandleFunc("/getStatistics", appController.GetStatistics).Methods("GET")
+
 	protectedRouter.HandleFunc("/getActiveInstances", pitbullController.GetActiveInstances).Methods("GET")
-	protectedRouter.HandleFunc("/getInstancesStatistics", pitbullController.GetStatistics).Methods("GET")
 	protectedRouter.HandleFunc("/getInstance", pitbullController.GetInstance).Methods("GET")
 	protectedRouter.HandleFunc("/runCommand", pitbullController.RunCommand).Methods("POST")
 
 	protectedRouter.HandleFunc("/getJobs", crackController.GetJobs).Methods("GET")
-	protectedRouter.HandleFunc("/getJobsStatistics", crackController.GetStatistics).Methods("GET")
 	protectedRouter.HandleFunc("/crack", crackController.Crack).Methods("POST")
 
 	http.Handle("/", baseRouter)

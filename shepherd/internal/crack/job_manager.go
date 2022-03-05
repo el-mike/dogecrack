@@ -26,11 +26,6 @@ func (js *JobManager) GetJobs(payload *models.PitbullJobsListPayload) ([]*models
 	return js.jobRepository.GetAll(payload)
 }
 
-// GetJobsStatistics - returns CrackJob statistics.
-func (js *JobManager) GetJobsStatistics() (*models.CrackJobsStatistics, error) {
-	return js.jobRepository.GetStatistics()
-}
-
 // CreateJob - creates an empty job and saves it to DB.
 func (js *JobManager) CreateJob(keyword, passlistUrl, walletString string) (*models.CrackJob, error) {
 	job := models.NewPitbullJob(keyword, passlistUrl, walletString)

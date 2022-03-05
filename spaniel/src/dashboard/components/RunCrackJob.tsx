@@ -21,7 +21,7 @@ import {
   Button,
 } from 'common/components';
 
-import { useCrackJobs } from '../crack-jobs.context';
+import { useCrackJobsContext } from '../crack-jobs.context';
 
 export type RunCrackJobProps = {};
 
@@ -32,7 +32,7 @@ const CardFooter = styled(CardActions)`
 export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
   const [payload, setPayload] = useState<RunCrackJobPayload>({ keyword: '' });
 
-  const { run } = useCrackJobs();
+  const { run } = useCrackJobsContext();
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setPayload({

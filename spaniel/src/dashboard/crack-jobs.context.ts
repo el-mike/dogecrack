@@ -30,4 +30,4 @@ export type CrackJobsContext = {
 
 export const crackJobsContext = createContext<CrackJobsContext>(null!);
 
-export const useCrackJobs = () => useContext(crackJobsContext);
+export const useCrackJobsContext = () => useContext(crackJobsContext);

@@ -63,26 +63,6 @@ func (ct *Controller) GetActiveInstances(
 	ct.responseHelper.HandleJSONResponse(w, response)
 }
 
-// GetStatistics - returns PitbullInstance statistics.
-func (ct *Controller) GetStatistics(
-	w http.ResponseWriter,
-	r *http.Request,
-) {
-	statistics, err := ct.instanceManager.GetStatistics()
-	if err != nil {
-		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	response, err := json.Marshal(statistics)
-	if err != nil {
-		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	ct.responseHelper.HandleJSONResponse(w, response)
-}
-
 // GetInstance - returns an instance with given ID.
 func (ct *Controller) GetInstance(
 	w http.ResponseWriter,

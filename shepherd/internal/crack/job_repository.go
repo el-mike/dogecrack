@@ -224,7 +224,7 @@ func (jr *JobRepository) GetStatistics() (*models.CrackJobsStatistics, error) {
 				bson.D{{"$count", "queued"}},
 			}},
 			{"rejected", bson.A{
-				bson.D{{"$match", bson.D{{"status", models.JobStatus.Acknowledged}}}},
+				bson.D{{"$match", bson.D{{"status", models.JobStatus.Rejected}}}},
 				bson.D{{"$count", "rejected"}},
 			}},
 		}},

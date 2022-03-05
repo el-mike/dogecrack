@@ -3,7 +3,8 @@ import axios from 'axios';
 import { ShepherdApiService } from './shepherd-api.service';
 import { ConfigService } from './config.service';
 import { AuthService } from './auth.service';
-import { CrackJobService } from './pitbull-job.service';
+import { CrackJobService } from './crack-job.service';
+import { PitbullInstanceService } from './pitbull-instance.service';
 import { GeneralService } from './general.service';
 
 export type UnauthorizedResponseCallback = () => void;
@@ -22,3 +23,4 @@ export const authService = new AuthService(shepherdApiService);
 export const generalService = new GeneralService(shepherdApiService);
 
 export const crackJobService = new CrackJobService(shepherdApiService);
+export const pitbullInstanceService = new PitbullInstanceService(shepherdApiService);
