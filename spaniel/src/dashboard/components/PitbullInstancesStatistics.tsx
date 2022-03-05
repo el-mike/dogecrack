@@ -53,7 +53,6 @@ export const PitbullInstancesStatistics: React.FC<PitbullInstancesStatisticsProp
 
   const allCoompleted = statistics.completed
     + statistics.failed
-    + statistics.interrupted
     + statistics.success;
 
   const successRate = allCoompleted === 0
@@ -100,6 +99,9 @@ export const PitbullInstancesStatistics: React.FC<PitbullInstancesStatisticsProp
             </StatisticContainer>
           </Grid>
 
+          {/* Ofsset element - we want to push "Completed" status to the next line. */}
+          <Grid item xs={12} sm={4}></Grid>
+
           <Grid item xs={12} sm={4}>
             <StatisticContainer>
               <CircularStatusIndicator finished={true} size='small' />
@@ -139,21 +141,6 @@ export const PitbullInstancesStatistics: React.FC<PitbullInstancesStatisticsProp
               <LabeledInfo
                 title='Failed'
                 value={statistics.failed}
-                valueVariant='h5'
-                useZero={true}
-              />
-            </StatisticContainer>
-          </Grid>
-
-          <Grid item xs={12} sm={4}>
-            <StatisticContainer>
-              <CircularStatusIndicator error={true} size='small' />
-
-              <Spacer mr={2} />
-            
-              <LabeledInfo
-                title='Interrupted'
-                value={statistics.interrupted}
                 valueVariant='h5'
                 useZero={true}
               />

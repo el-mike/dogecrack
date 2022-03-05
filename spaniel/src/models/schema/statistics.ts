@@ -16,7 +16,6 @@ export type PitbullInstancesStatisticsDto = {
   running: number;
   completed: number;
   failed: number;
-  interrupted: number;
   success: number;
   passwordsChecked: number;
   totalCost: number;

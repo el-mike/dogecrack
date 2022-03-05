@@ -41,10 +41,7 @@ export const PitbullInstanceStatus: React.FC<PitbullStatusProps> = props => {
           status === statusEnum[PitbullInstanceStatusKey.RUNNING]
           || status === statusEnum[PitbullInstanceStatusKey.HOST_STARTING]
         }
-        error={
-          status === statusEnum[PitbullInstanceStatusKey.INTERRUPTED]
-          || status === statusEnum[PitbullInstanceStatusKey.FAILED]
-        }
+        error={status === statusEnum[PitbullInstanceStatusKey.FAILED]}
         finished={status === statusEnum[PitbullInstanceStatusKey.COMPLETED]}
         success={status === statusEnum[PitbullInstanceStatusKey.SUCCESS]}
       />

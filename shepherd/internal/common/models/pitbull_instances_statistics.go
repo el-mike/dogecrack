@@ -8,7 +8,6 @@ type PitbullInstancesStatistics struct {
 	Running        int `bson:"running" json:"running"`
 	Completed      int `bson:"completed" json:"completed"`
 	Failed         int `bson:"failed" json:"failed"`
-	Interrupted    int `bson:"interrupted" json:"interrupted"`
 	Success        int `bson:"success" json:"success"`
 
 	PasswordsChecked int     `bson:"passwordsChecked" json:"passwordsChecked"`

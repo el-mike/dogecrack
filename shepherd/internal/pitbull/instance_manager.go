@@ -185,14 +185,15 @@ func (im *InstanceManager) RunPitbull(id string) (*models.PitbullInstance, error
 	return instance, nil
 }
 
-// MarkInstanceAsInterrupted - marks given instance as "Interrupted" and updates it
-// in the DB.
-func (im *InstanceManager) MarkInstanceAsInterrupted(instance *models.PitbullInstance) error {
+// MarkInstanceAsFailed - marks given instance as "Failed", adds FailsReason
+// and updates it in the DB.
+func (im *InstanceManager) MarkInstanceAsFailed(instance *models.PitbullInstance, reason error) error {
 	if instance == nil {
 		return nil
 	}
 
-	instance.Status = models.PitbullInstanceStatus.Interrupted
+	instance.Status = models.PitbullInstanceStatus.Failed
+	instance.FailReason = reason.Error()
 
 	return im.UpdateInstance(instance)
 }

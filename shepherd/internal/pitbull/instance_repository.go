@@ -222,7 +222,6 @@ func (ir *InstanceRepository) GetStatistics() (*models.PitbullInstancesStatistic
 			byStatusSpec("running", models.PitbullInstanceStatus.Running),
 			byStatusSpec("completed", models.PitbullInstanceStatus.Completed),
 			byStatusSpec("failed", models.PitbullInstanceStatus.Failed),
-			byStatusSpec("interrupted", models.PitbullInstanceStatus.Interrupted),
 			byStatusSpec("success", models.PitbullInstanceStatus.Success),
 			{"summary", bson.A{
 				bson.D{{"$addFields", bson.D{costSpec()}}},
@@ -246,7 +245,6 @@ func (ir *InstanceRepository) GetStatistics() (*models.PitbullInstancesStatistic
 			flattenCountSpec("running"),
 			flattenCountSpec("completed"),
 			flattenCountSpec("failed"),
-			flattenCountSpec("interrupted"),
 			flattenCountSpec("success"),
 			{"passwordsChecked", bson.D{
 				{"$arrayElemAt", bson.A{"$summary.passwordsChecked", 0}},

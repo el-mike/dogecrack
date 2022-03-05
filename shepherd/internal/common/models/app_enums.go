@@ -22,7 +22,6 @@ func GetAppEnums() *AppEnums {
 			"HOST_STARTING":    PitbullInstanceStatus.HostStarting,
 			"RUNNING":          PitbullInstanceStatus.Running,
 			"COMPLETED":        PitbullInstanceStatus.Completed,
-			"INTERRUPTED":      PitbullInstanceStatus.Interrupted,
 			"FAILED":           PitbullInstanceStatus.Failed,
 			"SUCCESS":          PitbullInstanceStatus.Success,
 		},

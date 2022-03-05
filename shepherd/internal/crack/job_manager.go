@@ -99,7 +99,7 @@ func (js *JobManager) AcknowledgeJob(job *models.CrackJob) error {
 	return js.jobRepository.Update(job)
 }
 
-// RejectJob - rejects a single job, and marks related instances as "Interrupted".
+// RejectJob - rejects a single job, and marks related instances as "Failed".
 func (js *JobManager) RejectJob(job *models.CrackJob, reason error) error {
 	if err := js.jobQueue.Reject(job.ID.Hex()); err != nil {
 		return err
@@ -114,10 +114,10 @@ func (js *JobManager) RejectJob(job *models.CrackJob, reason error) error {
 		return err
 	}
 
-	return js.instanceManager.MarkInstanceAsInterrupted(job.Instance)
+	return js.instanceManager.MarkInstanceAsFailed(job.Instance, reason)
 }
 
-// RescheduleJob - reschedules a single job and marks related instances as "Interrupted".
+// RescheduleJob - reschedules a single job and marks related instances as "Failed".
 func (js *JobManager) RescheduleJob(job *models.CrackJob, reason error) error {
 	if err := js.jobQueue.Reschedule(job.ID.Hex()); err != nil {
 		return err
@@ -133,7 +133,7 @@ func (js *JobManager) RescheduleJob(job *models.CrackJob, reason error) error {
 		return err
 	}
 
-	return js.instanceManager.MarkInstanceAsInterrupted(job.Instance)
+	return js.instanceManager.MarkInstanceAsFailed(job.Instance, reason)
 }
 
 // RescheduleProcessingJobs - reschedules all jobs in "processingQueue".

@@ -17,7 +17,6 @@ var PitbullInstanceStatus = struct {
 	Running        PitbullInstanceStatusEnum
 	Completed      PitbullInstanceStatusEnum
 	Failed         PitbullInstanceStatusEnum
-	Interrupted    PitbullInstanceStatusEnum
 	Success        PitbullInstanceStatusEnum
 }{
 	WaitingForHost: 0,
@@ -25,8 +24,7 @@ var PitbullInstanceStatus = struct {
 	Running:        2,
 	Completed:      3,
 	Failed:         4,
-	Interrupted:    5,
-	Success:        6,
+	Success:        5,
 }
 
 var pitbullInstanceStatusByName = map[PitbullInstanceStatusEnum]string{
@@ -35,7 +33,6 @@ var pitbullInstanceStatusByName = map[PitbullInstanceStatusEnum]string{
 	PitbullInstanceStatus.Running:        "RUNNING",
 	PitbullInstanceStatus.Completed:      "COMPLETED",
 	PitbullInstanceStatus.Failed:         "FAILED",
-	PitbullInstanceStatus.Interrupted:    "INTERRUPTED",
 	PitbullInstanceStatus.Success:        "SUCCESS",
 }
 
@@ -58,6 +55,8 @@ type PitbullInstance struct {
 	ProviderName    string            `bson:"providerName" json:"providerName"`
 	HostInstance    host.HostInstance `bson:"-" json:"hostInstance"`
 	HostInstanceRaw bson.Raw          `bson:"hostInstanceRaw" json:"-"`
+
+	FailReason string `bson:"failReason" json:"failReason"`
 }
 
 type marshalablePitbullInstance PitbullInstance

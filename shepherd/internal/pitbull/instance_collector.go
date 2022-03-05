@@ -1,6 +1,7 @@
 package pitbull
 
 import (
+	"errors"
 	"os"
 	"runtime/debug"
 	"time"
@@ -75,8 +76,10 @@ func (cl *InstanceCollector) Start() {
 
 				cl.logger.Info.Printf("Instance '%s' has been stopped.\n", instance.ID.Hex())
 
-				if err := cl.instanceManager.MarkInstanceAsInterrupted(instance); err != nil {
-					cl.logger.Err.Printf("Marking instance '%s' as interrupted failed. reason: %v\n", instance.ID.Hex(), err)
+				reason := errors.New("Instance has been orphaned")
+
+				if err := cl.instanceManager.MarkInstanceAsFailed(instance, reason); err != nil {
+					cl.logger.Err.Printf("Marking instance '%s' as 'failed' failed. reason: %v\n", instance.ID.Hex(), err)
 				}
 			}
 
