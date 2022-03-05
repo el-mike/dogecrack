@@ -18,8 +18,9 @@ const (
 	checkStatusRetryLimit  = 10
 	stalledProgressLimit   = 10
 	rescheduleLimit        = 5
-	checkHostInterval      = 15 * time.Second
-	checkPitbullInterval   = 30 * time.Second
+
+	checkHostInterval    = 15 * time.Second
+	checkPitbullInterval = 30 * time.Second
 )
 
 // JobRunner - entity responsible for running and monitoring Pitbull jobs.
@@ -205,10 +206,8 @@ func (ru *JobRunner) runPitbull(job *models.CrackJob) {
 
 		if pitbull.Done() {
 			logger.Info.Printf("pitbull finished, stopping host instance\n")
-
-			output, err := ru.instanceManager.GetInstanceOutput(instance)
-			if err != nil {
-				logger.Err.Printf("output retrieval failed. Reason: %s\n", err)
+			if err := ru.instanceManager.SaveInstanceOutput(job.InstanceId.Hex()); err != nil {
+				logger.Err.Printf("saving Pitbull output failed. Reason: %s\n", err)
 			}
 
 			if err := ru.instanceManager.StopHostInstance(job.InstanceId.Hex()); err != nil {
@@ -216,15 +215,6 @@ func (ru *JobRunner) runPitbull(job *models.CrackJob) {
 			}
 
 			logger.Info.Printf("host instance stopped \n")
-
-			if output != "" {
-				pitbull.LastOutput = output
-
-				if err := ru.instanceManager.UpdateInstance(instance); err != nil {
-					logger.Err.Printf("saving last output failed. Reason: %s\n", err)
-				}
-			}
-
 			logger.Info.Printf("job completed\n")
 
 			ticker.Stop()

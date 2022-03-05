@@ -9,6 +9,7 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
 	"github.com/el-mike/dogecrack/shepherd/internal/vast"
 	vastmodels "github.com/el-mike/dogecrack/shepherd/internal/vast/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // InstanceManager - main managing entity responsible for Pitbull instances.
@@ -106,16 +107,18 @@ func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, err
 		}
 	}
 
-	if err := im.UpdateInstance(instance); err != nil {
+	if err := im.instanceRepository.UpdateInstance(instance); err != nil {
 		return nil, err
 	}
 
 	return instance, nil
 }
 
-func (im *InstanceManager) CreateInstance(passlistUrl, walletString string) (*models.PitbullInstance, error) {
+func (im *InstanceManager) CreateInstance(jobId primitive.ObjectID, passlistUrl, walletString string) (*models.PitbullInstance, error) {
 	hostInstance := im.hostManager.CreateInstance()
 	pitbullInstance := models.NewPitbullInstance(hostInstance, passlistUrl, walletString)
+
+	pitbullInstance.JobId = jobId
 
 	if err := im.instanceRepository.CreateInstance(pitbullInstance); err != nil {
 		return nil, err
@@ -187,25 +190,37 @@ func (im *InstanceManager) RunPitbull(id string) (*models.PitbullInstance, error
 
 // MarkInstanceAsFailed - marks given instance as "Failed", adds FailsReason
 // and updates it in the DB.
-func (im *InstanceManager) MarkInstanceAsFailed(instance *models.PitbullInstance, reason error) error {
-	if instance == nil {
-		return nil
+func (im *InstanceManager) MarkInstanceAsFailed(id string, reason error) error {
+	instance, err := im.GetInstanceById(id)
+	if err != nil {
+		return err
 	}
 
 	instance.Status = models.PitbullInstanceStatus.Failed
 	instance.FailReason = reason.Error()
 
-	return im.UpdateInstance(instance)
-}
-
-// UpdateInstance - updates Pitbull instance.
-func (im *InstanceManager) UpdateInstance(instance *models.PitbullInstance) error {
 	return im.instanceRepository.UpdateInstance(instance)
 }
 
-// GetInstanceOutput - returns Pitbull process output for given instance.
-func (im *InstanceManager) GetInstanceOutput(instance *models.PitbullInstance) (string, error) {
-	return im.hostManager.GetPitbullOutput(instance.HostInstance)
+// SaveInstanceOutput - returns Pitbull process output for given instance.
+func (im *InstanceManager) SaveInstanceOutput(id string) error {
+	instance, err := im.GetInstanceById(id)
+	if err != nil {
+		return err
+	}
+
+	output, err := im.hostManager.GetPitbullOutput(instance.HostInstance)
+	if err != nil {
+		return err
+	}
+
+	instance.Pitbull.LastOutput = output
+
+	if err := im.instanceRepository.UpdateInstance(instance); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // GetOrphanInstances - returns "orphan" instances.

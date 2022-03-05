@@ -43,12 +43,10 @@ func (js *JobManager) CreateJob(keyword, passlistUrl, walletString string) (*mod
 // AssignInstance - creates a PitbullInstance and assignes it to passed PitbullJob.
 // If job has been rescheduled, it will attempt to destroy previous HostInstance.
 func (js *JobManager) AssignInstance(job *models.CrackJob) (*models.CrackJob, error) {
-	instance, err := js.instanceManager.CreateInstance(job.PasslistUrl, job.WalletString)
+	instance, err := js.instanceManager.CreateInstance(job.ID, job.PasslistUrl, job.WalletString)
 	if err != nil {
 		return nil, err
 	}
-
-	instance.JobId = job.ID
 
 	job.InstanceId = instance.ID
 
@@ -114,7 +112,7 @@ func (js *JobManager) RejectJob(job *models.CrackJob, reason error) error {
 		return err
 	}
 
-	return js.instanceManager.MarkInstanceAsFailed(job.Instance, reason)
+	return js.instanceManager.MarkInstanceAsFailed(job.InstanceId.Hex(), reason)
 }
 
 // RescheduleJob - reschedules a single job and marks related instances as "Failed".
@@ -133,7 +131,7 @@ func (js *JobManager) RescheduleJob(job *models.CrackJob, reason error) error {
 		return err
 	}
 
-	return js.instanceManager.MarkInstanceAsFailed(job.Instance, reason)
+	return js.instanceManager.MarkInstanceAsFailed(job.InstanceId.Hex(), reason)
 }
 
 // RescheduleProcessingJobs - reschedules all jobs in "processingQueue".

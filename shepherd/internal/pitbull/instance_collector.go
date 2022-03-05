@@ -78,7 +78,7 @@ func (cl *InstanceCollector) Start() {
 
 				reason := errors.New("Instance has been orphaned")
 
-				if err := cl.instanceManager.MarkInstanceAsFailed(instance, reason); err != nil {
+				if err := cl.instanceManager.MarkInstanceAsFailed(instance.ID.Hex(), reason); err != nil {
 					cl.logger.Err.Printf("Marking instance '%s' as 'failed' failed. reason: %v\n", instance.ID.Hex(), err)
 				}
 			}

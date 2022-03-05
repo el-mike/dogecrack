@@ -123,6 +123,12 @@ func (vc *VastCLIClient) GetOffers(filter string) ([]*models.Offer, error) {
 		return nil, err
 	}
 
+	// If there are no offers, we want to return appropriate error, so the client
+	// can act accordingly (for example with stopping jobs for some time).
+	if len(offers) == 0 {
+		return nil, host.NewNoHostMachinesAvailable()
+	}
+
 	return offers, nil
 }
 

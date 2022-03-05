@@ -2,6 +2,19 @@ package host
 
 import "fmt"
 
+// NoHostMachinesAvailable - thrown when there are no machines that could be retned.
+type NoHostMachinesAvailable struct{}
+
+// NoHostMachinesAvailable - returns new NoHostMachinesAvailable instance.
+func NewNoHostMachinesAvailable() *NoHostMachinesAvailable {
+	return &NoHostMachinesAvailable{}
+}
+
+// Error - Error implementation.
+func (e *NoHostMachinesAvailable) Error() string {
+	return fmt.Sprintf("No host machines are available to be rented")
+}
+
 // HostInstanceNotFound - error thrown when instance with given ID was not found
 // by provider.
 type HostInstanceNotFound struct {
