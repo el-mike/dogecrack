@@ -43,6 +43,8 @@ var pitbullInstanceStatusByName = map[PitbullInstanceStatusEnum]string{
 type PitbullInstance struct {
 	BaseModel `bson:",inline"`
 
+	JobID primitive.ObjectID `bson:"jobId" json:"jobId"`
+
 	WalletString string `bson:"walletString" json:"walletString"`
 	PasslistUrl  string `bson:"passlistUrl" json:"passlistUrl"`
 
