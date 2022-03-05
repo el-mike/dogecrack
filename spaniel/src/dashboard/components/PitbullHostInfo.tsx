@@ -27,7 +27,7 @@ export const PitbullHostInfo: React.FC<PitbullHostInfoProps> = props => {
               />
           </Grid>
 
-          <Grid item xs={6} md={4}>
+          <Grid item xs={6} md={3}>
             <LabeledInfo
               title='Host address:'
               value={
@@ -42,6 +42,14 @@ export const PitbullHostInfo: React.FC<PitbullHostInfoProps> = props => {
               }
             />
           </Grid>
+
+          <Grid item xs={6} md={3}>
+            <LabeledInfo
+                title='Host ID:'
+                value={hostInstance?.id}
+              />
+          </Grid>
+
         </Grid>
 
         <Grid container item xs={12}>
