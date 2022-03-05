@@ -56,8 +56,6 @@ func (rd *JobDispatcher) Start() {
 	for {
 		select {
 		case <-ticker.C:
-			rd.logger.Info.Println("Checking for scheduled jobs...")
-
 			job, err := rd.jobManager.DequeueJob()
 			if err != nil {
 				rd.logger.Err.Printf("Dequeueing job failed. reason: %v\n", err)

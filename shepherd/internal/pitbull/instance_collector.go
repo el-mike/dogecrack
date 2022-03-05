@@ -51,8 +51,6 @@ func (cl *InstanceCollector) Start() {
 	for {
 		select {
 		case <-ticker.C:
-			cl.logger.Info.Println("Checking for orphan instances...")
-
 			instances, err := cl.instanceManager.GetOrphanInstances()
 			if err != nil {
 				cl.logger.Err.Printf("Getting orphan instances failed. reason: %v\n", err)
