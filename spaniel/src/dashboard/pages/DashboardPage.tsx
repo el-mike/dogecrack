@@ -16,6 +16,7 @@ import {
   StatisticsProvider,
   CrackJobsList,
   RunCrackJob,
+  Statistics,
 } from '../components';
 
 import { useCrackJobsContext } from '../crack-jobs.context';
@@ -53,6 +54,10 @@ const InnerDashboardPage: React.FC = () => {
 
       <Grid container>
         <Grid item xs={12}>
+          <Statistics />
+
+          <Spacer mb={4} />
+        
           <RunCrackJob />
 
           <Spacer mb={4} />

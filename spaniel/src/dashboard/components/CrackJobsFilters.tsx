@@ -55,7 +55,7 @@ export const CrackJobsFilters: React.FC = () => {
 
   const { jobStatus: statusEnum } = enums;
 
-  const jobStatusOptions =[
+  const jobStatusOptions = [
     ...getEnumAsInputOptions(statusEnum),
     ALL_OPTION,
   ];

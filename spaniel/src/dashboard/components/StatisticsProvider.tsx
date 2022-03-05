@@ -20,7 +20,7 @@ export const StatisticsProvider: React.FC = props => {
   const generalService = useGeneralService();
 
   const [statistics, setStatistics] =
-    useState<Statistics>({} as Statistics);
+    useState<Statistics | null>(null);
 
   const load = () => {
     generalService.getStatistics()

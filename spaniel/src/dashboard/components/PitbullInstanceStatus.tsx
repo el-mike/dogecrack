@@ -17,7 +17,7 @@ export type PitbullStatusProps = {
   status: number;
 }
 
-const ProgressContainer = styled.div`
+const StatusContainer = styled.div`
   display: flex;
   align-items: center;
 `;
@@ -34,13 +34,13 @@ export const PitbullInstanceStatus: React.FC<PitbullStatusProps> = props => {
   const label = getLabelForEnum(statusEnum, status);
 
   return (
-    <ProgressContainer>
+    <StatusContainer>
       <CircularStatusIndicator
-        waiting={
-          status === statusEnum[PitbullInstanceStatusKey.WAITING_FOR_HOST]
+        waiting={status === statusEnum[PitbullInstanceStatusKey.WAITING_FOR_HOST]}
+        pending={
+          status === statusEnum[PitbullInstanceStatusKey.RUNNING]
           || status === statusEnum[PitbullInstanceStatusKey.HOST_STARTING]
         }
-        pending={status === statusEnum[PitbullInstanceStatusKey.RUNNING]}
         error={
           status === statusEnum[PitbullInstanceStatusKey.INTERRUPTED]
           || status === statusEnum[PitbullInstanceStatusKey.FAILED]
@@ -56,7 +56,7 @@ export const PitbullInstanceStatus: React.FC<PitbullStatusProps> = props => {
         <Typography variant='h5' fontWeight='bold'>{label || 'Waiting for host'}</Typography>
       </StatusInfoWrapper>
 
-    </ProgressContainer>
+    </StatusContainer>
   );
 };
 

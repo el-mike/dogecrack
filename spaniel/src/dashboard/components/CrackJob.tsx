@@ -3,9 +3,7 @@ import styled from 'styled-components';
 import {
   Divider,
   IconButton,
-  Card,
   Paper,
-  CardContent,
   Typography,
 } from '@mui/material';
 
