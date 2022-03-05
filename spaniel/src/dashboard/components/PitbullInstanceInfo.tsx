@@ -95,6 +95,14 @@ export const PitbullInstanceInfo: React.FC<PitbullInfoProps> = props => {
               value={`${getInstanceEstimatedCost(instance)} $`}
             />
           </Grid>
+
+          <Grid item xs={6} md={4}>
+            <LabeledInfo
+              title='Instance ID:'
+              value={instance.id}
+              toCopy={instance.id}
+            />
+          </Grid>
         </Grid>
       </Grid>
       </InfoWrapper>

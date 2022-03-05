@@ -89,7 +89,7 @@ func (ru *JobRunner) assignInstance(job *models.CrackJob) {
 
 // startHost - starts a single host for Pitbull process to work in.
 func (ru *JobRunner) startHost(job *models.CrackJob) {
-	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "startHost", job.ID.Hex())
+	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "startHost", job.ID.Hex(), job.InstanceId.Hex())
 
 	logger.Info.Println("starting host.")
 
@@ -148,7 +148,7 @@ func (ru *JobRunner) startHost(job *models.CrackJob) {
 }
 
 func (ru *JobRunner) runPitbull(job *models.CrackJob) {
-	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "runPitbull", job.ID.Hex())
+	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "runPitbull", job.ID.Hex(), job.InstanceId.Hex())
 
 	logger.Info.Printf("starting Pitbull\n")
 
