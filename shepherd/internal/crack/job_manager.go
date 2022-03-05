@@ -48,7 +48,7 @@ func (js *JobManager) AssignInstance(job *models.CrackJob) (*models.CrackJob, er
 		return nil, err
 	}
 
-	instance.JobID = job.ID
+	instance.JobId = job.ID
 
 	job.InstanceId = instance.ID
 
