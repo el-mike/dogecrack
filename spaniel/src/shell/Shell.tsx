@@ -30,6 +30,8 @@ import {
 
 import { DashboardPage } from 'dashboard/pages';
 
+import { SettingsPage } from 'settings/pages';
+
 import {
   ShellLoader,
   AuthenticatedLayout,
@@ -95,6 +97,15 @@ export const InnerShell: React.FC = () => {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path='/settings'
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
             </ProtectedRoute>
           }
         />

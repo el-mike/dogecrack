@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import {
   Typography,
   Grid,
+  Box,
 } from '@mui/material';
 
 import { millisecondsInSecond } from 'date-fns';
@@ -22,7 +23,7 @@ import {
 import { useCrackJobsContext } from '../crack-jobs.context';
 import { useStatisticsContext } from '../statistics.context';
 
-const DashboardWrapper = styled.div``;
+const DashboardWrapper = styled(Box)``;
 
 const InnerDashboardPage: React.FC = () => {
   const { reload: reloadJobs } = useCrackJobsContext();

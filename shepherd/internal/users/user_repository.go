@@ -12,20 +12,20 @@ import (
 
 const usersCollection = "users"
 
-// - UserRepository - MongoDB-backed repository for users.
-type UserRepository struct {
+// - Repository - MongoDB-backed repository for users.
+type Repository struct {
 	db *mongo.Database
 }
 
-// NewUserRepository - returns new UserRepository instance.
-func NewUserRepository() *UserRepository {
-	return &UserRepository{
+// NewRepository - returns new UserRepository instance.
+func NewRepository() *Repository {
+	return &Repository{
 		db: persist.GetDatabase(),
 	}
 }
 
 // GetByName - gets a single User with given name.
-func (ur *UserRepository) GetByName(name string) (*models.User, error) {
+func (ur *Repository) GetByName(name string) (*models.User, error) {
 	collection := ur.db.Collection(usersCollection)
 
 	filter := bson.M{"name": name}
@@ -42,7 +42,7 @@ func (ur *UserRepository) GetByName(name string) (*models.User, error) {
 }
 
 // GetById - returns a single User with given id.
-func (ur *UserRepository) GetById(id string) (*models.User, error) {
+func (ur *Repository) GetById(id string) (*models.User, error) {
 	collection := ur.db.Collection(usersCollection)
 
 	objectId, err := primitive.ObjectIDFromHex(id)
@@ -64,7 +64,7 @@ func (ur *UserRepository) GetById(id string) (*models.User, error) {
 }
 
 // Insert - adds a single User to the DB.
-func (ur *UserRepository) Insert(user *models.User) error {
+func (ur *Repository) Insert(user *models.User) error {
 	collection := ur.db.Collection(usersCollection)
 
 	user.CreatedAt = models.NullableTimeNow()

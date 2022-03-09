@@ -38,6 +38,6 @@ func NewLogger(mainTag string, infoOut, errOut io.Writer, extraTags ...string) *
 }
 
 // DecorateErr - returns given error message with it's prefix.
-func (l Logger) DecorateErr(err error) error {
+func (l *Logger) DecorateErr(err error) error {
 	return fmt.Errorf("%s%s", l.errPrefix, err)
 }

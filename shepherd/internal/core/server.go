@@ -42,6 +42,8 @@ func NewServer(port, originAllowed string) *Server {
 	protectedRouter.HandleFunc("/logout", authController.Logout).Methods("GET")
 
 	protectedRouter.HandleFunc("/getStatistics", appController.GetStatistics).Methods("GET")
+	protectedRouter.HandleFunc("/getSettings", appController.GetSettings).Methods("GET")
+	protectedRouter.HandleFunc("/updateSettings", appController.UpdateSettings).Methods("PATCH")
 
 	protectedRouter.HandleFunc("/getActiveInstances", pitbullController.GetActiveInstances).Methods("GET")
 	protectedRouter.HandleFunc("/getInstance", pitbullController.GetInstance).Methods("GET")
@@ -62,7 +64,7 @@ func NewServer(port, originAllowed string) *Server {
 func (s *Server) Run() {
 	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	credentials := handlers.AllowCredentials()
-	methods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"})
+	methods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"})
 	ttl := handlers.MaxAge(3600)
 	origins := handlers.AllowedOrigins([]string{s.originAllowed})
 

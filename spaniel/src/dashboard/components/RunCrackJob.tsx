@@ -69,14 +69,14 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
       <Divider />
 
       <CardFooter>
-      <Button
-        size='large'
-        variant='contained'
-        endIcon={<PlayArrowIcon />}
-        onClick={handleRun}
-      >
-        Run
-      </Button>
+        <Button
+          size='large'
+          variant='contained'
+          endIcon={<PlayArrowIcon />}
+          onClick={handleRun}
+        >
+          Run
+        </Button>
       </CardFooter>
     </Card>
   );

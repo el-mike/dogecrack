@@ -7,6 +7,7 @@ import (
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/api"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 )
 
 // Controller - instance responsible for handling general, app-related endpoints.
@@ -63,6 +64,53 @@ func (ct *Controller) GetStatistics(
 	}
 
 	response, err := json.Marshal(&statistics)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.responseHelper.HandleJSONResponse(w, response)
+}
+
+// GetSettings - returns application's settings.
+func (ct *Controller) GetSettings(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	settings, err := ct.generalService.GetAppSettings()
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response, err := json.Marshal(&settings)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.responseHelper.HandleJSONResponse(w, response)
+}
+
+// UpdateSettings - updates current app settings.
+func (ct *Controller) UpdateSettings(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	var payload *models.AppSettingsPayload
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	settings, err := ct.generalService.UpdateAppSettings(payload)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response, err := json.Marshal(&settings)
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return

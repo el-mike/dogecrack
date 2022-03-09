@@ -2,6 +2,8 @@ import {
   Enums,
   Statistics,
   StatisticsDto,
+  Settings,
+  SettingsDto,
 } from 'models';
 
 import { ShepherdApiService } from './shepherd-api.service';
@@ -9,13 +11,15 @@ import { ShepherdApiService } from './shepherd-api.service';
 export class GeneralService {
   private static URLS = {
     enums: '/getEnums',
-    statistics: '/getStatistics'
+    statistics: '/getStatistics',
+    settings: '/getSettings',
+    updateSettings: '/updateSettings',
   };
 
   public constructor(private apiClient: ShepherdApiService) {}
 
   public getEnums() {
-    const url = GeneralService.URLS.enums;
+    const url = this.apiClient.buildUrl(GeneralService.URLS.enums);
 
     return this.apiClient
       .get<Enums>(url)
@@ -27,6 +31,22 @@ export class GeneralService {
     return this.apiClient
       .get<StatisticsDto>(url)
       .then(response => response.data as Statistics);
+  }
+
+  public getSettings() {
+    const url = this.apiClient.buildUrl(GeneralService.URLS.settings);
+
+    return this.apiClient
+      .get<SettingsDto>(url)
+      .then(response => response.data as Settings);
+  }
+
+  public updateSettings(payload: Settings) {
+    const url = this.apiClient.buildUrl(GeneralService.URLS.updateSettings);
+
+    return this.apiClient
+      .patch<SettingsDto>(url, payload)
+      .then(response => response.data as Settings)
   }
 }
 

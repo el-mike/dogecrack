@@ -12,6 +12,7 @@ import {
 import {
   Dashboard as DashboardIcon,
   ManageSearch as ManageSearchIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 
 import { Link } from 'react-router-dom';
@@ -52,6 +53,17 @@ export const Navigation: React.FC = () => {
               <ManageSearchIcon />
             </ListItemIcon>
             <ListItemText primary='Passchecks' />
+          </ListItem>
+
+          <ListItem
+            button
+            component={Link}
+            to='/settings'
+          >
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary='Settings' />
           </ListItem>
         </List>
       </NavigationContainer>

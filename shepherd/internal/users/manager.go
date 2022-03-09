@@ -6,13 +6,13 @@ import (
 
 // Manager - responsible for all User-related logic.
 type Manager struct {
-	repository *UserRepository
+	repository *Repository
 }
 
 // NewManager - returns new Manager instance.
 func NewManager() *Manager {
 	return &Manager{
-		repository: NewUserRepository(),
+		repository: NewRepository(),
 	}
 }
 

@@ -10,3 +10,4 @@ export * from './vast-instance';
 export * from './pitbull-instance';
 export * from './crack-job';
 export * from './statistics';
+export * from './settings';

@@ -1,4 +1,7 @@
-import { useEffect } from 'react';
+import {
+  useEffect,
+  ChangeEvent,
+} from 'react';
 
 import {
   Grid,
@@ -69,7 +72,7 @@ export const CrackJobsFilters: React.FC = () => {
   };
 
   const debouncedHandleKeywordChange = useDebouncedInput(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       filter({
         ...filters,
         keyword: event.target.value,
@@ -81,7 +84,7 @@ export const CrackJobsFilters: React.FC = () => {
 
 
   const debouncedHandleJobIdChange = useDebouncedInput(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       filter({
         ...filters,
         jobId: event.target.value,

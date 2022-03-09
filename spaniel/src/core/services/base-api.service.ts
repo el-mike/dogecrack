@@ -37,6 +37,14 @@ export abstract class BaseApiService<U = any> {
     });
   }
 
+
+  public patch<T = U>(url: string, data: any, headers: Headers = {}) {
+    return this.axios.patch<T>(`${url}`, data, {
+      withCredentials: true,
+      headers: this._getHeaders(headers)
+    });
+  }
+
   public delete<T = U>(url: string, headers: Headers = {}) {
     return this.axios.delete<T>(`${url}`, {
       withCredentials: true,
