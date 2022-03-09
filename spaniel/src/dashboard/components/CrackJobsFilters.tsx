@@ -27,11 +27,11 @@ import { useGeneralContext } from 'core/contexts';
 
 import { useCrackJobsContext } from '../crack-jobs.context';
 
-  /**
-   * Empty string causes rendering issues with MUI select, therefore we use
-   * defined, but uncorrect value. 
-   */
-   const ALL_VALUE = -1;
+/**
+ * Empty string causes rendering issues with MUI select, therefore we use
+ * defined, but uncorrect value. 
+ */
+  const ALL_VALUE = -1;
 
 /**
  * Checks if given status is defined, accomodating for 0 and -1 values.
@@ -79,9 +79,24 @@ export const CrackJobsFilters: React.FC = () => {
     [filters],
   );
 
+
+  const debouncedHandleJobIdChange = useDebouncedInput(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      filter({
+        ...filters,
+        jobId: event.target.value,
+      })
+    },
+    300,
+    [filters],
+  );
+
   useEffect(() => {
-    return () => debouncedHandleKeywordChange.cancel();
-  }, [debouncedHandleKeywordChange]);
+    return () => {
+      debouncedHandleKeywordChange.cancel();
+      debouncedHandleJobIdChange.cancel();
+    };
+  }, [debouncedHandleKeywordChange, debouncedHandleJobIdChange]);
 
   const status = filters?.statuses?.[0];
 
@@ -110,6 +125,14 @@ export const CrackJobsFilters: React.FC = () => {
               label='Keyword'
               defaultValue={filters.keyword || ''}
               onChange={debouncedHandleKeywordChange}
+            />
+          </Grid>
+
+          <Grid item xs={6} md={4}>
+            <TextInput
+              label='Job ID'
+              defaultValue={filters.jobId || ''}
+              onChange={debouncedHandleJobIdChange}
             />
           </Grid>
         </Grid>        

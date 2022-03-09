@@ -39,6 +39,7 @@ export type CrackJob = BaseEntity
 export type CrackJobsFilters = Partial<{
   statuses: number[];
   keyword: string;
+  jobId: string;
 }>;
 
 export type RunCrackJobPayload = {

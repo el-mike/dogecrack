@@ -54,6 +54,7 @@ type PitbullJobsListPayload struct {
 	api.BaseListPayload
 
 	Statuses []JobStatusEnum
+	JobId    string
 	Keyword  string
 }
 
@@ -86,11 +87,13 @@ func (pj *PitbullJobsListPayload) Populate(r *http.Request) error {
 	}
 
 	keyword := r.URL.Query().Get("keyword")
+	jobId := r.URL.Query().Get("jobId")
 
 	pj.Statuses = statuses
 	pj.Page = page
 	pj.PageSize = pageSize
 	pj.Keyword = keyword
+	pj.JobId = jobId
 
 	return nil
 }

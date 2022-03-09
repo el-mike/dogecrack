@@ -87,6 +87,10 @@ func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*mode
 	page := payload.Page
 	keyword := payload.Keyword
 
+	// We ignore error return on purpose - when payload.JobId is incorrect,
+	// jobId will be NilObjectID, and we can test against that.
+	jobId, _ := primitive.ObjectIDFromHex(payload.JobId)
+
 	statusesFilter := bson.D{}
 
 	if len(statuses) > 0 {
@@ -103,8 +107,16 @@ func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*mode
 		}
 	}
 
+	jobIdFilter := bson.D{}
+
+	if jobId != primitive.NilObjectID {
+		jobIdFilter = bson.D{
+			{"_id", jobId},
+		}
+	}
+
 	match := bson.D{{"$match", bson.D{
-		{"$and", bson.A{statusesFilter, keywordFilter}},
+		{"$and", bson.A{statusesFilter, keywordFilter, jobIdFilter}},
 	}}}
 
 	lookup, unwind := jr.lookupAndUnwindInstance()
