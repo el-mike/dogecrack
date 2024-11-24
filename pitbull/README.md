@@ -26,16 +26,20 @@ Sections below describes available commands.
 
 ### Running
 ```bash
-pitbull run [-f <file-url>] [-w <wallet-string>]
+pitbull run [-f <passlist-file-path>] [-u <passlist-file-url>] [-w <wallet-string>]
 # Example:
-pitbull run -f https://my-file-storage.com/myFileId -w myExampleWalletExtractString
+pitbull run -f ./my-passlist.txt -w myExampleWalletExtractString
+pitbull run -u https://my-file-storage.com/myFileId -w myExampleWalletExtractString
 ```
 
-Downloads a given file, and runs btcrecover for `myExampleWalletExtractString`.
-Note that the file specfied in arguments will be saved in directory  that holds `pitbull.sh` file.
+When used with `-f` flag, runs btcrecover for `myExampleWalletExtractString` with `./my-passlist.txt`.
+
+When used with `-u` flag, downloads given file (in directory that holds `pitbull.sh` file, under `passlist.txt` name), and runs btcrecover for `myExampleWalletExtractString`.
 
 Pitbull runs a new terminal session with tmux, under the name "pitbull". Because of that, you can safely close the terminal session you started the Pitbull in (including logging out from SSH), and the process will continue to run without interruption. 
 You can easily re-attach to pitbull session with:
+
+You can also use `-a` flag, to run it in your current terminal directly - this should be used for debugging only.
 ```bash
 tmux a -t "pitbull"
 ```

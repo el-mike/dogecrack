@@ -1,11 +1,11 @@
 ./pitbull
 **/pass.*
-btcrecover/**/*
 resources/**/*
+btcrecover/**/*
 test_win.sh
 test_loose.sh
 btcrecover_out
 out
 progress_view.txt
-passlist.txt
 err_log.txt
+passlist.txt

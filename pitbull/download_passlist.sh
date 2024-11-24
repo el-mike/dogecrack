@@ -32,7 +32,7 @@ download() {
 
 isGoogleDriveFile=$(is_google_drive_file "$fileUrl")
 
-# Downloadind passlist file. We use various tools for downloading depending on
+# Downloading passlist file. We use various tools for downloading depending on
 # the file storage provider.
 if [[ $isGoogleDriveFile -eq 1 ]]; then
   echo "GoogleDrive file source - using gdown..."

@@ -14,7 +14,7 @@
 dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # Proceed to pitbull directory. From now on, all scripts will be referencing the directory
-# pitbul.sh exists in.
+# pitbull.sh exists in.
 cd $dirname
 
 source ./variables.sh
@@ -57,27 +57,19 @@ elif [[ "$command" == "$runCommand"  ]]; then
   # it one place to get the optional params properly.
   shift 1
 
-  while getopts f:w: flag
+  while getopts f:u:w:a flag
   do
       case "${flag}" in
-          f) fileUrl=${OPTARG};;
-          w) walletString=${OPTARG};;
+          a) attached='true';;
       esac
   done
-  # Input args validation.
-  if [[ -z $fileUrl ]]; then
-    echo "Passlist source missing"
-    exit 1
-  fi
 
-  if [[ -z $walletString ]]; then
-    echo "Wallet string missing"
-    exit 1
+  if [[ ! -z $attached ]]; then
+    ./run_pitbull.sh  "$@" 2>> $errLogFile
+  else
+    tmux new-session -d -s "pitbull" ./run_pitbull.sh "$@" 2>> $errLogFile
   fi
-
-  tmux new-session -d -s "pitbull" "./run_pitbull.sh $fileUrl $passlistFile $walletString 2>> $errLogFile"
 else
   echo "Command: '$command' not recognized"
   exit 1
 fi
-

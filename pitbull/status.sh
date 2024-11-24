@@ -20,7 +20,7 @@ fi
 
 # If btcrecover succeeded, last line of progress_view.txt contains:
 # 'Password found: <password>'. We check the entire file though, to be sure
-# that it works in case of some unnecessary ouput is added to the end of the file.
+# that it works in case of some unnecessary output is added to the end of the file.
 # We add stderr redirect to avoid printing errors and flooding the output.
 successCheck=$(cat ./$viewFile 2>/dev/null | grep '[P]assword found')
 

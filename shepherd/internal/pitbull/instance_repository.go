@@ -101,7 +101,7 @@ func (ir *InstanceRepository) GetActiveInstances() ([]*models.PitbullInstance, e
 }
 
 // GetOrphanInstances - returns "orphan" instances. Orphan instance is an instance that
-// has no job assigned (meaning the job has been assiged with different instance), or that
+// has no job assigned (meaning the job has been assigned with different instance), or that
 // has one of the "active" statuses, but its job is already rejected/acknowledged.
 func (ir *InstanceRepository) GetOrphanInstances() ([]*models.PitbullInstance, error) {
 	collection := ir.db.Collection(InstancesCollection)

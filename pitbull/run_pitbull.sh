@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script downloads given passlist file (into passlist.txt) and runs btcrevcover with it.
+# This script downloads given passlist file (into passlist.txt) and runs btcrecover with it.
 # It's the main functionality of Pitbull tool.
 # It will run as a foreground process, and output progress to TTY. Some additional logs
 # may be redirected to stderr (warnings, errors).
@@ -13,9 +13,24 @@ cd $dirname
 
 source ./variables.sh
 
-passlistFileUrl=$1
-passlistFile=$2
-walletString=$3
+while getopts f:u:w: flag
+do
+    case "${flag}" in
+        f) passlistFile=${OPTARG};;
+        u) passlistFileUrl=${OPTARG};;
+        w) walletString=${OPTARG};;
+    esac
+done
+
+if [[ -z passlistFile ]] && [[ -z passlistFileUrl ]]; then
+  echo "Passlist source missing"
+  exit 1
+fi
+
+if [[ -z $walletString ]]; then
+  echo "Wallet string missing"
+  exit 1
+fi
 
 # Output capture setup.
 # If pipe exists, remove it - it ensures that no other agent is
@@ -30,6 +45,10 @@ mkfifo "./$pipe"
 
 ./capture_output.sh &
 
-script -f -c "./download_passlist.sh $passlistFileUrl $passlistFile && \
-  ./run_btcrecover.sh $walletString $passlistFile" \
-  $pipe
+if [[ -z $passlistFile ]]; then
+  script -f -c "./download_passlist.sh $passlistFileUrl $defaultPasslistFile && \
+    ./run_btcrecover.sh $walletString $defaultPasslistFile" \
+    $pipe
+else
+  script -f -c "./run_btcrecover.sh $walletString $passlistFile" $pipe
+fi

@@ -2,7 +2,7 @@
 
 # This script reads the named pipe that pitbull writes into, and tries to
 # recreate the output.
-# As ETA counting, progress bar and couple other output informations is meant for
+# As ETA counting, progress bar and couple other output information is meant for
 # the user to see, we need to use some tricks to capture the output that
 # is being constantly overwritten by \r (carriage return) character.
 
@@ -26,10 +26,10 @@ do
   eta_counting_step=$(is_counting_line "$line")
   progress_bar_step=$(is_progress_bar_line "$line")
 
-  # If one of the overwritable line is being outputted, we want to
-  # rmeove the last line of view file.
+  # If one of the overridable line is being outputted, we want to
+  # remove the last line of view file.
   # Since btcrecover can run for hours, printing every progress flush would
-  # make the view file very big. Additionaly, it keeps the progress view clean and readable.
+  # make the view file very big. Additionally, it keeps the progress view clean and readable.
   if [[ $gdown_progress_bar_step -eq 1 || $eta_counting_step -eq 1 || $progress_bar_step -eq 1 ]]; then
     # Remove last line of the file.
     sed -i '$ d' $viewFile
@@ -37,4 +37,3 @@ do
 
   echo "$line" >> $viewFile
 done < $pipe
- 

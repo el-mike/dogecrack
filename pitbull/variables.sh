@@ -7,7 +7,7 @@ dirname=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $dirname
 
 viewFile='progress_view.txt'
-passlistFile='passlist.txt'
+defaultPasslistFile='passlist.txt'
 errLogFile='err_log.txt'
 
 pipe='btcrecover_out'
