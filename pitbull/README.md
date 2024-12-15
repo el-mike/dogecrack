@@ -1,4 +1,4 @@
-# Btcrecovery-based password cracker
+# Btcrecover-based password cracker
 
 ## Local
 
@@ -10,7 +10,7 @@ docker run --runtime=nvidia -ti pitbull
 ```
 
 ## Vast.ai
-1. In `Instance Configuration`, choose custom image and paste: `michalhuras/pitbull:7.0` (make sure you are using the newest version)
+1. In `Instance Configuration`, choose custom image and paste: `michalhuras/pitbull:8.0` (make sure you are using the newest version)
 2. Rent a machine
 3. Go to `Instances`
 4. Click "connect"
@@ -23,7 +23,6 @@ Usage:
 pitbull <command> [<args>]
 ```
 Sections below describes available commands.
-
 ### Running
 ```bash
 pitbull run [-f <passlist-file-path>] [-u <passlist-file-url>] [-w <wallet-string>]

@@ -11,7 +11,8 @@ sudo apt install python3-pyopencl
 git clone https://github.com/3rdIteration/btcrecover.git
 python3 -m pip install siphash24
 pip3 install gdown
-# pip3 install pyopencl==2019.1.1
+# Version needs to be specified at least for nvidia/opencl:runtime-ubuntu18.04 base image.
+pip3 install pyopencl==2019.1.1
 pip3 install -r ./btcrecover/requirements.txt
 update-locale LANG=C.UTF-8
 echo "set -g terminal-overrides \"xterm*:kLFT5=\eOD:kRIT5=\eOC:kUP5=\eOA:kDN5=\eOB:smkx@:rmkx@\"" > ~/.tmux.conf
