@@ -40,7 +40,7 @@ func (js *JobManager) CreateJob(keyword, passlistUrl, walletString string) (*mod
 	return job, nil
 }
 
-// AssignInstance - creates a PitbullInstance and assignes it to passed PitbullJob.
+// AssignInstance - creates a PitbullInstance and assigns it to passed PitbullJob.
 // If job has been rescheduled, it will attempt to destroy previous HostInstance.
 func (js *JobManager) AssignInstance(job *models.CrackJob) (*models.CrackJob, error) {
 	instance, err := js.instanceManager.CreateInstance(job.ID, job.PasslistUrl, job.WalletString)
