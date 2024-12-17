@@ -12,7 +12,7 @@ import (
 
 const usersCollection = "users"
 
-// - Repository - MongoDB-backed repository for users.
+// Repository - MongoDB-backed repository for users.
 type Repository struct {
 	db *mongo.Database
 }
@@ -31,10 +31,13 @@ func (ur *Repository) GetByName(name string) (*models.User, error) {
 	filter := bson.M{"name": name}
 
 	result := collection.FindOne(context.TODO(), filter)
-
 	user := &models.User{}
 
 	if err := result.Decode(user); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 

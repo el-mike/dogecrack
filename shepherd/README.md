@@ -19,6 +19,17 @@ MONGO_INITDB_ROOT_PASSWORD=
 3. Run `go install`
 4. Run `docker-compose up -d`
 
+### Helpers
+- Running deps services:
+```bash
+./tools/run_deps.sh
+```
+
+- Running deps services and apps:
+```bash
+./tools/run_dev.sh 
+```
+
 ### Fake vast.ai SSH server
 Pitbull-based Docker container with running open-ssh server inside. Allows to easily test Vast.ai communication without renting actual instances.
 docker-compose runs two instances of fake vast.ai server, therefore you need to specify `<number>` to connect with proper instance.

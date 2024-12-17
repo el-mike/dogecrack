@@ -34,6 +34,13 @@ func main() {
 	usersSeed := seeds.NewUsersSeed()
 	appSettingsSeed := seeds.NewAppSettingsSeed()
 
-	usersSeed.Execute()
-	appSettingsSeed.Execute()
+	err = usersSeed.Execute()
+	if err != nil {
+		panic(err)
+	}
+
+	err = appSettingsSeed.Execute()
+	if err != nil {
+		panic(err)
+	}
 }
