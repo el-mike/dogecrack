@@ -46,3 +46,8 @@ Mongodb instance. Default root username/password are the ones set in `.env` file
 ```bash
 mongosh -u $mongoUser -p $mongoPassword
 ```
+
+## Troubleshooting
+
+### Docker images
+- if building app Docker images fails due to "missing go.sum entry..." error, rebuild images with `--no-cache` flag

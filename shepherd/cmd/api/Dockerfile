@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.17-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 # Please note that this Dockerfile references files from outside directories,
 # therefore, it need to be built with context set to the project's root.
