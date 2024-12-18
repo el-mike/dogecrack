@@ -97,7 +97,7 @@ func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, err
 		if pitbull.Status == models.PitbullStatus.Success {
 			instance.Status = models.PitbullInstanceStatus.Success
 		} else {
-			// If Pitbull process finished (not succeded), but not all passwords have been checked,
+			// If Pitbull process finished (not succeeded), but not all passwords have been checked,
 			// that means some problem occurred and instance should be marked as Failed.
 			if !pitbull.AllPasswordsChecked() {
 				instance.Status = models.PitbullInstanceStatus.Failed

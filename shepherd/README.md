@@ -7,6 +7,7 @@
 SSH_USER=
 SSH_PASSWORD=
 SSH_DIR=
+SSH_PRIVATE_KEY=
 
 VAST_API_SECRET=
 
@@ -32,7 +33,7 @@ MONGO_INITDB_ROOT_PASSWORD=
 
 ### Fake vast.ai SSH server
 Pitbull-based Docker container with running open-ssh server inside. Allows to easily test Vast.ai communication without renting actual instances.
-docker-compose runs two instances of fake vast.ai server, therefore you need to specify `<number>` to connect with proper instance.
+`docker compose` runs two instances of fake vast.ai server, therefore you need to specify `<number>` to connect with proper instance.
 
 ```bash
 chmod +x ./tools/vast/scripts/connect_fake_vast.sh
@@ -46,6 +47,10 @@ Mongodb instance. Default root username/password are the ones set in `.env` file
 ```bash
 mongosh -u $mongoUser -p $mongoPassword
 ```
+
+## Setting up for Vast.ai
+- Make sure your **public SSH key** is added to your Vast.ai account, in Account -> SSH Keys (so they are automatically added to newly started instances)
+- add `SSH_PRIVATE_KEY` to the application's env
 
 ## Troubleshooting
 

@@ -26,7 +26,7 @@ type VastSSHClient struct {
 	conn *ssh.Client
 }
 
-// NewVastSSHClient  - returns new VastClient instance. Does NOT start up a connection.
+// NewVastSSHClient - returns new VastSSHClient instance. Does NOT start up a connection.
 func NewVastSSHClient(user, password, sshDirPath, sshPrivateKey, ipAddress string, port int) (*VastSSHClient, error) {
 	// We store sshPrivateKey as string with '\n', but since it's coming from .env file, it treats
 	// '\n' characters as normal signs. Therefore, we use replace to insert actual new lines.
