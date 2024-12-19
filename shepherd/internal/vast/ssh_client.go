@@ -53,7 +53,7 @@ func NewVastSSHClient(user, password, sshDirPath, sshPrivateKey, ipAddress strin
 
 // RunPitbull - runs Pitbull process for given fileUrl and walletString.
 func (vs *VastSSHClient) RunPitbull(passlistUrl, walletString string) (string, error) {
-	return vs.run("pitbull run -f " + passlistUrl + " -w " + walletString)
+	return vs.run("pitbull run -u " + passlistUrl + " -w " + walletString)
 }
 
 // GetPitbullStatus - runs Pitbull's status command and returns the output.
