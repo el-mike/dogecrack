@@ -21,8 +21,10 @@ func main() {
 		panic(err)
 	}
 
-	instanceIp := "184.144.235.171"
-	instancePort := 50936
+	instanceIp := os.Getenv("DIRECT_SSH_CLIENT_INSTANCE_IP")
+	instancePort := os.Getenv("DIRECT_SSH_CLIENT_INSTANCE_PORT")
+	//instanceIp, _ := vast.GetFakeVastIp(rootPath, 1)
+	//instancePort := 22
 
 	sshPrivateKey := strings.ReplaceAll(appConfig.SSHPrivateKey, `\n`, "\n")
 	privateKeyRaw := []byte(sshPrivateKey)
@@ -58,14 +60,13 @@ func main() {
 	defer session.Close()
 
 	session.Stderr = os.Stderr
-	//session.Stdout = os.Stdout
 
 	sessionStdOut, err := session.StdoutPipe()
 	if err != nil {
 		panic(err)
 	}
 
-	err = session.Shell()
+	err = session.Run("pitbull status")
 	if err != nil {
 		// If the error was an ExitError, we probably want to proceed, as some
 		// Pitbull scripts return custom exit codes.

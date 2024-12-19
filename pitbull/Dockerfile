@@ -8,8 +8,12 @@ COPY install.sh helpers.sh variables.sh \
   run_pitbull.sh status.sh progress.sh output.sh kill.sh errors.sh attach.sh \
   # Operation scripts
   capture_output.sh download_passlist.sh run_btcrecover.sh \
+  # Vast.ai startup script (run after container is started).
+  # @TODO: move into another image, specific to Vast.ai.
+  onstart.sh \
   # Entry point script
   pitbull.sh ./
+
 
 RUN apt update && cp ./pitbull.sh pitbull && \
   chmod -R +x ./ && \
