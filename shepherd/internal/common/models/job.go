@@ -1,6 +1,6 @@
 package models
 
-// CrackJobStatusEnum - describes the status of an arbitrary Job.
+// JobStatusEnum - describes the status of an arbitrary Job.
 type JobStatusEnum int8
 
 // JobStatus - "namespaced" struct containing JobStatus values.
