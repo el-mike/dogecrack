@@ -8,6 +8,7 @@ cd $dirname
 
 viewFile='progress_view.txt'
 defaultPasslistFile='passlist.txt'
+defaultTokenlistFile='tokenlist.txt'
 errLogFile='err_log.txt'
 
 pipe='btcrecover_out'

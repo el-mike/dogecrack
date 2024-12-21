@@ -57,7 +57,7 @@ elif [[ "$command" == "$runCommand"  ]]; then
   # it one place to get the optional params properly.
   shift 1
 
-  while getopts f:u:w:a flag
+  while getopts t:f:u:w:a flag
   do
       case "${flag}" in
           a) attached='true';;

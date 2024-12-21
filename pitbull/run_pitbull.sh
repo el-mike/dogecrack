@@ -13,22 +13,23 @@ cd $dirname
 
 source ./variables.sh
 
-while getopts f:u:w: flag
+while getopts t:f:u:w: flag
 do
     case "${flag}" in
+        t) tokenList=${OPTARG};;
         f) passlistFile=${OPTARG};;
         u) passlistFileUrl=${OPTARG};;
         w) walletString=${OPTARG};;
     esac
 done
 
-if [[ -z passlistFile ]] && [[ -z passlistFileUrl ]]; then
-  echo "Passlist source missing"
+if [[ -z $walletString ]]; then
+  echo "Wallet string missing"
   exit 1
 fi
 
-if [[ -z $walletString ]]; then
-  echo "Wallet string missing"
+if [[ -z tokenList ]] && [[ -z passlistFile ]] && [[ -z passlistFileUrl ]]; then
+  echo "Passlist source missing"
   exit 1
 fi
 
@@ -45,10 +46,25 @@ mkfifo "./$pipe"
 
 ./capture_output.sh &
 
-if [[ -z $passlistFile ]]; then
-  script -f -c "./download_passlist.sh $passlistFileUrl $defaultPasslistFile && \
-    ./run_btcrecover.sh $walletString $defaultPasslistFile" \
+echo $tokenList
+
+if [[ -n $tokenList ]]; then
+  # We need to use -e flag to preserve newline characters from tokenlist argument.
+  echo -e "$tokenList" > "$defaultTokenlistFile"
+
+  script -f -c "python3 ./btcrecover/btcrecover.py --dsw --data-extract-string $walletString \
+    --tokenlist $defaultTokenlistFile --enable-gpu" \
+    $pipe
+elif [[ -n $passlistFileUrl ]]; then
+  script -f -c "./download_passlist.sh $passlistFileUrl $defaultPasslistFile \
+    && python3 ./btcrecover/btcrecover.py --dsw --data-extract-string $walletString \
+    --passwordlist $defaultPasslistFile --enable-gpu" \
+    $pipe
+elif [[ -n $passlistFile ]]; then
+  script -f -c "python3 ./btcrecover/btcrecover.py --dsw --data-extract-string $walletString \
+    --passwordlist $passlistFile --enable-gpu" \
     $pipe
 else
-  script -f -c "./run_btcrecover.sh $walletString $passlistFile" $pipe
+  echo "Incorrect parameters"
+  exit 1
 fi

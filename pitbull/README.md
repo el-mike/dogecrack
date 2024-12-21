@@ -25,8 +25,9 @@ pitbull <command> [<args>]
 Sections below describes available commands.
 ### Running
 ```bash
-pitbull run [-f <passlist-file-path>] [-u <passlist-file-url>] [-w <wallet-string>]
+pitbull run [-t <token-list>] [-f <passlist-file-path>] [-u <passlist-file-url>] [-w <wallet-string>]
 # Example:
+pitbull run -t '%a%warsaw%d\n%a%acracow%a' -w myExampleWalletExtractString
 pitbull run -f ./my-passlist.txt -w myExampleWalletExtractString
 pitbull run -u https://my-file-storage.com/myFileId -w myExampleWalletExtractString
 ```
