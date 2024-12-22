@@ -9,7 +9,6 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/api"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
-	"github.com/el-mike/dogecrack/shepherd/internal/generator"
 )
 
 // Controller - responsible for handling all endpoints related to Pitbull
@@ -21,8 +20,6 @@ type Controller struct {
 	appConfig *config.AppConfig
 
 	instanceManager *InstanceManager
-
-	passwordGenerator *generator.PasswordGenerator
 }
 
 // NewController - returns new Controller instance.
@@ -35,9 +32,7 @@ func NewController() *Controller {
 		appConfig:      config.GetAppConfig(),
 
 		instanceManager: instanceManager,
-
-		passwordGenerator: generator.NewPasswordGenerator(),
-
+		
 		logger: logger,
 	}
 }
