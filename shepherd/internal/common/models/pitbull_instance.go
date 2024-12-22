@@ -36,14 +36,18 @@ var pitbullInstanceStatusByName = map[PitbullInstanceStatusEnum]string{
 	PitbullInstanceStatus.Success:        "SUCCESS",
 }
 
+type PitbullRunPayload struct {
+	WalletString string `json:"walletString"`
+	Tokenlist    string `json:"tokenlist"`
+	PasslistUrl  string `json:"passlistUrl"`
+}
+
 // PitbullInstance - an abstract representation of Pitbull process running on some host machine.
 type PitbullInstance struct {
 	BaseModel `bson:",inline"`
 
-	JobId primitive.ObjectID `bson:"jobId" json:"jobId"`
-
-	WalletString string `bson:"walletString" json:"walletString"`
-	PasslistUrl  string `bson:"passlistUrl" json:"passlistUrl"`
+	JobId      primitive.ObjectID `bson:"jobId" json:"jobId"`
+	RunPayload *PitbullRunPayload `bson:"runPayload" json:"runPayload"`
 
 	StartedAt   NullableTime `bson:"startedAt" json:"startedAt"`
 	CompletedAt NullableTime `bson:"completedAt" json:"completedAt"`
@@ -62,12 +66,11 @@ type PitbullInstance struct {
 type marshalablePitbullInstance PitbullInstance
 
 // NewPitbullInstance - returns new PitbullInstance instance.
-func NewPitbullInstance(host host.HostInstance, passlistUrl, walletString string) *PitbullInstance {
+func NewPitbullInstance(host host.HostInstance, runPayload *PitbullRunPayload) *PitbullInstance {
 	instance := &PitbullInstance{
-		PasslistUrl:  passlistUrl,
-		WalletString: walletString,
 		Status:       PitbullInstanceStatus.WaitingForHost,
 		HostInstance: host,
+		RunPayload:   runPayload,
 		Pitbull:      NewPitbull(),
 	}
 

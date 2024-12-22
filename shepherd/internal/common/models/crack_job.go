@@ -14,9 +14,10 @@ import (
 type CrackJob struct {
 	Job `bson:",inline"`
 
-	Keyword      string `bson:"keyword" json:"keyword"`
-	WalletString string `bson:"walletString" json:"walletString"`
-	PasslistUrl  string `bson:"passlistUrl" json:"passlistUrl"`
+	Keyword      string   `bson:"keyword" json:"keyword"`
+	WalletString string   `bson:"walletString" json:"walletString"`
+	PasslistUrl  string   `bson:"passlistUrl" json:"passlistUrl"`
+	Tokens       []string `bson:"tokens" json:"tokens"`
 
 	InstanceId primitive.ObjectID `bson:"instanceId" json:"instanceId"`
 	Instance   *PitbullInstance   `bson:"instance,omitempty" json:"instance"`
@@ -26,12 +27,10 @@ type CrackJob struct {
 	ErrorLog string `bson:"errorLog" json:"errorLog"`
 }
 
-// NewPitbullJob - returns new PitbullJob instance.
-func NewPitbullJob(keyword, passlistUrl, walletString string) *CrackJob {
+// NewCrackJob - returns new PitbullJob instance.
+func NewCrackJob(walletString string) *CrackJob {
 	job := &CrackJob{
-		Keyword:      keyword,
 		WalletString: walletString,
-		PasslistUrl:  passlistUrl,
 	}
 
 	job.ID = primitive.NewObjectID()
@@ -49,6 +48,15 @@ func (pj *CrackJob) AppendError(err error) {
 	pj.ErrorLog += fmt.Sprintf("%s\n", err.Error())
 }
 
+// GetTokenlist - builds tokenlist from Tokens, by joining them with newlines ('\n').
+func (pj *CrackJob) GetTokenlist() string {
+	if len(pj.Tokens) == 0 {
+		return ""
+	}
+	
+	return strings.Join(pj.Tokens, "\n")
+}
+
 // PitbullJobsListPayload - describes a payload for PitbullJobs list.
 type PitbullJobsListPayload struct {
 	api.BaseListPayload
@@ -63,7 +71,7 @@ func NewPitbullJobsListPayload() *PitbullJobsListPayload {
 	return &PitbullJobsListPayload{}
 }
 
-// FromRequest - populates payload values from request.
+// Populate - populates payload values from request.
 func (pj *PitbullJobsListPayload) Populate(r *http.Request) error {
 	page, pageSize, err := api.GetBaseListPayload(r)
 	if err != nil {

@@ -21,8 +21,8 @@ type VastManager struct {
 // NewVastManager - returns new VastManager instance.
 func NewVastManager(apiSecret, pitbullImage, sshUser, sshPassword, sshDir, sshPrivateKey, rootDir string) *VastManager {
 	return &VastManager{
-		cli: NewVastCLI(apiSecret, pitbullImage),
-		// cli: NewVastCLIClientMock(rootDir),
+		// cli: NewVastCLI(apiSecret, pitbullImage),
+		cli: NewVastCLIClientMock(rootDir),
 
 		sshUser:       sshUser,
 		sshPassword:   sshPassword,
@@ -56,7 +56,7 @@ func (vm *VastManager) RunInstance() (host.HostInstance, error) {
 	return instance, nil
 }
 
-// CheckInstance - HostManager implementation.
+// GetInstance - HostManager implementation.
 func (vm *VastManager) GetInstance(instanceId int) (host.HostInstance, error) {
 	return vm.cli.GetInstance(instanceId)
 }
@@ -66,13 +66,29 @@ func (vm *VastManager) DestroyInstance(instanceId int) error {
 	return vm.cli.DestroyInstance(instanceId)
 }
 
-func (vm *VastManager) RunPitbull(instance host.HostInstance, passlistUrl, walletString string) error {
+// RunPitbullForPasslist - runs Pitbull with passwords stored under given passlistUrl.
+func (vm *VastManager) RunPitbullForPasslist(instance host.HostInstance, walletString, passlistUrl string) error {
 	sshClient, err := vm.getSSHClient(instance)
 	if err != nil {
 		return err
 	}
 
-	_, err = sshClient.RunPitbull(passlistUrl, walletString)
+	_, err = sshClient.RunPitbullForPasslist(passlistUrl, walletString)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RunPitbullForTokenlist - runs Pitbull with provided tokenlist.
+func (vm *VastManager) RunPitbullForTokenlist(instance host.HostInstance, walletString, tokenlist string) error {
+	sshClient, err := vm.getSSHClient(instance)
+	if err != nil {
+		return err
+	}
+
+	_, err = sshClient.RunPitbullForTokenlist(tokenlist, walletString)
 	if err != nil {
 		return err
 	}

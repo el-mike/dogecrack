@@ -3,7 +3,6 @@ package pitbull
 import (
 	"errors"
 	"fmt"
-
 	"github.com/el-mike/dogecrack/shepherd/internal/common/host"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
@@ -114,9 +113,9 @@ func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, err
 	return instance, nil
 }
 
-func (im *InstanceManager) CreateInstance(jobId primitive.ObjectID, passlistUrl, walletString string) (*models.PitbullInstance, error) {
+func (im *InstanceManager) CreateInstance(jobId primitive.ObjectID, runPayload *models.PitbullRunPayload) (*models.PitbullInstance, error) {
 	hostInstance := im.hostManager.CreateInstance()
-	pitbullInstance := models.NewPitbullInstance(hostInstance, passlistUrl, walletString)
+	pitbullInstance := models.NewPitbullInstance(hostInstance, runPayload)
 
 	pitbullInstance.JobId = jobId
 
@@ -127,15 +126,15 @@ func (im *InstanceManager) CreateInstance(jobId primitive.ObjectID, passlistUrl,
 	return pitbullInstance, nil
 }
 
-// RunInstance - runs single pitbull instance.
+// RunHostForInstance - runs host for pitbull instance.
 func (im *InstanceManager) RunHostForInstance(id string) (*models.PitbullInstance, error) {
 	instance, err := im.GetInstanceById(id)
 	if err != nil {
 		return nil, err
 	}
 
-	if instance.PasslistUrl == "" || instance.WalletString == "" {
-		return nil, errors.New(fmt.Sprintf("PasslistUrl or WalletString missing for instance: %s", instance.ID.Hex()))
+	if instance.JobId == primitive.NilObjectID {
+		return nil, errors.New(fmt.Sprintf("JobId missing for instance: %s", instance.ID.Hex()))
 	}
 
 	hostInstance, err := im.hostManager.RunInstance()
@@ -169,14 +168,24 @@ func (im *InstanceManager) RunPitbull(id string) (*models.PitbullInstance, error
 		return nil, err
 	}
 
-	if instance.HostInstance == nil ||
-		instance.PasslistUrl == "" ||
-		instance.WalletString == "" {
-		return nil, errors.New(fmt.Sprintf("Instance '%s' is missing data required for running Pitbull", instance.ID.Hex()))
+	if instance.HostInstance == nil {
+		return nil, errors.New(fmt.Sprintf("Instance '%s' is missing a host", instance.ID.Hex()))
 	}
 
-	if err := im.hostManager.RunPitbull(instance.HostInstance, instance.PasslistUrl, instance.WalletString); err != nil {
-		return nil, err
+	if instance.RunPayload.WalletString == "" || (instance.RunPayload.Tokenlist == "" && instance.RunPayload.PasslistUrl == "") {
+		return nil, errors.New(fmt.Sprintf("instance '%s' is missing data required for running Pitbull", instance.ID.Hex()))
+	}
+
+	if instance.RunPayload.Tokenlist != "" {
+		if err := im.hostManager.RunPitbullForTokenlist(instance.HostInstance, instance.RunPayload.WalletString, instance.RunPayload.Tokenlist); err != nil {
+			return nil, err
+		}
+	}
+
+	if instance.RunPayload.PasslistUrl != "" {
+		if err := im.hostManager.RunPitbullForPasslist(instance.HostInstance, instance.RunPayload.WalletString, instance.RunPayload.PasslistUrl); err != nil {
+			return nil, err
+		}
 	}
 
 	instance.StartedAt = models.NullableTimeNow()

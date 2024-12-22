@@ -15,8 +15,11 @@ type HostManager interface {
 	// DestroyInstance - stops an instance with given ID.
 	DestroyInstance(instanceId int) error
 
-	// RunPitbull - runs Pitbull process on given host instance.
-	RunPitbull(instance HostInstance, passlistUrl, walletString string) error
+	// RunPitbullForPasslist - runs Pitbull process on given host instance with password provided under given url.
+	RunPitbullForPasslist(instance HostInstance, walletString, passlistUrl string) error
+
+	// RunPitbullForTokenlist - runs Pitbull process on given host instance with provided tokenlist.
+	RunPitbullForTokenlist(instance HostInstance, walletString, tokenlist string) error
 
 	// GetPitbullStatus - returns Pitbull's status command output for a host instance
 	// with given id.

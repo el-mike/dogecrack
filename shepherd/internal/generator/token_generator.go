@@ -26,13 +26,13 @@ func (tg *TokenGenerator) Generate(keyword string) []string {
 	currentToken := ""
 
 	for _, prefix := range tg.ruleset.prefixes {
-		wildcard := tg.GetWildCardFromRule(prefix)
+		wildcard := tg.getWildCardFromRule(prefix)
 		currentToken += wildcard
 	}
 
 	for _, c := range keyword {
 		if replacementRule, ok := tg.ruleset.letterReplacements[byte(c)]; ok {
-			wildcard := tg.GetWildCardFromRule(replacementRule)
+			wildcard := tg.getWildCardFromRule(replacementRule)
 			currentToken += wildcard
 		} else {
 			currentToken += string(c)
@@ -40,14 +40,14 @@ func (tg *TokenGenerator) Generate(keyword string) []string {
 	}
 
 	for _, suffix := range tg.ruleset.suffixes {
-		wildcard := tg.GetWildCardFromRule(suffix)
+		wildcard := tg.getWildCardFromRule(suffix)
 		currentToken += wildcard
 	}
 
 	return []string{currentToken}
 }
 
-func (tg *TokenGenerator) GetWildCardFromRule(rule *TokenRule) string {
+func (tg *TokenGenerator) getWildCardFromRule(rule *TokenRule) string {
 	rangePart := ""
 
 	if rule.min == rule.max || rule.max == 0 {

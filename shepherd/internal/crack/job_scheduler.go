@@ -8,8 +8,6 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 )
 
-const INSTANCES_LIMIT = 5
-
 // Scheduler - entity responsible for scheduling Pitbull runs via JobQueue.
 type Scheduler struct {
 	jobQueue *JobQueue
@@ -31,17 +29,12 @@ func NewScheduler(instanceManager *pitbull.InstanceManager) *Scheduler {
 
 // ScheduleRun - schedules a single Pitbull run. If instances limit is not reach yet,
 // it will run it immediately.
-func (sc *Scheduler) ScheduleRun(keyword, passlistUrl, walletString string) (*models.CrackJob, error) {
-	job, err := sc.jobManager.CreateJob(keyword, passlistUrl, walletString)
-	if err != nil {
-		return nil, err
-	}
-
+func (sc *Scheduler) ScheduleRun(job *models.CrackJob) error {
 	if err := sc.jobQueue.Enqueue(job.ID.Hex()); err != nil {
-		return nil, err
+		return err
 	}
 
 	sc.logger.Info.Printf("instance scheduled\n")
 
-	return job, nil
+	return nil
 }

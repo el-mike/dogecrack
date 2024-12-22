@@ -40,8 +40,6 @@ func NewController() *Controller {
 		jobScheduler: NewScheduler(instanceManager),
 		jobManager:   NewJobManager(instanceManager),
 
-		passwordGenerator: generator.NewPasswordGenerator(),
-
 		logger: logger,
 	}
 }
@@ -59,20 +57,34 @@ func (ct *Controller) Crack(
 		return
 	}
 
-	if payload.Keyword == "" {
-		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("Keyword is required"))
+	if payload.Keyword == "" && payload.PasslistUrl == "" {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("keyword or passlistUrl must be provided"))
 		return
 	}
 
-	generatorResult, err := ct.passwordGenerator.Generate(payload.Keyword, payload.Rules)
-
-	if err != nil {
-		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+	if payload.Keyword != "" && payload.PasslistUrl != "" {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("only one of two arguments (keyword or passlistUrl) must be provided"))
 		return
 	}
 
-	job, err := ct.jobScheduler.ScheduleRun(generatorResult.Keyword, generatorResult.PasslistUrl, ct.appConfig.WalletString)
-	if err != nil {
+	var job *models.CrackJob
+	var err error
+
+	if payload.Keyword != "" {
+		job, err = ct.jobManager.CreateKeywordJob(ct.appConfig.WalletString, payload.Keyword)
+		if err != nil {
+			ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+			return
+		}
+	} else {
+		job, err = ct.jobManager.CreatePasslistJob(ct.appConfig.WalletString, payload.PasslistUrl)
+		if err != nil {
+			ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	if err := ct.jobScheduler.ScheduleRun(job); err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return
 	}

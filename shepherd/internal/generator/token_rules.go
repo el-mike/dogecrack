@@ -1,6 +1,6 @@
 package generator
 
-var tokenRulesetOne = &TokenRuleset{
+var TokenRulesetOne = &TokenRuleset{
 	version:          1,
 	includeUpperCase: false,
 	prefixes: []*TokenRule{
