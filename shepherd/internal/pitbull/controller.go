@@ -32,7 +32,7 @@ func NewController() *Controller {
 		appConfig:      config.GetAppConfig(),
 
 		instanceManager: instanceManager,
-		
+
 		logger: logger,
 	}
 }

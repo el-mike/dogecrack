@@ -24,8 +24,6 @@ type Controller struct {
 
 	jobScheduler *Scheduler
 	jobManager   *JobManager
-
-	passwordGenerator *generator.PasswordGenerator
 }
 
 // NewController - returns new Controller instance.
