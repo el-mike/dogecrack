@@ -10,7 +10,6 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/common/api"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
-	"github.com/el-mike/dogecrack/shepherd/internal/generator"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 )
 

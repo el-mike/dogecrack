@@ -23,6 +23,7 @@ import { PitbullHostInfo } from './PitbullHostInfo';
 import { PitbullOutput } from './PitbullOutput';
 import { CrackJobInfo } from './CrackJobInfo';
 import { CrackJobErrorLog } from './CrackJobErrorLog';
+import { CrackJobTokens } from './CrackJobTokens';
 
 export type CrackJobProps = {
   job: PitbullJobModel;
@@ -33,7 +34,7 @@ const JobIdWrapper = styled.div`
 
 export const CrackJob: React.FC<CrackJobProps> = props => {
   const { job } = props;
-  
+
   const { instance } = job;
   const { pitbull } = instance;
 
@@ -47,7 +48,7 @@ export const CrackJob: React.FC<CrackJobProps> = props => {
         <JobIdWrapper>
           <Typography variant='subtitle1'>Job ID:</Typography>
           <Typography variant='subtitle1' fontWeight='bold'>&nbsp; {job.id}</Typography>
-          
+
           <Spacer mr={1} />
 
           <IconButton onClick={handleCopyJobId} size='small'>
@@ -59,11 +60,12 @@ export const CrackJob: React.FC<CrackJobProps> = props => {
       </CardHeader>
 
       <Divider />
-      
+
       <PitbullInstanceInfo instance={instance} />
       <PitbullHostInfo instance={instance} />
       <PitbullOutput output={pitbull?.lastOutput || ''} />
       <CrackJobInfo job={job} />
+      {!!job.tokens?.length && <CrackJobTokens job={job} />}
       <CrackJobErrorLog errorLog={job?.errorLog || ''} />
     </Paper>
   );

@@ -10,9 +10,10 @@ import {
 } from './pitbull-instance';
 
 export type CrackJobDto = BaseEntityDto & {
-  keyword: string;
   walletString: string;
-  passlistUrl: string;
+  keyword?: string;
+  passlistUrl?: string;
+  tokens?: string[];
 
   status: number;
 
@@ -43,7 +44,8 @@ export type CrackJobsFilters = Partial<{
 }>;
 
 export type RunCrackJobPayload = {
-  keyword: string;
+  keyword?: string;
+  passlistUrl?: string;
 };
 
 export const mapCrackJob = (dto: CrackJobDto) => ({

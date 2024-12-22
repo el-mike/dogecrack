@@ -20,6 +20,7 @@ import {
   TextInput,
   InputOption,
   CardHeader,
+  Button,
 } from 'common/components';
 
 import { getEnumAsInputOptions } from 'core/utils';
@@ -29,15 +30,16 @@ import { useDebouncedInput } from 'core/hooks';
 import { useGeneralContext } from 'core/contexts';
 
 import { useCrackJobsContext } from '../crack-jobs.context';
+import { Refresh } from '@mui/icons-material';
 
 /**
  * Empty string causes rendering issues with MUI select, therefore we use
- * defined, but uncorrect value. 
+ * defined, but incorrect value.
  */
   const ALL_VALUE = -1;
 
 /**
- * Checks if given status is defined, accomodating for 0 and -1 values.
+ * Checks if given status is defined, accommodating for 0 and -1 values.
  */
 const isStatusValid = (status: number | undefined) =>
   status !== -1 && !isNullish(status, { skipZero: true });
@@ -54,6 +56,7 @@ export const CrackJobsFilters: React.FC = () => {
     filters,
     filter,
     loading,
+    reload,
   } = useCrackJobsContext();
 
   const { jobStatus: statusEnum } = enums;
@@ -107,7 +110,8 @@ export const CrackJobsFilters: React.FC = () => {
     <Card>
       <CardHeader>
         <Typography variant='h5'>Filters</Typography>
-        {!!loading && (<CircularProgress />)}
+        {!loading && <Button size='medium' variant='contained' endIcon={<Refresh />} onClick={reload}>Refresh</Button>}
+        {loading && (<CircularProgress />)}
       </CardHeader>
 
       <Divider />
@@ -138,7 +142,7 @@ export const CrackJobsFilters: React.FC = () => {
               onChange={debouncedHandleJobIdChange}
             />
           </Grid>
-        </Grid>        
+        </Grid>
       </CardContent>
     </Card>
   );

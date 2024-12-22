@@ -1,6 +1,4 @@
-import React, {
-  useEffect,
-} from 'react';
+import React from 'react';
 
 import styled from 'styled-components';
 
@@ -31,20 +29,15 @@ const NoJobsWrapper = styled.div`
   align-items: center;
 `;
 
-export const CrackJobsList: React.FC = () => {  
+export const CrackJobsList: React.FC = () => {
   const {
     jobs,
-    reload: reloadJobs,
     lastLoaded,
     totalCount,
     pageSize,
     page,
     changePage,
   } = useCrackJobsContext();
-
-  const {
-    load: loadStatistics,
-  } = useStatisticsContext();
 
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
@@ -71,7 +64,7 @@ export const CrackJobsList: React.FC = () => {
         : jobs.map(job => (
           <React.Fragment key={job.id}>
             <CrackJob job={job} />
-    
+
             <Spacer mb={3} />
           </React.Fragment>
         ))

@@ -30,14 +30,21 @@ const CardFooter = styled(CardActions)`
 `;
 
 export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
-  const [payload, setPayload] = useState<RunCrackJobPayload>({ keyword: '' });
+  const [payload, setPayload] = useState<RunCrackJobPayload>({ keyword: '', passlistUrl: '' });
 
   const { run } = useCrackJobsContext();
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) =>
-    setPayload({
+  const handleKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setPayload((prev) => ({
+      ...prev,
       keyword: event.target?.value || '',
-    });
+    }));
+
+  const handlePasslistUrlChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setPayload((prev) => ({
+      ...prev,
+      passlistUrl: event.target?.value || '',
+    }));
 
   const handleRun = () => {
     run(payload);
@@ -51,7 +58,7 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
       <CardHeader>
         <Typography variant='h5'>Run Crack Job</Typography>
       </CardHeader>
-      
+
       <Divider />
 
       <CardContent>
@@ -60,8 +67,18 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
             <TextInput
               label='Keyword'
               value={payload.keyword}
-              onChange={handleChange}
+              onChange={handleKeywordChange}
+              disabled={!!payload.passlistUrl}
             />
+          </Grid>
+
+            <Grid item xs={12} sm={6} md={4}>
+              <TextInput
+                label='Passlist URL'
+                value={payload.passlistUrl}
+                onChange={handlePasslistUrlChange}
+                disabled={!!payload.keyword}
+              />
           </Grid>
         </Grid>
       </CardContent>
