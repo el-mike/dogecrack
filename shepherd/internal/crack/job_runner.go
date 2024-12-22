@@ -275,7 +275,7 @@ func (ru *JobRunner) handleFailure(job *models.CrackJob, reason error) {
 		logger.Info.Printf("Reschedule limit reached, rejecting\n")
 
 		if err := ru.jobManager.RejectJob(job, reason); err != nil {
-			logger.Err.Printf("Rejecting failed. reason: %s\n", err)
+			logger.Err.Printf("Rejecting failed. reason: %s\n", err.Error())
 
 			return
 		}

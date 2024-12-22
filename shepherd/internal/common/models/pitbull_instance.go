@@ -37,9 +37,9 @@ var pitbullInstanceStatusByName = map[PitbullInstanceStatusEnum]string{
 }
 
 type PitbullRunPayload struct {
-	WalletString string `json:"walletString"`
-	Tokenlist    string `json:"tokenlist"`
-	PasslistUrl  string `json:"passlistUrl"`
+	WalletString string `bson:"walletString" json:"walletString"`
+	Tokenlist    string `bson:"tokenlist" json:"tokenlist"`
+	PasslistUrl  string `bson:"passlistUrl" json:"passlistUrl"`
 }
 
 // PitbullInstance - an abstract representation of Pitbull process running on some host machine.
