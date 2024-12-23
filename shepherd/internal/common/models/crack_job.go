@@ -62,10 +62,11 @@ func (pj *CrackJob) GetTokenlist() string {
 type PitbullJobsListPayload struct {
 	api.BaseListPayload
 
-	Statuses []JobStatusEnum
-	JobId    string
-	Keyword  string
-	Name     string
+	Statuses    []JobStatusEnum
+	JobId       string
+	Keyword     string
+	PasslistUrl string
+	Name        string
 }
 
 // NewPitbullJobsListPayload - returns new PitbullJobsListPayload instance.
@@ -97,6 +98,7 @@ func (pj *PitbullJobsListPayload) Populate(r *http.Request) error {
 	}
 
 	keyword := r.URL.Query().Get("keyword")
+	passlistUrl := r.URL.Query().Get("passlistUrl")
 	jobId := r.URL.Query().Get("jobId")
 	name := r.URL.Query().Get("name")
 
@@ -104,6 +106,7 @@ func (pj *PitbullJobsListPayload) Populate(r *http.Request) error {
 	pj.Page = page
 	pj.PageSize = pageSize
 	pj.Keyword = keyword
+	pj.PasslistUrl = passlistUrl
 	pj.Name = name
 	pj.JobId = jobId
 

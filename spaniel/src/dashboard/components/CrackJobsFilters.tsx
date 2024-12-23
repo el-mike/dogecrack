@@ -65,7 +65,6 @@ export const CrackJobsFilters: React.FC = () => {
     filter,
     loading,
     reload,
-    resetFilters,
   } = useCrackJobsContext();
 
   const { jobStatus: statusEnum } = enums;
@@ -88,6 +87,17 @@ export const CrackJobsFilters: React.FC = () => {
       filter({
         ...filters,
         keyword: event.target.value,
+      })
+    },
+    300,
+    [filters],
+  );
+
+  const debouncedHandlePasslistUrlChange = useDebouncedInput(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      filter({
+        ...filters,
+        passlistUrl: event.target.value,
       })
     },
     300,
@@ -120,10 +130,11 @@ export const CrackJobsFilters: React.FC = () => {
   useEffect(() => {
     return () => {
       debouncedHandleKeywordChange.cancel();
+      debouncedHandlePasslistUrlChange.cancel();
       debouncedHandleJobIdChange.cancel();
       debouncedHandleNameChange.cancel();
     };
-  }, [debouncedHandleKeywordChange, debouncedHandleJobIdChange, debouncedHandleNameChange]);
+  }, [debouncedHandleKeywordChange, debouncedHandlePasslistUrlChange, debouncedHandleJobIdChange, debouncedHandleNameChange]);
 
   const status = filters?.statuses?.[0];
 
@@ -166,15 +177,6 @@ export const CrackJobsFilters: React.FC = () => {
 
           <Grid item xs={6} md={3}>
             <TextInput
-              label='Keyword'
-              value={filters.keyword || ''}
-              defaultValue={filters.keyword || ''}
-              onChange={debouncedHandleKeywordChange}
-            />
-          </Grid>
-
-          <Grid item xs={6} md={3}>
-            <TextInput
               label='Job ID'
               defaultValue={filters.jobId || ''}
               onChange={debouncedHandleJobIdChange}
@@ -185,6 +187,25 @@ export const CrackJobsFilters: React.FC = () => {
               label='Job Name'
               defaultValue={filters.name || ''}
               onChange={debouncedHandleNameChange}
+            />
+          </Grid>
+        </Grid>
+
+        <Spacer mb={2} />
+
+        <Grid container spacing={2}>
+          <Grid item xs={6} md={3}>
+            <TextInput
+              label='Keyword'
+              defaultValue={filters.keyword || ''}
+              onChange={debouncedHandleKeywordChange}
+            />
+          </Grid>
+          <Grid item xs={6} md={3}>
+            <TextInput
+              label='Passlist URL'
+              defaultValue={filters.passlistUrl || ''}
+              onChange={debouncedHandlePasslistUrlChange}
             />
           </Grid>
         </Grid>

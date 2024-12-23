@@ -86,6 +86,7 @@ func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*mode
 	pageSize := payload.PageSize
 	page := payload.Page
 	keyword := payload.Keyword
+	passlistUrl := payload.PasslistUrl
 	name := payload.Name
 
 	// We ignore error return on purpose - when payload.JobId is incorrect,
@@ -108,6 +109,14 @@ func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*mode
 		}
 	}
 
+	passlistUrlFilter := bson.D{}
+
+	if passlistUrl != "" {
+		passlistUrlFilter = bson.D{
+			{"passlistUrl", primitive.Regex{Pattern: passlistUrl, Options: ""}},
+		}
+	}
+
 	jobIdFilter := bson.D{}
 
 	if jobId != primitive.NilObjectID {
@@ -125,7 +134,7 @@ func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*mode
 	}
 
 	match := bson.D{{"$match", bson.D{
-		{"$and", bson.A{statusesFilter, keywordFilter, jobIdFilter, nameFilter}},
+		{"$and", bson.A{statusesFilter, keywordFilter, passlistUrlFilter, jobIdFilter, nameFilter}},
 	}}}
 
 	lookup, unwind := jr.lookupAndUnwindInstance()
