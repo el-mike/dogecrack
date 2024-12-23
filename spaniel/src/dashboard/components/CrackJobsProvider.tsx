@@ -59,7 +59,7 @@ export const CrackJobsProvider: React.FC = props => {
       ...filters,
     });
   }
-  
+
   const changePage = (page: number) => {
     setLastLoaded(new Date());
     setRequest({
@@ -72,7 +72,12 @@ export const CrackJobsProvider: React.FC = props => {
     crackJobService.runJob(keyword)
       .then(() => reload());
   };
-  
+
+  const resetFilters = () => {
+    setRequest(defaultRequest);
+    setLastLoaded(new Date());
+  };
+
   const { page, pageSize, ...filters } = request;
 
   const value = {
@@ -87,6 +92,7 @@ export const CrackJobsProvider: React.FC = props => {
     filter,
     changePage,
     run,
+    resetFilters,
   } as CrackJobsContext;
 
   /**
@@ -94,7 +100,7 @@ export const CrackJobsProvider: React.FC = props => {
    */
   useEffect(() => {
     setLoading(true);
-  
+
     crackJobService.getJobs(request)
       .then(result => {
         setJobs(result.entities || []);

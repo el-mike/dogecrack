@@ -14,6 +14,7 @@ import (
 type CrackJob struct {
 	Job `bson:",inline"`
 
+	Name         string   `bson:"name" json:"name"`
 	Keyword      string   `bson:"keyword" json:"keyword"`
 	WalletString string   `bson:"walletString" json:"walletString"`
 	PasslistUrl  string   `bson:"passlistUrl" json:"passlistUrl"`
@@ -53,7 +54,7 @@ func (pj *CrackJob) GetTokenlist() string {
 	if len(pj.Tokens) == 0 {
 		return ""
 	}
-	
+
 	return strings.Join(pj.Tokens, "\n")
 }
 
@@ -64,6 +65,7 @@ type PitbullJobsListPayload struct {
 	Statuses []JobStatusEnum
 	JobId    string
 	Keyword  string
+	Name     string
 }
 
 // NewPitbullJobsListPayload - returns new PitbullJobsListPayload instance.
@@ -96,11 +98,13 @@ func (pj *PitbullJobsListPayload) Populate(r *http.Request) error {
 
 	keyword := r.URL.Query().Get("keyword")
 	jobId := r.URL.Query().Get("jobId")
+	name := r.URL.Query().Get("name")
 
 	pj.Statuses = statuses
 	pj.Page = page
 	pj.PageSize = pageSize
 	pj.Keyword = keyword
+	pj.Name = name
 	pj.JobId = jobId
 
 	return nil

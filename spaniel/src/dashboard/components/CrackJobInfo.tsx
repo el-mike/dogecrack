@@ -26,7 +26,7 @@ export const CrackJobInfo: React.FC<CrackJobInfoProps> = props => {
     <Accordion title='Job info'>
       <Grid container spacing={2}>
         <Grid container item xs={12}>
-          <Grid item xs={6} md={3}>
+          <Grid item xs={12}>
             {!!job.keyword && (
               <LabeledInfo
                 title='Keyword:'
@@ -37,10 +37,15 @@ export const CrackJobInfo: React.FC<CrackJobInfoProps> = props => {
               <LabeledInfo
                 title="Passlist URL:"
                 value={job.passlistUrl}
+                toCopy={job.passlistUrl}
               />
             )}
           </Grid>
+        </Grid>
 
+        <Spacer mb={1} />
+
+        <Grid container item xs={12}>
           <Grid item xs={6} md={3}>
             <LabeledInfo
               title='First scheduled at:'

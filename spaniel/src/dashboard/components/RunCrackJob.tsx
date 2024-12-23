@@ -19,6 +19,7 @@ import {
   TextInput,
   CardHeader,
   Button,
+  Spacer,
 } from 'common/components';
 
 import { useCrackJobsContext } from '../crack-jobs.context';
@@ -30,7 +31,7 @@ const CardFooter = styled(CardActions)`
 `;
 
 export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
-  const [payload, setPayload] = useState<RunCrackJobPayload>({ keyword: '', passlistUrl: '' });
+  const [payload, setPayload] = useState<RunCrackJobPayload>({ keyword: '', passlistUrl: '', name: '' });
 
   const { run } = useCrackJobsContext();
 
@@ -46,10 +47,18 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
       passlistUrl: event.target?.value || '',
     }));
 
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setPayload((prev) => ({
+      ...prev,
+      name: event.target?.value || '',
+    }));
+
   const handleRun = () => {
     run(payload);
     setPayload({
       keyword: '',
+      passlistUrl: '',
+      name: '',
     });
   };
 
@@ -79,6 +88,20 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
                 onChange={handlePasslistUrlChange}
                 disabled={!!payload.keyword}
               />
+          </Grid>
+        </Grid>
+
+        <Spacer mb={2} />
+        <Divider />
+        <Spacer mb={2} />
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} md={4}>
+            <TextInput
+              label='Name'
+              value={payload.name}
+              onChange={handleNameChange}
+            />
           </Grid>
         </Grid>
       </CardContent>

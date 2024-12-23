@@ -13,6 +13,7 @@ export type ReloadJobsFn = () => void;
 export type FilterFn = (filters: CrackJobsFilters) => void;
 export type ChangePageFn = (page: number) => void;
 export type RunFn = (payload: RunCrackJobPayload) => void;
+export type ResetFiltersFn = () => void;
 
 export type CrackJobsContext = {
   filters: CrackJobsFilters;
@@ -26,6 +27,7 @@ export type CrackJobsContext = {
   filter: FilterFn;
   changePage: ChangePageFn;
   run: RunFn;
+  resetFilters: ResetFiltersFn;
 }
 
 export const crackJobsContext = createContext<CrackJobsContext>(null!);

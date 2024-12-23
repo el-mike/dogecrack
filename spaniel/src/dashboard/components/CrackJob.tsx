@@ -5,11 +5,12 @@ import {
   IconButton,
   Paper,
   Typography,
+  Box,
 } from '@mui/material';
 
 import { ContentCopy as ContentCopyIcon } from '@mui/icons-material';
 
-import { CrackJob as PitbullJobModel } from 'models';
+import { CrackJob as CrackJobModel } from 'models';
 
 import {
   Spacer,
@@ -26,9 +27,14 @@ import { CrackJobErrorLog } from './CrackJobErrorLog';
 import { CrackJobTokens } from './CrackJobTokens';
 
 export type CrackJobProps = {
-  job: PitbullJobModel;
+  job: CrackJobModel;
 };
+
 const JobIdWrapper = styled.div`
+  display: flex;
+`;
+
+const JobNameWrapper = styled.div`
   display: flex;
 `;
 
@@ -54,6 +60,14 @@ export const CrackJob: React.FC<CrackJobProps> = props => {
           <IconButton onClick={handleCopyJobId} size='small'>
             <ContentCopyIcon fontSize='small' />
           </IconButton>
+
+          {!!job.name && (
+            <>
+              <Spacer mr={2} />
+              <Typography variant='subtitle1'>Name:</Typography>
+              <Typography variant='subtitle1' fontWeight='bold'>&nbsp; {job.name}</Typography>
+            </>
+          )}
         </JobIdWrapper>
 
         <JobStatus status={job.status} />

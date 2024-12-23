@@ -11,6 +11,8 @@ import {
 
 export type CrackJobDto = BaseEntityDto & {
   walletString: string;
+
+  name?: string;
   keyword?: string;
   passlistUrl?: string;
   tokens?: string[];
@@ -41,9 +43,11 @@ export type CrackJobsFilters = Partial<{
   statuses: number[];
   keyword: string;
   jobId: string;
+  name: string;
 }>;
 
 export type RunCrackJobPayload = {
+  name?: string;
   keyword?: string;
   passlistUrl?: string;
 };

@@ -13,7 +13,7 @@ export type PitbullHostInfoProps = {
 
 export const PitbullHostInfo: React.FC<PitbullHostInfoProps> = props => {
   const { instance } = props;
-  
+
   const { hostInstance } = instance;
 
   return (
@@ -56,28 +56,28 @@ export const PitbullHostInfo: React.FC<PitbullHostInfoProps> = props => {
           <Grid item xs={6} md={3}>
             <LabeledInfo
               title='GPU:'
-              value={`${hostInstance?.gpuNum || 0} x ${hostInstance?.gpuName}`}
+              value={`${hostInstance?.gpuNum || 0} x ${hostInstance?.gpuName || 'unknown'}`}
             />
           </Grid>
 
           <Grid item xs={6} md={3}>
             <LabeledInfo
               title='USD/Hour:'
-              value={`${hostInstance?.dphTotal?.toFixed(2)} $`}
+              value={`${hostInstance?.dphTotal?.toFixed(2) || 0} $`}
             />
           </Grid>
 
           <Grid item xs={6} md={3}>
             <LabeledInfo
               title='DLPerf:'
-              value={`${hostInstance?.dlperf?.toFixed(3)}`}
+              value={`${hostInstance?.dlperf?.toFixed(3) || ''}`}
             />
           </Grid>
 
           <Grid item xs={6} md={3}>
             <LabeledInfo
               title='DLPerf per cost:'
-              value={`${hostInstance?.dlperfPerDphTotal?.toFixed(3)}`}
+              value={`${hostInstance?.dlperfPerDphTotal?.toFixed(3) || ''}`}
             />
           </Grid>
         </Grid>

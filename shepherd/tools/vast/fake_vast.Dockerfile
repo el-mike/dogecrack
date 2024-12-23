@@ -10,5 +10,5 @@ RUN apt update && apt -y install openssh-server && \
   # Set root password for SSH to 12345
   echo "root:12345" | chpasswd
 
-# Start SSH service and wait on bash process.
-ENTRYPOINT service ssh start && /bin/bash
+# Start SSH service, remove pitbull's view file (if exists) to get clean state and wait on bash process.
+ENTRYPOINT service ssh start && rm -f /app/progress_view.txt && /bin/bash

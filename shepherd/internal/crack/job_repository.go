@@ -86,6 +86,7 @@ func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*mode
 	pageSize := payload.PageSize
 	page := payload.Page
 	keyword := payload.Keyword
+	name := payload.Name
 
 	// We ignore error return on purpose - when payload.JobId is incorrect,
 	// jobId will be NilObjectID, and we can test against that.
@@ -115,8 +116,16 @@ func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*mode
 		}
 	}
 
+	nameFilter := bson.D{}
+
+	if name != "" {
+		nameFilter = bson.D{
+			{"name", primitive.Regex{Pattern: name, Options: ""}},
+		}
+	}
+
 	match := bson.D{{"$match", bson.D{
-		{"$and", bson.A{statusesFilter, keywordFilter, jobIdFilter}},
+		{"$and", bson.A{statusesFilter, keywordFilter, jobIdFilter, nameFilter}},
 	}}}
 
 	lookup, unwind := jr.lookupAndUnwindInstance()

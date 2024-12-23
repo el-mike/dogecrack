@@ -3,6 +3,8 @@ import {
   ChangeEvent,
 } from 'react';
 
+import styled from 'styled-components';
+
 import {
   Grid,
   Card,
@@ -21,6 +23,7 @@ import {
   InputOption,
   CardHeader,
   Button,
+  Spacer,
 } from 'common/components';
 
 import { getEnumAsInputOptions } from 'core/utils';
@@ -31,6 +34,11 @@ import { useGeneralContext } from 'core/contexts';
 
 import { useCrackJobsContext } from '../crack-jobs.context';
 import { Refresh } from '@mui/icons-material';
+
+const ActionsContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
 /**
  * Empty string causes rendering issues with MUI select, therefore we use
@@ -57,6 +65,7 @@ export const CrackJobsFilters: React.FC = () => {
     filter,
     loading,
     reload,
+    resetFilters,
   } = useCrackJobsContext();
 
   const { jobStatus: statusEnum } = enums;
@@ -97,12 +106,24 @@ export const CrackJobsFilters: React.FC = () => {
     [filters],
   );
 
+  const debouncedHandleNameChange = useDebouncedInput(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      filter({
+        ...filters,
+        name: event.target.value,
+      })
+    },
+    300,
+    [filters],
+  );
+
   useEffect(() => {
     return () => {
       debouncedHandleKeywordChange.cancel();
       debouncedHandleJobIdChange.cancel();
+      debouncedHandleNameChange.cancel();
     };
-  }, [debouncedHandleKeywordChange, debouncedHandleJobIdChange]);
+  }, [debouncedHandleKeywordChange, debouncedHandleJobIdChange, debouncedHandleNameChange]);
 
   const status = filters?.statuses?.[0];
 
@@ -110,15 +131,31 @@ export const CrackJobsFilters: React.FC = () => {
     <Card>
       <CardHeader>
         <Typography variant='h5'>Filters</Typography>
-        {!loading && <Button size='medium' variant='contained' endIcon={<Refresh />} onClick={reload}>Refresh</Button>}
-        {loading && (<CircularProgress />)}
+        <ActionsContainer>
+          {loading && (
+            <>
+              <CircularProgress size={20} />
+              <Spacer mr={2} />
+            </>
+          )}
+
+          <Button
+            size='small'
+            variant='contained'
+            endIcon={<Refresh />}
+            onClick={reload}
+            disabled={loading}
+          >
+            Refresh
+          </Button>
+        </ActionsContainer>
       </CardHeader>
 
       <Divider />
 
       <CardContent>
         <Grid container spacing={2}>
-          <Grid item xs={6} md={4}>
+          <Grid item xs={6} md={3}>
             <SelectInput
               label='Job status'
               options={jobStatusOptions}
@@ -127,19 +164,27 @@ export const CrackJobsFilters: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={6} md={4}>
+          <Grid item xs={6} md={3}>
             <TextInput
               label='Keyword'
+              value={filters.keyword || ''}
               defaultValue={filters.keyword || ''}
               onChange={debouncedHandleKeywordChange}
             />
           </Grid>
 
-          <Grid item xs={6} md={4}>
+          <Grid item xs={6} md={3}>
             <TextInput
               label='Job ID'
               defaultValue={filters.jobId || ''}
               onChange={debouncedHandleJobIdChange}
+            />
+          </Grid>
+          <Grid item xs={6} md={3}>
+            <TextInput
+              label='Job Name'
+              defaultValue={filters.name || ''}
+              onChange={debouncedHandleNameChange}
             />
           </Grid>
         </Grid>

@@ -64,21 +64,10 @@ func (ct *Controller) Crack(
 		return
 	}
 
-	var job *models.CrackJob
-	var err error
-
-	if payload.Keyword != "" {
-		job, err = ct.jobManager.CreateKeywordJob(ct.appConfig.WalletString, payload.Keyword)
-		if err != nil {
-			ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
-			return
-		}
-	} else {
-		job, err = ct.jobManager.CreatePasslistJob(ct.appConfig.WalletString, payload.PasslistUrl)
-		if err != nil {
-			ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
-			return
-		}
+	job, err := ct.jobManager.CreateJob(ct.appConfig.WalletString, payload)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
 	}
 
 	if err := ct.jobScheduler.ScheduleRun(job); err != nil {
