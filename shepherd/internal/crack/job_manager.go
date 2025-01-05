@@ -2,9 +2,11 @@ package crack
 
 import (
 	"fmt"
+	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/generator"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
+	"os"
 )
 
 // JobManager - simple facade for operations on PitbullJobs.
@@ -13,6 +15,8 @@ type JobManager struct {
 	jobRepository   *JobRepository
 	jobQueue        *JobQueue
 	tokenGenerator  *generator.TokenGenerator
+
+	logger *common.Logger
 }
 
 // NewJobManager - returns new JobService instance.
@@ -22,7 +26,19 @@ func NewJobManager(instanceManager *pitbull.InstanceManager) *JobManager {
 		jobRepository:   NewJobRepository(),
 		jobQueue:        NewJobQueue(),
 		tokenGenerator:  generator.NewTokenGenerator(generator.TokenRulesetOne),
+
+		logger: common.NewLogger("JobManager", os.Stdout, os.Stderr),
 	}
+}
+
+func (jm *JobManager) ScheduleJob(job *models.CrackJob) error {
+	if err := jm.jobQueue.Enqueue(job.ID.Hex()); err != nil {
+		return err
+	}
+
+	jm.logger.Info.Printf("job '%s' scheduled\n", job.ID.Hex())
+
+	return nil
 }
 
 // GetJobs - returns all existing jobs.
@@ -35,7 +51,7 @@ func (jm *JobManager) GetJob(jobId string) (*models.CrackJob, error) {
 	return jm.jobRepository.GetById(jobId)
 }
 
-func (jm *JobManager) CreateJob(walletString string, payload *models.CrackPayload) (*models.CrackJob, error) {
+func (jm *JobManager) CreateJob(walletString string, payload *models.CrackPayload, scheduleRun bool) (*models.CrackJob, error) {
 	job := models.NewCrackJob(walletString)
 
 	job.FirstScheduledAt = models.NullableTimeNow()
@@ -54,6 +70,12 @@ func (jm *JobManager) CreateJob(walletString string, payload *models.CrackPayloa
 
 	if err := jm.jobRepository.Create(job); err != nil {
 		return nil, err
+	}
+
+	if scheduleRun {
+		if err := jm.ScheduleJob(job); err != nil {
+			return nil, err
+		}
 	}
 
 	return job, nil
@@ -122,7 +144,16 @@ func (jm *JobManager) AcknowledgeJob(job *models.CrackJob) error {
 }
 
 // RejectJob - rejects a single job, and marks related instances as "Failed".
-func (jm *JobManager) RejectJob(job *models.CrackJob, reason error) error {
+func (jm *JobManager) RejectJob(jobId string, reason error) error {
+	job, err := jm.GetJob(jobId)
+	if err != nil {
+		return err
+	}
+
+	if job.IsFinished() {
+		return fmt.Errorf("job is already finished and cannot be rejected")
+	}
+
 	if err := jm.jobQueue.Reject(job.ID.Hex()); err != nil {
 		return err
 	}
@@ -150,11 +181,20 @@ func (jm *JobManager) CancelJob(job *models.CrackJob) error {
 		return err
 	}
 
-	return jm.RejectJob(job, fmt.Errorf("job has been canceled by the user"))
+	return jm.RejectJob(job.ID.Hex(), fmt.Errorf("job has been canceled by the user"))
 }
 
 // RescheduleJob - reschedules a single job and marks related instances as "Failed".
-func (jm *JobManager) RescheduleJob(job *models.CrackJob, reason error) error {
+func (jm *JobManager) RescheduleJob(jobId string, reason error) error {
+	job, err := jm.GetJob(jobId)
+	if err != nil {
+		return err
+	}
+
+	if job.IsFinished() {
+		return fmt.Errorf("job is already finished and cannot be rescheduled")
+	}
+
 	if err := jm.jobQueue.Reschedule(job.ID.Hex()); err != nil {
 		return err
 	}
@@ -190,7 +230,7 @@ func (jm *JobManager) RescheduleProcessingJobs() ([]string, error) {
 }
 
 // RecreateJob - recreates already finished CrackJob with given ID.
-func (jm *JobManager) RecreateJob(jobId string) (*models.CrackJob, error) {
+func (jm *JobManager) RecreateJob(jobId string, scheduleRun bool) (*models.CrackJob, error) {
 	job, err := jm.GetJob(jobId)
 	if err != nil {
 		return nil, err
@@ -208,5 +248,5 @@ func (jm *JobManager) RecreateJob(jobId string) (*models.CrackJob, error) {
 		PasslistUrl: job.PasslistUrl,
 	}
 
-	return jm.CreateJob(job.WalletString, payload)
+	return jm.CreateJob(job.WalletString, payload, scheduleRun)
 }

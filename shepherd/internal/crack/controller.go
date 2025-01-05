@@ -21,8 +21,7 @@ type Controller struct {
 
 	appConfig *config.AppConfig
 
-	jobScheduler *Scheduler
-	jobManager   *JobManager
+	jobManager *JobManager
 }
 
 // NewController - returns new Controller instance.
@@ -34,8 +33,7 @@ func NewController() *Controller {
 		responseHelper: *api.NewResponseHelper(logger),
 		appConfig:      config.GetAppConfig(),
 
-		jobScheduler: NewScheduler(),
-		jobManager:   NewJobManager(instanceManager),
+		jobManager: NewJobManager(instanceManager),
 
 		logger: logger,
 	}
@@ -64,17 +62,12 @@ func (ct *Controller) Crack(
 		return
 	}
 
-	job, err := ct.jobManager.CreateJob(ct.appConfig.WalletString, payload)
+	job, err := ct.jobManager.CreateJob(ct.appConfig.WalletString, payload, true)
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return
 	}
-
-	if err := ct.jobScheduler.ScheduleRun(job); err != nil {
-		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
-		return
-	}
-
+	
 	response, err := json.Marshal(job)
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
@@ -176,13 +169,8 @@ func (ct *Controller) RecreateJob(
 		return
 	}
 
-	job, err := ct.jobManager.RecreateJob(payload.JobId)
+	job, err := ct.jobManager.RecreateJob(payload.JobId, true)
 	if err != nil {
-		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	if err := ct.jobScheduler.ScheduleRun(job); err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return
 	}
