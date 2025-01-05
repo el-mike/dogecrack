@@ -88,6 +88,16 @@ func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, err
 		if err := pitbull.ParseProgress(rawProgress); err != nil {
 			return nil, err
 		}
+
+		if pitbull.Status == models.PitbullStatus.Running {
+			output, err := im.hostManager.GetPitbullOutput(instance.HostInstance)
+			if err != nil {
+				return nil, err
+			}
+			
+			pitbull.LastOutput = output
+		}
+
 	}
 
 	if pitbull.Done() {

@@ -21,8 +21,8 @@ type VastManager struct {
 // NewVastManager - returns new VastManager instance.
 func NewVastManager(apiSecret, pitbullImage, sshUser, sshPassword, sshDir, sshPrivateKey, rootDir string) *VastManager {
 	return &VastManager{
-		// cli: NewVastCLI(apiSecret, pitbullImage),
-		cli: NewVastCLIClientMock(rootDir),
+		cli: NewVastCLI(apiSecret, pitbullImage),
+		// cli: NewVastCLIClientMock(rootDir),
 
 		sshUser:       sshUser,
 		sshPassword:   sshPassword,
