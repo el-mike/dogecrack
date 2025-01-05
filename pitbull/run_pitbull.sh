@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# This script downloads given passlist file (into passlist.txt) and runs btcrecover with it.
-# It's the main functionality of Pitbull tool.
+# This script runs btcrecover with appropriate arguments, decided by the options passed by the user.
+# Based on the arguments provided, it will be run in one of three modes:
+# - with "-t" flag, it will use provided tokenlist file and pass it to btcrecover
+# - with "-f" flag, it will use provided passlist file and pass it to btcrecover
+# - with "u" flag, it will download passlist file from given URL and pass downloaded file to btcrecover
 # It will run as a foreground process, and output progress to TTY. Some additional logs
 # may be redirected to stderr (warnings, errors).
 # By having the actual run call in separated file, we can easily modify the way
