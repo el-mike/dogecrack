@@ -10,7 +10,7 @@ type VastClient interface {
 	StartInstance(offerId int) (*models.CreateResponse, error)
 
 	// DestroyInstance - stops a Vast.ai instance with given id.
-	DestroyInstance(instandeId int) error
+	DestroyInstance(instanceId int) error
 
 	// GetInstance - returns single, existing (rented) instance based on passed id.
 	GetInstance(instanceId int) (*models.Instance, error)

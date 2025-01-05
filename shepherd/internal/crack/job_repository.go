@@ -79,7 +79,7 @@ func (jr *JobRepository) RescheduleProcessingJobs(jobIds []string) error {
 	return nil
 }
 
-func (jr *JobRepository) GetAll(payload *models.PitbullJobsListPayload) ([]*models.CrackJob, int, error) {
+func (jr *JobRepository) GetAll(payload *models.CrackJobsListPayload) ([]*models.CrackJob, int, error) {
 	collection := jr.db.Collection(JobsCollection)
 
 	statuses := payload.Statuses

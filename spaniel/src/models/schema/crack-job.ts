@@ -53,6 +53,10 @@ export type RunCrackJobPayload = {
   passlistUrl?: string;
 };
 
+export type CancelCrackJobPayload = {
+  jobId: string;
+};
+
 export const mapCrackJob = (dto: CrackJobDto) => ({
   ...dto,
   instance: mapPitbullInstance(dto.instance || {}),

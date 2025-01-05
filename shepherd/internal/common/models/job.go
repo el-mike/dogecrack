@@ -38,3 +38,7 @@ type Job struct {
 	Status          JobStatusEnum `bson:"status" json:"status"`
 	RescheduleCount int           `bson:"rescheduleCount" json:"rescheduleCount"`
 }
+
+func (j *Job) IsFinished() bool {
+	return j.Status == JobStatus.Acknowledged || j.Status == JobStatus.Rejected
+}

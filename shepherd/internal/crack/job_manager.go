@@ -1,6 +1,7 @@
 package crack
 
 import (
+	"fmt"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/generator"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
@@ -8,8 +9,8 @@ import (
 
 // JobManager - simple facade for operations on PitbullJobs.
 type JobManager struct {
-	jobRepository   *JobRepository
 	instanceManager *pitbull.InstanceManager
+	jobRepository   *JobRepository
 	jobQueue        *JobQueue
 	tokenGenerator  *generator.TokenGenerator
 }
@@ -25,8 +26,13 @@ func NewJobManager(instanceManager *pitbull.InstanceManager) *JobManager {
 }
 
 // GetJobs - returns all existing jobs.
-func (jm *JobManager) GetJobs(payload *models.PitbullJobsListPayload) ([]*models.CrackJob, int, error) {
+func (jm *JobManager) GetJobs(payload *models.CrackJobsListPayload) ([]*models.CrackJob, int, error) {
 	return jm.jobRepository.GetAll(payload)
+}
+
+// GetJob - returns a single CrackJob with provided ID.
+func (jm *JobManager) GetJob(jobId string) (*models.CrackJob, error) {
+	return jm.jobRepository.GetById(jobId)
 }
 
 func (jm *JobManager) CreateJob(walletString string, payload *models.CrackPayload) (*models.CrackJob, error) {
@@ -54,7 +60,6 @@ func (jm *JobManager) CreateJob(walletString string, payload *models.CrackPayloa
 }
 
 // AssignInstance - creates a PitbullInstance and assigns it to passed CrackJob.
-// If job has been rescheduled, it will attempt to destroy previous HostInstance.
 func (jm *JobManager) AssignInstance(job *models.CrackJob) (*models.CrackJob, error) {
 	runPayload := &models.PitbullRunPayload{
 		WalletString: job.WalletString,
@@ -132,6 +137,20 @@ func (jm *JobManager) RejectJob(job *models.CrackJob, reason error) error {
 	}
 
 	return jm.instanceManager.MarkInstanceAsFailed(job.InstanceId.Hex(), reason)
+}
+
+// CancelJob - destroys currently assigned instance and rejects a job.
+func (jm *JobManager) CancelJob(job *models.CrackJob) error {
+	if job.IsFinished() {
+		return fmt.Errorf("job is already finished and cannot be canceled")
+	}
+
+	err := jm.instanceManager.StopHostInstance(job.InstanceId.Hex())
+	if err != nil {
+		return err
+	}
+
+	return jm.RejectJob(job, fmt.Errorf("job has been canceled by the user"))
 }
 
 // RescheduleJob - reschedules a single job and marks related instances as "Failed".

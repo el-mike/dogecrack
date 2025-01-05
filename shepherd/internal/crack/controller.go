@@ -89,7 +89,7 @@ func (ct *Controller) GetJobs(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	payload := models.NewPitbullJobsListPayload()
+	payload := models.NewCrackJobsListPayload()
 
 	if err := payload.Populate(r); err != nil {
 		ct.responseHelper.HandleError(w, http.StatusBadRequest, err)
@@ -109,6 +109,49 @@ func (ct *Controller) GetJobs(
 	}
 
 	response, err := json.Marshal(api.NewListResponse(jobsRaw, payload.Page, totalCount))
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.responseHelper.HandleJSONResponse(w, response)
+}
+
+// CancelJob - rejects a single CrackJob.
+func (ct *Controller) CancelJob(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	var payload *models.CancelCrackJobPayload
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if payload.JobId == "" {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("jobId was not provided"))
+		return
+	}
+
+	job, err := ct.jobManager.GetJob(payload.JobId)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err := ct.jobManager.CancelJob(job); err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	updatedJob, err := ct.jobManager.GetJob(payload.JobId)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response, err := json.Marshal(updatedJob)
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return

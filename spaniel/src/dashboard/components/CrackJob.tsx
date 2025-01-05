@@ -5,7 +5,6 @@ import {
   IconButton,
   Paper,
   Typography,
-  Box,
 } from '@mui/material';
 
 import { ContentCopy as ContentCopyIcon } from '@mui/icons-material';
@@ -25,6 +24,7 @@ import { PitbullOutput } from './PitbullOutput';
 import { CrackJobInfo } from './CrackJobInfo';
 import { CrackJobErrorLog } from './CrackJobErrorLog';
 import { CrackJobTokens } from './CrackJobTokens';
+import { CrackJobActionsMenu } from './CrackJobActionsMenu';
 
 export type CrackJobProps = {
   job: CrackJobModel;
@@ -34,7 +34,7 @@ const JobIdWrapper = styled.div`
   display: flex;
 `;
 
-const JobNameWrapper = styled.div`
+const StatusAndMenuWrapper = styled.div`
   display: flex;
 `;
 
@@ -70,7 +70,11 @@ export const CrackJob: React.FC<CrackJobProps> = props => {
           )}
         </JobIdWrapper>
 
-        <JobStatus status={job.status} />
+        <StatusAndMenuWrapper>
+          <JobStatus status={job.status} />
+          <Spacer mr={2} />
+          <CrackJobActionsMenu job={job} />
+        </StatusAndMenuWrapper>
       </CardHeader>
 
       <Divider />

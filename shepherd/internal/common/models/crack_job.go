@@ -58,8 +58,8 @@ func (pj *CrackJob) GetTokenlist() string {
 	return strings.Join(pj.Tokens, "\n")
 }
 
-// PitbullJobsListPayload - describes a payload for PitbullJobs list.
-type PitbullJobsListPayload struct {
+// CrackJobsListPayload - describes a payload for PitbullJobs list.
+type CrackJobsListPayload struct {
 	api.BaseListPayload
 
 	Statuses    []JobStatusEnum
@@ -69,13 +69,13 @@ type PitbullJobsListPayload struct {
 	Name        string
 }
 
-// NewPitbullJobsListPayload - returns new PitbullJobsListPayload instance.
-func NewPitbullJobsListPayload() *PitbullJobsListPayload {
-	return &PitbullJobsListPayload{}
+// NewCrackJobsListPayload - returns new CrackJobsListPayload instance.
+func NewCrackJobsListPayload() *CrackJobsListPayload {
+	return &CrackJobsListPayload{}
 }
 
 // Populate - populates payload values from request.
-func (pj *PitbullJobsListPayload) Populate(r *http.Request) error {
+func (pj *CrackJobsListPayload) Populate(r *http.Request) error {
 	page, pageSize, err := api.GetBaseListPayload(r)
 	if err != nil {
 		return err
@@ -129,4 +129,8 @@ func NewPagedCrackJobs() *PagedCrackJobs {
 			Total:    0,
 		},
 	}
+}
+
+type CancelCrackJobPayload struct {
+	JobId string `json:"jobId"`
 }

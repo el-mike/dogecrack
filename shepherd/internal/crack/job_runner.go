@@ -168,9 +168,23 @@ func (ru *JobRunner) runPitbull(job *models.CrackJob) {
 	stalledProgressCount := 0
 
 	for range ticker.C {
+		freshJob, freshJobErr := ru.jobManager.GetJob(job.ID.Hex())
+		if freshJobErr != nil {
+			// If getting fresh job fails, we don't want to stop the runner.
+			logger.Err.Printf("retrieving fresh job failed. Reason: %s\n", freshJobErr)
+		}
+
+		if freshJobErr == nil && freshJob.IsFinished() {
+			logger.Info.Printf("job has been canceled outside of runner")
+
+			ticker.Stop()
+			return
+		}
+
 		if retryCount >= checkStatusRetryLimit {
 			err := fmt.Errorf("retries limit reached")
 
+			logger.Err.Printf(err.Error())
 			logger.Err.Printf("%s, stopping job and host\n", err)
 
 			if err := ru.instanceManager.StopHostInstance(job.InstanceId.Hex()); err != nil {
@@ -196,7 +210,7 @@ func (ru *JobRunner) runPitbull(job *models.CrackJob) {
 			continue
 		}
 
-		// If we have reached this point, that means sync was succesful - therefore, we want to
+		// If we have reached this point, that means sync was successful - therefore, we want to
 		// reset retry counter.
 		retryCount = 0
 
@@ -226,7 +240,7 @@ func (ru *JobRunner) runPitbull(job *models.CrackJob) {
 		currentProgress := pitbull.Progress.Checked
 
 		// If progress did not change since the last iteration, we increment
-		// the counter. Otherwise we want to reset it, since progress has been made.
+		// the counter. Otherwise, we want to reset it, since progress has been made.
 		if currentProgress == lastProgress {
 			stalledProgressCount += 1
 		} else {
@@ -247,7 +261,6 @@ func (ru *JobRunner) runPitbull(job *models.CrackJob) {
 		}
 
 		lastProgress = pitbull.Progress.Checked
-
 	}
 }
 
@@ -283,7 +296,7 @@ func (ru *JobRunner) handleFailure(job *models.CrackJob, reason error) {
 		logger.Info.Printf("Rescheduling.\n")
 
 		if err := ru.jobManager.RescheduleJob(job, reason); err != nil {
-			logger.Err.Printf("Rescheduling failed. reason: %s\n", err)
+			logger.Err.Printf("Resched uling failed. reason: %s\n", err)
 
 			return
 		}

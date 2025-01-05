@@ -68,8 +68,13 @@ export const CrackJobsProvider: React.FC = props => {
     })
   };
 
-  const run = (keyword: RunCrackJobPayload) => {
-    crackJobService.runJob(keyword)
+  const run = (payload: RunCrackJobPayload) => {
+    crackJobService.runJob(payload)
+      .then(() => reload());
+  };
+
+  const cancel = (jobId: string) => {
+    crackJobService.cancelJob({ jobId })
       .then(() => reload());
   };
 
@@ -92,6 +97,7 @@ export const CrackJobsProvider: React.FC = props => {
     filter,
     changePage,
     run,
+    cancel,
     resetFilters,
   } as CrackJobsContext;
 
