@@ -74,8 +74,20 @@ export const CrackJobsProvider: React.FC = props => {
   };
 
   const cancel = (jobId: string) => {
+    /* We don't need to set it back to false in this function, as it will be done in reload.  */
+    setLoading(true);
+
     crackJobService.cancelJob({ jobId })
-      .then(() => reload());
+      .then(() => reload())
+      .catch(() => reload());
+  };
+
+  const recreate = (jobId: string) => {
+    setLoading(true);
+
+    crackJobService.recreateJob({ jobId })
+      .then(() => reload())
+      .catch(() => reload());
   };
 
   const resetFilters = () => {
@@ -98,6 +110,7 @@ export const CrackJobsProvider: React.FC = props => {
     changePage,
     run,
     cancel,
+    recreate,
     resetFilters,
   } as CrackJobsContext;
 

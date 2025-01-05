@@ -180,11 +180,33 @@ func (jm *JobManager) RescheduleProcessingJobs() ([]string, error) {
 	}
 
 	// We need to reject all previously processing jobs,
-	// so any dangling Pitbull instanes can be picked up and destroyed
+	// so any dangling Pitbull instances can be picked up and destroyed
 	// by InstanceCollector.
 	if err := jm.jobRepository.RescheduleProcessingJobs(jobIds); err != nil {
 		return nil, err
 	}
 
 	return jobIds, nil
+}
+
+// RecreateJob - recreates already finished CrackJob with given ID.
+func (jm *JobManager) RecreateJob(jobId string) (*models.CrackJob, error) {
+	job, err := jm.GetJob(jobId)
+	if err != nil {
+		return nil, err
+	}
+
+	if !job.IsFinished() {
+		return nil, fmt.Errorf("job is not finished and cannot be recreated")
+	}
+
+	// Even though some of those fields may be empty,
+	// we simply want to recreate the payload used for the original job.
+	payload := &models.CrackPayload{
+		Name:        job.Name,
+		Keyword:     job.Keyword,
+		PasslistUrl: job.PasslistUrl,
+	}
+
+	return jm.CreateJob(job.WalletString, payload)
 }

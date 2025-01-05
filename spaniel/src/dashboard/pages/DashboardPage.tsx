@@ -36,9 +36,9 @@ const InnerDashboardPage: React.FC = () => {
         loadStatistics();
       },
       /**
-       * Every 30 seconds.
+       * Every 15 seconds.
        */
-      millisecondsInSecond * 30,
+      millisecondsInSecond * 15,
     );
 
     return () => clearInterval(interval);
@@ -58,11 +58,11 @@ const InnerDashboardPage: React.FC = () => {
           <Statistics />
 
           <Spacer mb={4} />
-        
+
           <RunCrackJob />
 
           <Spacer mb={4} />
-        
+
           <CrackJobsList />
         </Grid>
 

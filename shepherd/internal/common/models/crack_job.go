@@ -134,3 +134,7 @@ func NewPagedCrackJobs() *PagedCrackJobs {
 type CancelCrackJobPayload struct {
 	JobId string `json:"jobId"`
 }
+
+type RecreateCrackJobPayload struct {
+	JobId string `json:"jobId"`
+}

@@ -13,7 +13,6 @@ import { Spacer } from 'common/components';
 import { TimeAgo } from 'core/components';
 
 import { useCrackJobsContext } from '../crack-jobs.context';
-import { useStatisticsContext } from '../statistics.context';
 
 import { CrackJob } from './CrackJob';
 import { CrackJobsFilters } from './CrackJobsFilters';

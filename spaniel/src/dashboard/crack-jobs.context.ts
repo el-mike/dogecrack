@@ -15,6 +15,7 @@ export type ChangePageFn = (page: number) => void;
 export type RunFn = (payload: RunCrackJobPayload) => void;
 export type ResetFiltersFn = () => void;
 export type CancelFn = (jobId: string) => void;
+export type RecreateFn = (jobId: string) => void;
 
 export type CrackJobsContext = {
   filters: CrackJobsFilters;
@@ -29,6 +30,7 @@ export type CrackJobsContext = {
   changePage: ChangePageFn;
   run: RunFn;
   cancel: CancelFn;
+  recreate: RecreateFn;
   resetFilters: ResetFiltersFn;
 }
 

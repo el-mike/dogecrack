@@ -34,7 +34,7 @@ func NewController() *Controller {
 		responseHelper: *api.NewResponseHelper(logger),
 		appConfig:      config.GetAppConfig(),
 
-		jobScheduler: NewScheduler(instanceManager),
+		jobScheduler: NewScheduler(),
 		jobManager:   NewJobManager(instanceManager),
 
 		logger: logger,
@@ -152,6 +152,42 @@ func (ct *Controller) CancelJob(
 	}
 
 	response, err := json.Marshal(updatedJob)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.responseHelper.HandleJSONResponse(w, response)
+}
+
+func (ct *Controller) RecreateJob(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	var payload *models.RecreateCrackJobPayload
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if payload.JobId == "" {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("jobId was not provided"))
+		return
+	}
+
+	job, err := ct.jobManager.RecreateJob(payload.JobId)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err := ct.jobScheduler.ScheduleRun(job); err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response, err := json.Marshal(job)
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return

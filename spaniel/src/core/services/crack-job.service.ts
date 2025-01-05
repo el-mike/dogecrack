@@ -8,6 +8,7 @@ import {
   CrackJob,
   RunCrackJobPayload,
   CancelCrackJobPayload,
+  RecreateCrackJobPayload,
 } from 'models';
 
 import { ShepherdApiService } from './shepherd-api.service';
@@ -18,6 +19,7 @@ export class CrackJobService {
     statistics: '/getJobsStatistics',
     crack: '/crack',
     cancel: '/cancelJob',
+    recreate: '/recreateJob',
   };
 
   public constructor(private apiClient: ShepherdApiService) {}
@@ -44,6 +46,14 @@ export class CrackJobService {
 
   public cancelJob(payload: CancelCrackJobPayload) {
     const url = this.apiClient.buildUrl(CrackJobService.URLS.cancel);
+
+    return this.apiClient
+      .post<CrackJobDto>(url, payload)
+      .then(response => mapCrackJob(response.data));
+  }
+
+  public recreateJob(payload: RecreateCrackJobPayload) {
+    const url = this.apiClient.buildUrl(CrackJobService.URLS.recreate);
 
     return this.apiClient
       .post<CrackJobDto>(url, payload)

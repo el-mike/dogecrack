@@ -19,7 +19,7 @@ export const CrackJobActionsMenu = (props: CrackJobActionsMenuProps) => {
   const { job } = props;
 
   const { enums } = useGeneralContext();
-  const { cancel } = useCrackJobsContext();
+  const { cancel, recreate } = useCrackJobsContext();
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
 
   const { jobStatus: statusEnum } = enums;
@@ -32,6 +32,10 @@ export const CrackJobActionsMenu = (props: CrackJobActionsMenuProps) => {
     cancel(job.id);
   };
 
+  const handleRecreate = () => {
+    recreate(job.id);
+  };
+
   return (
     <Box>
       <IconButton onClick={handleMenuClick} size='small'>
@@ -40,6 +44,9 @@ export const CrackJobActionsMenu = (props: CrackJobActionsMenuProps) => {
     <Menu open={!!menuAnchorEl} anchorEl={menuAnchorEl} onClose={() => setMenuAnchorEl(null)}>
       <MenuItem key='cancel' disabled={job.status !== statusEnum[JobStatusKey.PROCESSING]} onClick={handleCancel}>
         Cancel
+      </MenuItem>
+      <MenuItem key='recreate' disabled={job.status === statusEnum[JobStatusKey.PROCESSING]} onClick={handleRecreate}>
+        Recreate
       </MenuItem>
     </Menu>
     </Box>

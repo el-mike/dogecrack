@@ -57,6 +57,10 @@ export type CancelCrackJobPayload = {
   jobId: string;
 };
 
+export type RecreateCrackJobPayload = {
+  jobId: string;
+};
+
 export const mapCrackJob = (dto: CrackJobDto) => ({
   ...dto,
   instance: mapPitbullInstance(dto.instance || {}),

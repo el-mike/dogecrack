@@ -5,23 +5,19 @@ import (
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
-	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 )
 
 // Scheduler - entity responsible for scheduling Pitbull runs via JobQueue.
 type Scheduler struct {
 	jobQueue *JobQueue
 
-	jobManager *JobManager
-
 	logger *common.Logger
 }
 
 // NewScheduler - returns new PitbullScheduler instance.
-func NewScheduler(instanceManager *pitbull.InstanceManager) *Scheduler {
+func NewScheduler() *Scheduler {
 	return &Scheduler{
-		jobQueue:   NewJobQueue(),
-		jobManager: NewJobManager(instanceManager),
+		jobQueue: NewJobQueue(),
 
 		logger: common.NewLogger("Scheduler", os.Stdout, os.Stderr),
 	}
