@@ -50,7 +50,9 @@ export const CrackJobsList: React.FC = () => {
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     changePage(value);
-  }
+  };
+
+  console.log({ totalCount, pageSize })
 
   return (
     <Box>
@@ -81,7 +83,7 @@ export const CrackJobsList: React.FC = () => {
       <Spacer mb={4} />
 
       <Box display='flex' justifyContent='flex-end'>
-      <Pagination page={page} count={Math.floor((totalCount || 0) / pageSize)} onChange={handlePageChange} />
+      <Pagination page={page} count={Math.ceil((totalCount || 0) / pageSize)} onChange={handlePageChange} />
       </Box>
 
       <FloatingRefreshButton size='large' onClick={reload} color='primary'>
