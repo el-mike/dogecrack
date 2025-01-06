@@ -6,7 +6,9 @@ import {
   Box,
   Typography,
   Pagination,
+  Fab,
 } from '@mui/material';
+import { Refresh as RefreshIcon } from '@mui/icons-material';
 
 import { Spacer } from 'common/components';
 
@@ -28,6 +30,12 @@ const NoJobsWrapper = styled.div`
   align-items: center;
 `;
 
+const FloatingRefreshButton = styled(Fab)`
+  position: fixed !important;
+  right: 20px;
+  bottom: 20px;
+`;
+
 export const CrackJobsList: React.FC = () => {
   const {
     jobs,
@@ -36,6 +44,7 @@ export const CrackJobsList: React.FC = () => {
     pageSize,
     page,
     changePage,
+    reload,
   } = useCrackJobsContext();
 
 
@@ -74,6 +83,10 @@ export const CrackJobsList: React.FC = () => {
       <Box display='flex' justifyContent='flex-end'>
       <Pagination page={page} count={Math.floor((totalCount || 0) / pageSize)} onChange={handlePageChange} />
       </Box>
+
+      <FloatingRefreshButton size='large' onClick={reload} color='primary'>
+        <RefreshIcon />
+      </FloatingRefreshButton>
 
     </Box>
   );

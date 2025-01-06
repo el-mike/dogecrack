@@ -14,6 +14,7 @@ import {
   SelectChangeEvent,
   CircularProgress,
 } from '@mui/material';
+import { Refresh as RefreshIcon } from '@mui/icons-material';
 
 import { isNullish } from 'common/utils';
 
@@ -33,7 +34,6 @@ import { useDebouncedInput } from 'core/hooks';
 import { useGeneralContext } from 'core/contexts';
 
 import { useCrackJobsContext } from '../crack-jobs.context';
-import { Refresh } from '@mui/icons-material';
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -153,7 +153,7 @@ export const CrackJobsFilters: React.FC = () => {
           <Button
             size='small'
             variant='contained'
-            endIcon={<Refresh />}
+            endIcon={<RefreshIcon />}
             onClick={reload}
             disabled={loading}
           >
