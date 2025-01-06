@@ -239,9 +239,13 @@ func (ru *JobRunner) runPitbull(job *models.CrackJob) {
 
 		currentProgress := pitbull.Progress.Checked
 
-		// If progress did not change since the last iteration, we increment
+		// If progress did not change since the last iteration (but has been made overall), we increment
 		// the counter. Otherwise, we want to reset it, since progress has been made.
-		if currentProgress == lastProgress {
+		// We need to check against currentProgress being greater than zero because
+		// counting passwords by btcrecover may take a long time (and at this point Pitbull is already
+		// in RUNNING state).
+		// Introducing new state for counting phase could prove useful as well.
+		if currentProgress > 0 && currentProgress == lastProgress {
 			stalledProgressCount += 1
 		} else {
 			stalledProgressCount = 0

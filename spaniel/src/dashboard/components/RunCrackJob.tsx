@@ -117,7 +117,7 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
         <Spacer mb={2} />
 
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12}>
             <TextInput
               label='Tokenlist'
               value={payload.tokens?.join('\n')}
