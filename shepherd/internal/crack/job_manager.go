@@ -61,10 +61,16 @@ func (jm *JobManager) CreateJob(walletString string, payload *models.CrackPayloa
 		job.Name = payload.Name
 	}
 
-	if payload.Keyword != "" {
+	if len(payload.Tokens) > 0 {
+		job.Tokens = payload.Tokens
+	}
+
+	if job.Tokens == nil && payload.Keyword != "" {
 		job.Keyword = payload.Keyword
 		job.Tokens = jm.tokenGenerator.Generate(payload.Keyword)
-	} else {
+	}
+
+	if job.Tokens == nil && job.Keyword == "" {
 		job.PasslistUrl = payload.PasslistUrl
 	}
 

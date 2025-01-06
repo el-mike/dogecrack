@@ -52,13 +52,8 @@ func (ct *Controller) Crack(
 		return
 	}
 
-	if payload.Keyword == "" && payload.PasslistUrl == "" {
-		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("keyword or passlistUrl must be provided"))
-		return
-	}
-
-	if payload.Keyword != "" && payload.PasslistUrl != "" {
-		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("only one of two arguments (keyword or passlistUrl) must be provided"))
+	if payload.Keyword == "" && payload.PasslistUrl == "" && len(payload.Tokens) == 0 {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("keyword, passlistUrl or tokens must be provided"))
 		return
 	}
 
@@ -67,7 +62,7 @@ func (ct *Controller) Crack(
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return
 	}
-	
+
 	response, err := json.Marshal(job)
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)

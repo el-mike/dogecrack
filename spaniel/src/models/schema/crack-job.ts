@@ -50,6 +50,7 @@ export type CrackJobsFilters = Partial<{
 export type RunCrackJobPayload = {
   name?: string;
   keyword?: string;
+  tokens?: string[];
   passlistUrl?: string;
 };
 

@@ -31,7 +31,7 @@ const CardFooter = styled(CardActions)`
 `;
 
 export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
-  const [payload, setPayload] = useState<RunCrackJobPayload>({ keyword: '', passlistUrl: '', name: '' });
+  const [payload, setPayload] = useState<RunCrackJobPayload>({ keyword: '', passlistUrl: '', name: '', tokens: [] });
 
   const { run } = useCrackJobsContext();
 
@@ -53,12 +53,19 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
       name: event.target?.value || '',
     }));
 
+  const handleTokenlistChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setPayload((prev) => ({
+      ...prev,
+      tokens: (event.target?.value || '').split('\n') || [],
+    }))
+
   const handleRun = () => {
     run(payload);
     setPayload({
       keyword: '',
       passlistUrl: '',
       name: '',
+      tokens: [],
     });
   };
 
@@ -74,10 +81,24 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={4}>
             <TextInput
+              label='Name'
+              value={payload.name}
+              onChange={handleNameChange}
+            />
+          </Grid>
+        </Grid>
+
+        <Spacer mb={2} />
+        <Divider />
+        <Spacer mb={2} />
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} md={4}>
+            <TextInput
               label='Keyword'
               value={payload.keyword}
               onChange={handleKeywordChange}
-              disabled={!!payload.passlistUrl}
+              disabled={!!payload.passlistUrl || !!payload.tokens?.length}
             />
           </Grid>
 
@@ -86,7 +107,7 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
                 label='Passlist URL'
                 value={payload.passlistUrl}
                 onChange={handlePasslistUrlChange}
-                disabled={!!payload.keyword}
+                disabled={!!payload.keyword || !!payload.tokens?.length}
               />
           </Grid>
         </Grid>
@@ -98,12 +119,15 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={4}>
             <TextInput
-              label='Name'
-              value={payload.name}
-              onChange={handleNameChange}
+              label='Tokenlist'
+              value={payload.tokens?.join('\n')}
+              onChange={handleTokenlistChange}
+              multiline
+              disabled={!!payload.keyword || !!payload.passlistUrl}
             />
           </Grid>
         </Grid>
+
       </CardContent>
 
       <Divider />

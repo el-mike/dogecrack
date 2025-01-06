@@ -46,39 +46,28 @@ export const CrackJobInfo: React.FC<CrackJobInfoProps> = props => {
         <Spacer mb={1} />
 
         <Grid container item xs={12}>
-          <Grid item xs={6} md={3}>
+          <Grid item xs={6} md={2}>
             <LabeledInfo
               title='First scheduled at:'
               value={toDateTimeString(new Date(job.firstScheduledAt))}
             />
           </Grid>
 
-          <Grid item xs={6} md={3}>
+          <Grid item xs={6} md={2}>
             <LabeledInfo
               title='updated at:'
               value={toDateTimeString(new Date(job.updatedAt))}
             />
           </Grid>
 
-          <Grid item xs={6} md={3}>
-            <LabeledInfo
-              title='Rescheduled count:'
-              value={job.rescheduleCount}
-            />
-          </Grid>
-        </Grid>
-
-        <Spacer mb={1} />
-
-        <Grid container item xs={12}>
-          <Grid item xs={6} md={3}>
+          <Grid item xs={6} md={2}>
             <LabeledInfo
               title='Run for:'
               value={lastFinishedAt && timeForPipe(job.lastScheduledAt, lastFinishedAt)}
             />
           </Grid>
 
-          <Grid item xs={6} md={3}>
+          <Grid item xs={6} md={2}>
             {!!job.rejectedAt && (
               <LabeledInfo
                 title='Rejected at:'
@@ -92,6 +81,13 @@ export const CrackJobInfo: React.FC<CrackJobInfoProps> = props => {
                 value={toDateTimeString(new Date(job.acknowledgedAt))}
               />
             )}
+          </Grid>
+
+          <Grid item xs={6} md={2}>
+            <LabeledInfo
+              title='Rescheduled count:'
+              value={job.rescheduleCount}
+            />
           </Grid>
         </Grid>
       </Grid>

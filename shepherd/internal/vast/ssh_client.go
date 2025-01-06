@@ -58,7 +58,7 @@ func (vs *VastSSHClient) RunPitbullForPasslist(passlistUrl, walletString string)
 
 // RunPitbullForTokenlist - runs Pitbull process for given tokenlist and walletString.
 func (vs *VastSSHClient) RunPitbullForTokenlist(tokenlist, walletString string) (string, error) {
-	return vs.run("pitbull run -t " + tokenlist + " -w " + walletString)
+	return vs.run("pitbull run -t '" + tokenlist + "' -w " + walletString)
 }
 
 // GetPitbullStatus - runs Pitbull's status command and returns the output.

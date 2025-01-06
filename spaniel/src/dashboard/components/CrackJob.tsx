@@ -80,9 +80,9 @@ export const CrackJob: React.FC<CrackJobProps> = props => {
       <Divider />
 
       <PitbullInstanceInfo instance={instance} />
+      <CrackJobInfo job={job} />
       <PitbullHostInfo instance={instance} />
       <PitbullOutput output={pitbull?.lastOutput || ''} />
-      <CrackJobInfo job={job} />
       {!!job.tokens?.length && <CrackJobTokens job={job} />}
       <CrackJobErrorLog errorLog={job?.errorLog || ''} />
     </Paper>
