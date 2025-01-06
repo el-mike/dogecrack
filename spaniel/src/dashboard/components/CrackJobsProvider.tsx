@@ -1,18 +1,22 @@
 import {
-  useState,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 
 import {
-  ListRequest,
   CrackJob,
   CrackJobsFilters,
   JobStatusKey,
+  ListRequest,
   RunCrackJobPayload,
 } from 'models';
 
-import { useGeneralContext } from 'core/contexts';
+import {
+  NotificationVariant,
+  useGeneralContext,
+  useSnackbarContext
+} from 'core/contexts';
 
 import { useCrackJobService } from 'core/hooks';
 
@@ -25,6 +29,7 @@ const DEFAULT_PAGE_SIZE = 10;
 
 export const CrackJobsProvider: React.FC = props => {
   const { enums } = useGeneralContext();
+  const { notify } = useSnackbarContext();
 
   const crackJobService = useCrackJobService();
 
@@ -70,7 +75,13 @@ export const CrackJobsProvider: React.FC = props => {
 
   const run = (payload: RunCrackJobPayload) => {
     crackJobService.runJob(payload)
-      .then(() => reload());
+      .then(() => {
+        notify({
+          message: 'Job has been run',
+          variant: NotificationVariant.SUCCESS,
+        });
+      })
+      .finally(() => reload());
   };
 
   const cancel = (jobId: string) => {
@@ -78,16 +89,38 @@ export const CrackJobsProvider: React.FC = props => {
     setLoading(true);
 
     crackJobService.cancelJob({ jobId })
-      .then(() => reload())
-      .catch(() => reload());
+      .then(() => {
+        notify({
+          message: 'Job has been canceled',
+          variant: NotificationVariant.SUCCESS,
+        });
+      })
+      .catch(() => {
+        notify({
+          message: 'Canceling job failed',
+          variant: NotificationVariant.ERROR,
+        });
+      })
+      .finally(() => reload());
   };
 
   const recreate = (jobId: string) => {
     setLoading(true);
 
     crackJobService.recreateJob({ jobId })
-      .then(() => reload())
-      .catch(() => reload());
+      .then(() => {
+        notify({
+          message: 'Job has been recreated',
+          variant: NotificationVariant.SUCCESS,
+        });
+      })
+      .catch(() => {
+        notify({
+          message: 'Recreating job failed',
+          variant: NotificationVariant.ERROR,
+        });
+      })
+      .finally(() => reload());
   };
 
   const resetFilters = () => {

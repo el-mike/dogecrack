@@ -133,3 +133,22 @@ func (pl *Pitbull) ParseProgress(rawProgress string) error {
 
 	return nil
 }
+
+// GetOutputLastLine - returns last line of current available Pitbull output.
+func (pl *Pitbull) GetOutputLastLine() string {
+	lines := strings.Split(pl.LastOutput, "\n")
+
+	if len(lines) == 0 {
+		return "<NO_OUTPUT_AVAILABLE>"
+	}
+
+	// Last line can simply be an empty line - therefore, we iterate from the end
+	// to get last non-empty line.
+	for i := len(lines) - 1; i >= 0; i-- {
+		if lines[i] != "" {
+			return lines[i]
+		}
+	}
+
+	return ""
+}

@@ -18,7 +18,10 @@ import { darkTheme } from 'config/theming';
 import { shepherdApiService } from 'core/services';
 
 import { useGeneralContext } from 'core/contexts';
-import { GeneralProvider } from 'core/components';
+import {
+  GeneralProvider,
+  SnackbarProvider
+} from 'core/components';
 
 import {
   AuthProvider,
@@ -120,7 +123,9 @@ export const Shell: React.FC = () => {
       <BrowserRouter>
         <AuthProvider>
           <GeneralProvider>
-            <InnerShell />
+            <SnackbarProvider>
+              <InnerShell />
+            </SnackbarProvider>
           </GeneralProvider>
         </AuthProvider>
       </BrowserRouter>
@@ -133,7 +138,7 @@ const ThemeShell: React.FC = props => {
     <>
     {/**
     * Workaround - MaterialUI does not apply theme to styled-components ThemeProvider,
-    * therefore we need to use both of them. 
+    * therefore we need to use both of them.
     */}
     <ThemeProvider theme={darkTheme}>
       <MuiThemeProvider theme={darkTheme}>

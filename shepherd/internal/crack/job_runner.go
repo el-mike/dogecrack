@@ -156,6 +156,10 @@ func (ru *JobRunner) runPitbull(job *models.CrackJob) {
 	if _, err := ru.instanceManager.RunPitbull(job.InstanceId.Hex()); err != nil {
 		logger.Err.Printf("starting Pitbull failed. Reason: %s\n", err)
 
+		if err := ru.instanceManager.StopHostInstance(job.InstanceId.Hex()); err != nil {
+			logger.Err.Printf("stopping host instance for job %s failed. reason: %s\n", job.InstanceId.Hex(), err)
+		}
+
 		ru.handleFailure(job, logger.DecorateErr(err))
 		return
 	}
@@ -216,7 +220,13 @@ func (ru *JobRunner) runPitbull(job *models.CrackJob) {
 
 		pitbull := instance.Pitbull
 
-		logger.Info.Printf("[Process]: %s | %s\n", pitbull.Status.Formatted(), pitbull.Progress.Formatted())
+		// If there is no output yet, Pitbull is probably counting password - therefore, we only return
+		// last line from current Pitbull output, to get an idea on what's going on exactly.
+		if pitbull.Progress.Checked == 0 {
+			logger.Info.Printf("[Process]: %s | %s\n", pitbull.Status.Formatted(), pitbull.GetOutputLastLine())
+		} else {
+			logger.Info.Printf("[Process]: %s | %s\n", pitbull.Status.Formatted(), pitbull.Progress.Formatted())
+		}
 
 		if pitbull.Done() {
 			logger.Info.Printf("pitbull finished, stopping host instance\n")

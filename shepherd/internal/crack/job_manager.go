@@ -250,8 +250,15 @@ func (jm *JobManager) RecreateJob(jobId string, scheduleRun bool) (*models.Crack
 	// we simply want to recreate the payload used for the original job.
 	payload := &models.CrackPayload{
 		Name:        job.Name,
-		Keyword:     job.Keyword,
 		PasslistUrl: job.PasslistUrl,
+	}
+
+	// If original's job Keyword is not empty, it means it was used to create the job.
+	// Otherwise, Tokens were used directly.
+	if job.Keyword != "" {
+		payload.Keyword = job.Keyword
+	} else {
+		payload.Tokens = job.Tokens
 	}
 
 	return jm.CreateJob(job.WalletString, payload, scheduleRun)
