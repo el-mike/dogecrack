@@ -94,7 +94,7 @@ func (im *InstanceManager) SyncInstance(id string) (*models.PitbullInstance, err
 			if err != nil {
 				return nil, err
 			}
-			
+
 			pitbull.LastOutput = output
 		}
 
@@ -217,6 +217,7 @@ func (im *InstanceManager) MarkInstanceAsFailed(id string, reason error) error {
 
 	instance.Status = models.PitbullInstanceStatus.Failed
 	instance.FailReason = reason.Error()
+	instance.CompletedAt = models.NullableTimeNow()
 
 	return im.instanceRepository.UpdateInstance(instance)
 }
