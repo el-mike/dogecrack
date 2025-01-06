@@ -52,8 +52,6 @@ export const CrackJobsList: React.FC = () => {
     changePage(value);
   };
 
-  console.log({ totalCount, pageSize })
-
   return (
     <Box>
       <HeaderWrapper>
