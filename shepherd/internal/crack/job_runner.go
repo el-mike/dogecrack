@@ -57,7 +57,7 @@ func (ru *JobRunner) runSingle(job *models.CrackJob) {
 	ru.assignInstance(job)
 }
 
-// createInstance - creates and attaches a new PitbullInstance to PitbullJob.
+// createInstance - creates and attaches a new PitbullInstance to CrackJob.
 // If rescheduled, it tries to destroy the previous HostInstance.
 func (ru *JobRunner) assignInstance(job *models.CrackJob) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "assignInstance", job.ID.Hex())

@@ -77,8 +77,8 @@ func (ir *InstanceRepository) UpdateInstance(pitbull *models.PitbullInstance) er
 	return nil
 }
 
-// GetActiveInstances - returns all instances that are active, i.e. thepir status is different
-// than FINISHED (4).
+// GetActiveInstances - returns all instances that are active, i.e. their status is different
+// from FINISHED (4).
 func (ir *InstanceRepository) GetActiveInstances() ([]*models.PitbullInstance, error) {
 	collection := ir.db.Collection(InstancesCollection)
 
