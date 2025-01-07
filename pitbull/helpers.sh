@@ -14,7 +14,7 @@ is_gdown_progress_bar_line() {
 }
 
 # Checks if given line is ETA progress line.
-# Regex tests for ETA prefix ands "couting" word that appears at the end of the line.
+# Regex tests for ETA prefix ands "counting" word that appears at the end of the line.
 is_counting_line() {
   local regex='.*ETA.*counting.*'
 
