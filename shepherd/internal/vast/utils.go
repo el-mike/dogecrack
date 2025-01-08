@@ -19,7 +19,7 @@ func GetFakeVastIp(rootDir string, fakeVastId int) (string, error) {
 		return "", err
 	}
 
-	// Sice echo command retirns a newline at the end, we want to
+	// Since echo command returns a newline at the end, we want to
 	// make sure ip is correctly trimmed.
 	ip := strings.Trim(out.String(), "\n")
 
@@ -27,7 +27,7 @@ func GetFakeVastIp(rootDir string, fakeVastId int) (string, error) {
 }
 
 // AddSSHFingerprint - adds SSH fingerprint to host's known_hosts file, to prevent
-// "host uknown" errors while connection to remote machine.
+// "host unknown" errors while connection to remote machine.
 func AddSSHFingerprint(rootDir, host, sshDirPath string) error {
 	hostsFilePath := sshDirPath + "/known_hosts"
 
