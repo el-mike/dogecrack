@@ -88,11 +88,15 @@ func (jm *JobManager) CreateJob(walletString string, payload *models.CrackPayloa
 }
 
 // AssignInstance - creates a PitbullInstance and assigns it to passed CrackJob.
-func (jm *JobManager) AssignInstance(job *models.CrackJob) (*models.CrackJob, error) {
+func (jm *JobManager) AssignInstance(job *models.CrackJob, previousInstance *models.PitbullInstance) (*models.CrackJob, error) {
 	runPayload := &models.PitbullRunPayload{
 		WalletString: job.WalletString,
 		Tokenlist:    job.GetTokenlist(),
 		PasslistUrl:  job.PasslistUrl,
+	}
+
+	if previousInstance != nil {
+		runPayload.SkipCount = previousInstance.Pitbull.GetResumeCount()
 	}
 
 	instance, err := jm.instanceManager.CreateInstance(job.ID, runPayload)

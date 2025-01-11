@@ -62,12 +62,15 @@ func (ru *JobRunner) runSingle(job *models.CrackJob) {
 func (ru *JobRunner) assignInstance(job *models.CrackJob) {
 	logger := common.NewLogger("Runner", os.Stdout, os.Stderr, "assignInstance", job.ID.Hex())
 
+	var previousInstance *models.PitbullInstance
+
 	if job.InstanceId != primitive.NilObjectID {
-		instance, err := ru.instanceManager.GetInstanceById(job.InstanceId.Hex())
+		var err error
+		previousInstance, err = ru.instanceManager.GetInstanceById(job.InstanceId.Hex())
 		if err != nil {
 			logger.Err.Printf("Retrieving previous instance failed. reason: %v\n", err)
 		} else {
-			if instance != nil && instance.Active() {
+			if previousInstance != nil && previousInstance.Active() {
 				logger.Info.Printf("Stopping previously assigned instance...\n")
 
 				if err := ru.instanceManager.StopHostInstance(job.InstanceId.Hex()); err != nil {
@@ -77,7 +80,7 @@ func (ru *JobRunner) assignInstance(job *models.CrackJob) {
 		}
 	}
 
-	job, err := ru.jobManager.AssignInstance(job)
+	job, err := ru.jobManager.AssignInstance(job, previousInstance)
 	if err != nil {
 		logger.Err.Printf("Assign instance failed. reason: %v\n", err)
 

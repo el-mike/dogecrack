@@ -67,13 +67,13 @@ func (vm *VastManager) DestroyInstance(instanceId int) error {
 }
 
 // RunPitbullForPasslist - runs Pitbull with passwords stored under given passlistUrl.
-func (vm *VastManager) RunPitbullForPasslist(instance host.HostInstance, walletString, passlistUrl string) error {
+func (vm *VastManager) RunPitbullForPasslist(instance host.HostInstance, walletString, passlistUrl string, skipCount int64) error {
 	sshClient, err := vm.getSSHClient(instance)
 	if err != nil {
 		return err
 	}
 
-	_, err = sshClient.RunPitbullForPasslist(passlistUrl, walletString)
+	_, err = sshClient.RunPitbullForPasslist(passlistUrl, walletString, skipCount)
 	if err != nil {
 		return err
 	}
@@ -82,13 +82,13 @@ func (vm *VastManager) RunPitbullForPasslist(instance host.HostInstance, walletS
 }
 
 // RunPitbullForTokenlist - runs Pitbull with provided tokenlist.
-func (vm *VastManager) RunPitbullForTokenlist(instance host.HostInstance, walletString, tokenlist string) error {
+func (vm *VastManager) RunPitbullForTokenlist(instance host.HostInstance, walletString, tokenlist string, skipCount int64) error {
 	sshClient, err := vm.getSSHClient(instance)
 	if err != nil {
 		return err
 	}
 
-	_, err = sshClient.RunPitbullForTokenlist(tokenlist, walletString)
+	_, err = sshClient.RunPitbullForTokenlist(tokenlist, walletString, skipCount)
 	if err != nil {
 		return err
 	}

@@ -38,23 +38,23 @@ export const PitbullInstanceInfo: React.FC<PitbullInfoProps> = props => {
   const { instance } = props;
 
   const { pitbull } = instance;
-  
+
   return (
     <InfoWrapper>
       <Typography variant='overline'>Pitbull info</Typography>
 
       <Spacer mb={2} />
-      
+
       <Grid container spacing={2}>
         <Grid container spacing={2} item xs={12} md={6} lg={4}>
           <Grid item xs={12}>
             <PitbullInstanceStatus status={instance?.status || -1} />
           </Grid>
-        
+
           <Spacer mb={2} />
-        
+
           <Grid item xs={12}>
-            <PitbullProgress progress={pitbull?.progress || {}} />
+            <PitbullProgress pitbull={pitbull || {}} />
           </Grid>
         </Grid>
 
@@ -64,7 +64,7 @@ export const PitbullInstanceInfo: React.FC<PitbullInfoProps> = props => {
               <TimeAgo from={instance?.updatedAt} />
             </LabeledInfo>
           </Grid>
-    
+
           <Grid item xs={6} md={4}>
             <LabeledInfo
               title='Started at:'

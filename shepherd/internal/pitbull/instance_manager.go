@@ -187,13 +187,23 @@ func (im *InstanceManager) RunPitbull(id string) (*models.PitbullInstance, error
 	}
 
 	if instance.RunPayload.Tokenlist != "" {
-		if err := im.hostManager.RunPitbullForTokenlist(instance.HostInstance, instance.RunPayload.WalletString, instance.RunPayload.Tokenlist); err != nil {
+		if err := im.hostManager.RunPitbullForTokenlist(
+			instance.HostInstance,
+			instance.RunPayload.WalletString,
+			instance.RunPayload.Tokenlist,
+			instance.RunPayload.SkipCount,
+		); err != nil {
 			return nil, err
 		}
 	}
 
 	if instance.RunPayload.PasslistUrl != "" {
-		if err := im.hostManager.RunPitbullForPasslist(instance.HostInstance, instance.RunPayload.WalletString, instance.RunPayload.PasslistUrl); err != nil {
+		if err := im.hostManager.RunPitbullForPasslist(
+			instance.HostInstance,
+			instance.RunPayload.WalletString,
+			instance.RunPayload.PasslistUrl,
+			instance.RunPayload.SkipCount,
+		); err != nil {
 			return nil, err
 		}
 	}

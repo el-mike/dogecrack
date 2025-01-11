@@ -2,7 +2,10 @@ import styled from 'styled-components';
 
 import { Typography } from '@mui/material';
 
-import { ProgressInfo } from 'models';
+import {
+  Pitbull,
+  ProgressInfo
+} from 'models';
 
 import {
   Spacer,
@@ -10,7 +13,7 @@ import {
 } from 'common/components';
 
 export type PitbullProgressProps = {
-  progress: ProgressInfo;
+  pitbull: Pitbull;
 }
 
 const ProgressContainer = styled.div`
@@ -18,12 +21,20 @@ const ProgressContainer = styled.div`
   align-items: center;
 `;
 
-const ProgressInfoWrapper = styled.div``;
+const ProgressInfoWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 
 export const PitbullProgress: React.FC<PitbullProgressProps> = props => {
-  const { progress } = props;
+  const { pitbull } = props;
+  const { progress, skipCount: baseSkipCount } = pitbull;
 
-  const { checked, total } = progress;
+  const { checked: baseChecked, total: baseTotal } = progress || {};
+
+  const skipCount = baseSkipCount || 0;
+  const checked = baseChecked + skipCount;
+  const total = baseTotal + skipCount;
 
   const percentage = !total
     ? 0
@@ -42,9 +53,8 @@ export const PitbullProgress: React.FC<PitbullProgressProps> = props => {
       <ProgressInfoWrapper>
         <Typography variant='caption'>Passwords checked:</Typography>
         <Typography variant='h5' fontWeight='bold'>{`${checked || 0} / ${total || '...'}`}</Typography>
+        {!!skipCount && <Typography variant='caption'>Resumed at: {skipCount + 1}</Typography>}
       </ProgressInfoWrapper>
-
     </ProgressContainer>
   );
 };
-

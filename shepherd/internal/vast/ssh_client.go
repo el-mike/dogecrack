@@ -52,13 +52,22 @@ func NewVastSSHClient(user, password, sshDirPath, sshPrivateKey, ipAddress strin
 }
 
 // RunPitbullForPasslist - runs Pitbull process for given passlistUrl and walletString.
-func (vs *VastSSHClient) RunPitbullForPasslist(passlistUrl, walletString string) (string, error) {
-	return vs.run("pitbull run -u " + passlistUrl + " -w " + walletString)
+func (vs *VastSSHClient) RunPitbullForPasslist(passlistUrl, walletString string, skipCount int64) (string, error) {
+	return vs.run("pitbull run -u " + passlistUrl + " -w " + walletString + vs.getSkipArg(skipCount))
 }
 
 // RunPitbullForTokenlist - runs Pitbull process for given tokenlist and walletString.
-func (vs *VastSSHClient) RunPitbullForTokenlist(tokenlist, walletString string) (string, error) {
-	return vs.run("pitbull run -t '" + tokenlist + "' -w " + walletString)
+func (vs *VastSSHClient) RunPitbullForTokenlist(tokenlist, walletString string, skipCount int64) (string, error) {
+	return vs.run("pitbull run -t '" + tokenlist + "' -w " + walletString + vs.getSkipArg(skipCount))
+}
+
+// getSkipArg - returns skipCount argument for Pitbull.
+func (vs *VastSSHClient) getSkipArg(skipCount int64) string {
+	if skipCount == 0 {
+		return ""
+	}
+
+	return fmt.Sprintf(" -s %d", skipCount)
 }
 
 // GetPitbullStatus - runs Pitbull's status command and returns the output.

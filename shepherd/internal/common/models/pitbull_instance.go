@@ -40,6 +40,7 @@ type PitbullRunPayload struct {
 	WalletString string `bson:"walletString" json:"walletString"`
 	Tokenlist    string `bson:"tokenlist" json:"tokenlist"`
 	PasslistUrl  string `bson:"passlistUrl" json:"passlistUrl"`
+	SkipCount    int64  `bson:"skipCount" json:"skipCount"`
 }
 
 // PitbullInstance - an abstract representation of Pitbull process running on some host machine.
@@ -71,7 +72,7 @@ func NewPitbullInstance(host host.HostInstance, runPayload *PitbullRunPayload) *
 		Status:       PitbullInstanceStatus.WaitingForHost,
 		HostInstance: host,
 		RunPayload:   runPayload,
-		Pitbull:      NewPitbull(),
+		Pitbull:      NewPitbull(runPayload.SkipCount),
 	}
 
 	instance.ID = primitive.NewObjectID()

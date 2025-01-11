@@ -26,6 +26,7 @@ export type PitbullDto = {
   status: number;
   progress: ProgressInfoDto;
   lastOutput: string;
+  skipCount: number;
 };
 
 export type Pitbull = Omit<PitbullDto, 'progress'> & {

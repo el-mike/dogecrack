@@ -55,22 +55,51 @@ type Pitbull struct {
 	Status     PitbullStatusEnum `bson:"status" json:"status"`
 	Progress   *ProgressInfo     `bson:"progress" json:"progress"`
 	LastOutput string            `bson:"lastOutput" json:"lastOutput"`
+	SkipCount  int64             `bson:"skipCount" json:"skipCount"`
 }
 
-func NewPitbull() *Pitbull {
+func NewPitbull(skipCount int64) *Pitbull {
 	return &Pitbull{
-		Status: PitbullStatus.Waiting,
+		Status:    PitbullStatus.Waiting,
+		SkipCount: skipCount,
 	}
 }
 
-// AllPasswordsChecked - returns true if all password have been checked, according to
-// ProgressInfo.
+// AllPasswordsChecked - returns true if all password have been checked, based on ProgressInfo.
 func (pl *Pitbull) AllPasswordsChecked() bool {
 	if pl.Progress == nil {
 		return false
 	}
 
 	return pl.Progress.Total > 0 && (pl.Progress.Checked == pl.Progress.Total)
+}
+
+// AnyPasswordsChecked - returns true if at least one password has been checked, based on ProgressInfo.
+func (pl *Pitbull) AnyPasswordsChecked() bool {
+	if pl.Progress == nil {
+		return false
+	}
+
+	return pl.Progress.Checked > 0
+}
+
+// AnyPasswordsSkipped - returns true if at least one password has been skipped.
+func (pl *Pitbull) AnyPasswordsSkipped() bool {
+	if pl.Progress == nil {
+		return false
+	}
+
+	return pl.SkipCount > 0
+}
+
+// GetResumeCount - returns the number of password Pitbull could skip if rerun.
+func (pl *Pitbull) GetResumeCount() int64 {
+	if pl.Progress == nil {
+		return 0
+	}
+
+	// If given Pitbull was already run with SkipCount, we need to accommodate it as well for the resume count.
+	return pl.SkipCount + pl.Progress.Checked
 }
 
 // Done - returns true if status is either Finished or Success.
