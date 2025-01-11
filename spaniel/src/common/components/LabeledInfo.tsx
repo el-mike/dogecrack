@@ -41,10 +41,10 @@ export const LabeledInfo: React.FC<LabeledInfoProps> = props => {
         ? titleComponent
         : <Typography variant='caption' display='flex'>{title}</Typography>
       }
-      <Typography variant={valueVariant || 'subtitle1'} fontWeight='bold' display={valueToCopy ? 'inline' : 'flex'}>
+      <Typography variant={valueVariant || 'subtitle1'} fontWeight='bold' display={valueToCopy ? 'inline' : 'flex'} >
         {props.children || value || (!!useZero ? 0 : '-')}
       </Typography>
-      
+
       {!!valueToCopy && (
         <IconButton onClick={handleCopy} size='small'>
           <ContentCopyIcon fontSize='small' />

@@ -2,10 +2,7 @@ import { Grid } from '@mui/material';
 
 import { CrackJob as CrackJobModel } from 'models';
 
-import {
-  Spacer,
-  Accordion,
-} from 'common/components';
+import { Accordion } from 'common/components';
 
 import { toDateTimeString } from 'core/utils';
 
@@ -25,26 +22,6 @@ export const CrackJobInfo: React.FC<CrackJobInfoProps> = props => {
   return (
     <Accordion title='Job info'>
       <Grid container spacing={2}>
-        <Grid container item xs={12}>
-          <Grid item xs={12}>
-            {!!job.keyword && (
-              <LabeledInfo
-                title='Keyword:'
-                value={job.keyword}
-              />
-            )}
-            {!!job.passlistUrl && (
-              <LabeledInfo
-                title="Passlist URL:"
-                value={job.passlistUrl}
-                toCopy={job.passlistUrl}
-              />
-            )}
-          </Grid>
-        </Grid>
-
-        <Spacer mb={1} />
-
         <Grid container item xs={12}>
           <Grid item xs={6} md={2}>
             <LabeledInfo

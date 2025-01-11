@@ -6,7 +6,10 @@ import {
   Typography,
 } from '@mui/material';
 
-import { PitbullInstance } from 'models';
+import {
+  CrackJob,
+  PitbullInstance
+} from 'models';
 
 import {
   Spacer,
@@ -27,16 +30,16 @@ import { PitbullProgress } from './PitbullProgress';
 import { PitbullInstanceStatus } from './PitbullInstanceStatus';
 
 export type PitbullInfoProps = {
-  instance: PitbullInstance;
+  job: CrackJob;
 };
 
 const InfoWrapper = styled(Box)`
   padding: ${props => props.theme.spacing(2)};
 `;
 
-export const PitbullInstanceInfo: React.FC<PitbullInfoProps> = props => {
-  const { instance } = props;
-
+export const CrackJobGeneralInfo: React.FC<PitbullInfoProps> = props => {
+  const { job } = props;
+  const { instance } = job;
   const { pitbull } = instance;
 
   return (
@@ -59,27 +62,44 @@ export const PitbullInstanceInfo: React.FC<PitbullInfoProps> = props => {
         </Grid>
 
         <Grid container spacing={2} item xs={12} md={6} lg={8}>
-          <Grid item xs={6} md={4}>
+            {!!job.keyword && (
+              <Grid item xs={6} md={3}>
+                <LabeledInfo
+                  title='Keyword:'
+                  value={job.keyword}
+                />
+              </Grid>
+            )}
+            {!!job.passlistUrl && (
+              <Grid item xs={6} md={3}>
+                <LabeledInfo
+                  title="Passlist URL:"
+                  value={job.passlistUrl}
+                  toCopy={job.passlistUrl}
+                />
+              </Grid>
+              )}
+          <Grid item xs={6} md={3}>
             <LabeledInfo title='Last updated:'>
               <TimeAgo from={instance?.updatedAt} />
             </LabeledInfo>
           </Grid>
 
-          <Grid item xs={6} md={4}>
+          <Grid item xs={6} md={3}>
             <LabeledInfo
               title='Started at:'
               value={instance.startedAt && toDateTimeString(new Date(instance.startedAt))}
             />
           </Grid>
 
-          <Grid item xs={6} md={4}>
+          <Grid item xs={6} md={3}>
             <LabeledInfo
               title='Completed at:'
               value={instance.completedAt && toDateTimeString(new Date(instance.completedAt))}
             />
           </Grid>
 
-          <Grid item xs={6} md={4}>
+          <Grid item xs={6} md={3}>
             <LabeledInfo title='Run for:'>
               {
                 !!instance.startedAt
@@ -89,7 +109,7 @@ export const PitbullInstanceInfo: React.FC<PitbullInfoProps> = props => {
             </LabeledInfo>
           </Grid>
 
-          <Grid item xs={6} md={4}>
+          <Grid item xs={6} md={3}>
             <LabeledInfo
               title='Estimated cost:'
               value={`${getInstanceEstimatedCost(instance)} $`}

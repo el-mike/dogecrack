@@ -18,7 +18,7 @@ import {
 
 import { JobStatus } from 'core/components';
 
-import { PitbullInstanceInfo } from './PitbullInstanceInfo';
+import { CrackJobGeneralInfo } from './CrackJobGeneralInfo';
 import { PitbullHostInfo } from './PitbullHostInfo';
 import { PitbullOutput } from './PitbullOutput';
 import { CrackJobInfo } from './CrackJobInfo';
@@ -79,7 +79,7 @@ export const CrackJob: React.FC<CrackJobProps> = props => {
 
       <Divider />
 
-      <PitbullInstanceInfo instance={instance} />
+      <CrackJobGeneralInfo job={job} />
       <CrackJobInfo job={job} />
       <PitbullHostInfo instance={instance} />
       <PitbullOutput output={pitbull?.lastOutput || ''} />
