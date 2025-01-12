@@ -58,6 +58,13 @@ export const CrackJobInfo: React.FC<CrackJobInfoProps> = props => {
           </Grid>
 
           <Grid item xs={6} md={2}>
+            <LabeledInfo
+              title='Rescheduled count:'
+              value={job.rescheduleCount}
+            />
+          </Grid>
+
+          <Grid item xs={6} md={2}>
             {!!job.rejectedAt && (
               <LabeledInfo
                 title='Rejected at:'
@@ -71,13 +78,6 @@ export const CrackJobInfo: React.FC<CrackJobInfoProps> = props => {
                 value={toDateTimeString(new Date(job.acknowledgedAt))}
               />
             )}
-          </Grid>
-
-          <Grid item xs={6} md={2}>
-            <LabeledInfo
-              title='Rescheduled count:'
-              value={job.rescheduleCount}
-            />
           </Grid>
         </Grid>
       </Grid>
