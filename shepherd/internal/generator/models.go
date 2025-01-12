@@ -1,15 +1,8 @@
 package generator
 
-// GeneratorResult - result of generating a passlist file for given combination of
-// base password and rules.
-type GeneratorResult struct {
-	Keyword     string
-	Rules       []string
-	PasslistUrl string
-}
-
-// TokenRule - describe a single aspect of token creation.
-type TokenRule struct {
+// BaseTokenRule - describe a single aspect of token creation.
+// This base type should be extended by version-specific Generator rules.
+type BaseTokenRule struct {
 	charset string
 	min     uint8
 	max     uint8
@@ -17,11 +10,18 @@ type TokenRule struct {
 	useFullCharset bool
 }
 
-// TokenRuleset - a versioned description of how token should be created from a base keyword.
-type TokenRuleset struct {
-	version            uint8
-	includeUpperCase   bool
-	prefixes           []*TokenRule
-	suffixes           []*TokenRule
-	letterReplacements map[byte]*TokenRule
+// BaseTokenRuleset - a versioned description of how token should be created from a base keyword.
+// This base type should be extended by version-specific Generator ruleset.
+type BaseTokenRuleset struct {
+	prefixes           []*BaseTokenRule
+	suffixes           []*BaseTokenRule
+	letterReplacements map[byte]*BaseTokenRule
+}
+
+type TokenRuleV1 struct {
+	*BaseTokenRule
+}
+
+type TokenRulesetV1 struct {
+	*BaseTokenRuleset
 }

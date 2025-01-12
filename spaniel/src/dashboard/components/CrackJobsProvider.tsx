@@ -28,7 +28,7 @@ import {
 const DEFAULT_PAGE_SIZE = 10;
 
 export const CrackJobsProvider: React.FC = props => {
-  const { enums } = useGeneralContext();
+  const { enums, latestTokenGeneratorVersion } = useGeneralContext();
   const { notify } = useSnackbarContext();
 
   const crackJobService = useCrackJobService();
@@ -38,6 +38,7 @@ export const CrackJobsProvider: React.FC = props => {
       page: 1,
       pageSize: DEFAULT_PAGE_SIZE,
       statuses: [enums.jobStatus[JobStatusKey.PROCESSING]],
+      tokenGeneratorVersion: latestTokenGeneratorVersion,
     } as ListRequest<CrackJobsFilters>),
     /* eslint-disable-next-line */
     [],

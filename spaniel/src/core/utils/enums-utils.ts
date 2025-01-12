@@ -2,6 +2,7 @@ import {
   JobStatusKey,
   PitbullInstanceStatusKey,
   PitbullStatusKey,
+  TokenGeneratorVersionKey,
   Enum,
   Dictionary,
 } from 'models';
@@ -34,6 +35,11 @@ export const enumLabelMap = {
    [PitbullStatusKey.RUNNING]: 'Running',
    [PitbullStatusKey.FINISHED]: 'Finished',
    [PitbullStatusKey.SUCCESS]: 'Success',
+
+  /**
+   * TokenGeneratorVersion enums.
+   */
+  [TokenGeneratorVersionKey.V1]: "V1",
 } as Dictionary<string>;
 
 export const getLabelForEnum = (
@@ -53,5 +59,3 @@ export const getEnumAsInputOptions = (
     label: getLabelForEnum(e, enumValue),
     value: enumValue,
   } as InputOption<number>))
-
-  

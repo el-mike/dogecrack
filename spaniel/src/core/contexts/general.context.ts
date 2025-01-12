@@ -11,6 +11,7 @@ import { Enums } from 'models';
 export type GeneralContext = {
   enumsLoading: boolean;
   enums: Enums;
+  latestTokenGeneratorVersion: number;
 }
 
 export const generalContext = createContext<GeneralContext>(null!);

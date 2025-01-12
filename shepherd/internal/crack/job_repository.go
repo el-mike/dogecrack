@@ -88,6 +88,7 @@ func (jr *JobRepository) GetAll(payload *models.CrackJobsListPayload) ([]*models
 	keyword := payload.Keyword
 	passlistUrl := payload.PasslistUrl
 	name := payload.Name
+	tokenGeneratorVersion := payload.TokenGeneratorVersion
 
 	// We ignore error return on purpose - when payload.JobId is incorrect,
 	// jobId will be NilObjectID, and we can test against that.
@@ -133,8 +134,21 @@ func (jr *JobRepository) GetAll(payload *models.CrackJobsListPayload) ([]*models
 		}
 	}
 
+	tokenGeneratorVersionFilter := bson.D{}
+
+	if tokenGeneratorVersion != 0 {
+		versions := []int8{int8(tokenGeneratorVersion), 0}
+
+		tokenGeneratorVersionFilter = bson.D{
+			// Since job can be run not only for keywords, when filtering by tokenGeneratorVersion,
+			// we need to make sure we also include other types of password sources - hence we include
+			// jobs without tokenGeneratorVersion set.
+			{"tokenGeneratorVersion", bson.D{{"$in", versions}}},
+		}
+	}
+
 	match := bson.D{{"$match", bson.D{
-		{"$and", bson.A{statusesFilter, keywordFilter, passlistUrlFilter, jobIdFilter, nameFilter}},
+		{"$and", bson.A{statusesFilter, keywordFilter, passlistUrlFilter, jobIdFilter, nameFilter, tokenGeneratorVersionFilter}},
 	}}}
 
 	lookup, unwind := jr.lookupAndUnwindInstance()

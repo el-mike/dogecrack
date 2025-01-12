@@ -14,11 +14,12 @@ import (
 type CrackJob struct {
 	Job `bson:",inline"`
 
-	Name         string   `bson:"name" json:"name"`
-	Keyword      string   `bson:"keyword" json:"keyword"`
-	WalletString string   `bson:"walletString" json:"walletString"`
-	PasslistUrl  string   `bson:"passlistUrl" json:"passlistUrl"`
-	Tokens       []string `bson:"tokens" json:"tokens"`
+	Name                  string                    `bson:"name" json:"name"`
+	Keyword               string                    `bson:"keyword" json:"keyword"`
+	WalletString          string                    `bson:"walletString" json:"walletString"`
+	PasslistUrl           string                    `bson:"passlistUrl" json:"passlistUrl"`
+	Tokens                []string                  `bson:"tokens" json:"tokens"`
+	TokenGeneratorVersion TokenGeneratorVersionEnum `bson:"tokenGeneratorVersion" json:"tokenGeneratorVersion"`
 
 	InstanceId primitive.ObjectID `bson:"instanceId" json:"instanceId"`
 	Instance   *PitbullInstance   `bson:"instance,omitempty" json:"instance"`
@@ -62,11 +63,12 @@ func (pj *CrackJob) GetTokenlist() string {
 type CrackJobsListPayload struct {
 	api.BaseListPayload
 
-	Statuses    []JobStatusEnum
-	JobId       string
-	Keyword     string
-	PasslistUrl string
-	Name        string
+	Statuses              []JobStatusEnum
+	JobId                 string
+	Keyword               string
+	PasslistUrl           string
+	Name                  string
+	TokenGeneratorVersion TokenGeneratorVersionEnum
 }
 
 // NewCrackJobsListPayload - returns new CrackJobsListPayload instance.
@@ -101,6 +103,7 @@ func (pj *CrackJobsListPayload) Populate(r *http.Request) error {
 	passlistUrl := r.URL.Query().Get("passlistUrl")
 	jobId := r.URL.Query().Get("jobId")
 	name := r.URL.Query().Get("name")
+	tokenGeneratorVersion := r.URL.Query().Get("tokenGeneratorVersion")
 
 	pj.Statuses = statuses
 	pj.Page = page
@@ -109,6 +112,15 @@ func (pj *CrackJobsListPayload) Populate(r *http.Request) error {
 	pj.PasslistUrl = passlistUrl
 	pj.Name = name
 	pj.JobId = jobId
+
+	if tokenGeneratorVersion != "" {
+		tokenGeneratorVersionInt, err := strconv.Atoi(tokenGeneratorVersion)
+		if err != nil {
+			return err
+		}
+		
+		pj.TokenGeneratorVersion = TokenGeneratorVersionEnum(tokenGeneratorVersionInt)
+	}
 
 	return nil
 }

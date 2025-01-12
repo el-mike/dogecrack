@@ -9,6 +9,7 @@ import {
   CardActions,
   Typography,
   Divider,
+  SelectChangeEvent,
 } from '@mui/material';
 
 import { PlayArrow as PlayArrowIcon } from '@mui/icons-material';
@@ -20,7 +21,10 @@ import {
   CardHeader,
   Button,
   Spacer,
+  SelectInput,
 } from 'common/components';
+import { useGeneralContext } from 'core/contexts';
+import { getEnumAsInputOptions } from 'core/utils';
 
 import { useCrackJobsContext } from '../crack-jobs.context';
 
@@ -31,9 +35,20 @@ const CardFooter = styled(CardActions)`
 `;
 
 export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
-  const [payload, setPayload] = useState<RunCrackJobPayload>({ keyword: '', passlistUrl: '', name: '', tokens: [] });
-
   const { run } = useCrackJobsContext();
+  const { enums, latestTokenGeneratorVersion } = useGeneralContext();
+
+  const [payload, setPayload] = useState<RunCrackJobPayload>({
+    keyword: '',
+    passlistUrl: '',
+    name: '',
+    tokens: [],
+    tokenGeneratorVersion: latestTokenGeneratorVersion,
+  });
+
+  const tokenGeneratorVersionOptions = [
+    ...getEnumAsInputOptions(enums.tokenGeneratorVersion),
+  ];
 
   const handleKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setPayload((prev) => ({
@@ -57,7 +72,13 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
     setPayload((prev) => ({
       ...prev,
       tokens: (event.target?.value || '').split('\n') || [],
-    }))
+    }));
+
+  const handleTokenGeneratorVersionChange = (event: SelectChangeEvent<unknown>) =>
+    setPayload((prev) => ({
+      ...prev,
+      tokenGeneratorVersion: event.target?.value as number || latestTokenGeneratorVersion,
+    }));
 
   const handleRun = () => {
     run(payload);
@@ -66,6 +87,7 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
       passlistUrl: '',
       name: '',
       tokens: [],
+      tokenGeneratorVersion: latestTokenGeneratorVersion,
     });
   };
 
@@ -94,6 +116,14 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
 
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={4}>
+            <SelectInput
+              label='Token generator version'
+              options={tokenGeneratorVersionOptions}
+              value={payload.tokenGeneratorVersion}
+              onChange={handleTokenGeneratorVersionChange}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
             <TextInput
               label='Keyword'
               value={payload.keyword}
@@ -101,14 +131,20 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
               disabled={!!payload.passlistUrl || !!payload.tokens?.length}
             />
           </Grid>
+        </Grid>
 
-            <Grid item xs={12} sm={6} md={4}>
-              <TextInput
-                label='Passlist URL'
-                value={payload.passlistUrl}
-                onChange={handlePasslistUrlChange}
-                disabled={!!payload.keyword || !!payload.tokens?.length}
-              />
+        <Spacer mb={2} />
+        <Divider />
+        <Spacer mb={2} />
+
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <TextInput
+              label='Passlist URL'
+              value={payload.passlistUrl}
+              onChange={handlePasslistUrlChange}
+              disabled={!!payload.keyword || !!payload.tokens?.length}
+            />
           </Grid>
         </Grid>
 

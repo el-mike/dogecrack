@@ -45,14 +45,16 @@ export type CrackJobsFilters = Partial<{
   passlistUrl: string;
   jobId: string;
   name: string;
+  tokenGeneratorVersion: number;
 }>;
 
-export type RunCrackJobPayload = {
-  name?: string;
-  keyword?: string;
-  tokens?: string[];
-  passlistUrl?: string;
-};
+export type RunCrackJobPayload = Partial<{
+  name: string;
+  keyword: string;
+  tokens: string[];
+  passlistUrl: string;
+  tokenGeneratorVersion: number;
+}>;
 
 export type CancelCrackJobPayload = {
   jobId: string;

@@ -5,6 +5,7 @@ type AppEnums struct {
 	JobStatus             map[string]JobStatusEnum             `json:"jobStatus"`
 	PitbullInstanceStatus map[string]PitbullInstanceStatusEnum `json:"pitbullInstanceStatus"`
 	PitbullStatus         map[string]PitbullStatusEnum         `json:"pitbullStatus"`
+	TokenGeneratorVersion map[string]TokenGeneratorVersionEnum `json:"tokenGeneratorVersion"`
 }
 
 // GetAppEnums - builds and returns an instance of AppEnums.
@@ -30,6 +31,9 @@ func GetAppEnums() *AppEnums {
 			"RUNNING":  PitbullStatus.Running,
 			"FINISHED": PitbullStatus.Finished,
 			"SUCCESS":  PitbullStatus.Success,
+		},
+		TokenGeneratorVersion: map[string]TokenGeneratorVersionEnum{
+			"V1": TokenGeneratorVersion.V1,
 		},
 	}
 }

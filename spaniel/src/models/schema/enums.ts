@@ -26,14 +26,20 @@ export enum PitbullStatusKey {
   SUCCESS = 'SUCCESS',
 }
 
+export enum TokenGeneratorVersionKey {
+  V1 = 'V1',
+}
+
 export type Enum = Dictionary<number>;
 
 export type JobStatusEnum = FromKeys<JobStatusKey, number>;
 export type PitbullInstanceStatusEnum = FromKeys<PitbullInstanceStatusKey, number>;
 export type PitbullStatusEnum = FromKeys<PitbullStatusKey, number>;
+export type TokenGeneratorVersionEnum = FromKeys<TokenGeneratorVersionKey, number>;
 
 export type Enums = {
   jobStatus: JobStatusEnum;
   pitbullInstanceStatus: PitbullInstanceStatusEnum;
   pitbullStatus: PitbullStatusEnum;
+  tokenGeneratorVersion: TokenGeneratorVersionEnum;
 };

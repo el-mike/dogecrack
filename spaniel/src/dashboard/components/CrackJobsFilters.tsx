@@ -74,12 +74,24 @@ export const CrackJobsFilters: React.FC = () => {
     ALL_OPTION,
   ];
 
+  const tokenGeneratorVersionOptions = [
+    ...getEnumAsInputOptions(enums.tokenGeneratorVersion),
+  ];
+
   const handleStatusChange = (event: SelectChangeEvent<unknown>) => {
     const status = event.target?.value as number;
     filter({
       ...filters,
       statuses: (isStatusValid(status)  && [status]) || [],
     });
+  };
+
+  const handleTokenGeneratorVersionChange = (event: SelectChangeEvent<unknown>) => {
+    const version = event.target?.value as number;
+    filter({
+      ...filters,
+      tokenGeneratorVersion: version,
+    })
   };
 
   const debouncedHandleKeywordChange = useDebouncedInput(
@@ -194,6 +206,14 @@ export const CrackJobsFilters: React.FC = () => {
         <Spacer mb={2} />
 
         <Grid container spacing={2}>
+          <Grid item xs={6} md={3}>
+            <SelectInput
+              label='Token generator version'
+              options={tokenGeneratorVersionOptions}
+              value={filters.tokenGeneratorVersion || ''}
+              onChange={handleTokenGeneratorVersionChange}
+            />
+          </Grid>
           <Grid item xs={6} md={3}>
             <TextInput
               label='Keyword'

@@ -11,10 +11,10 @@ import (
 
 // JobManager - simple facade for operations on PitbullJobs.
 type JobManager struct {
-	instanceManager *pitbull.InstanceManager
-	jobRepository   *JobRepository
-	jobQueue        *JobQueue
-	tokenGenerator  *generator.TokenGenerator
+	instanceManager       *pitbull.InstanceManager
+	jobRepository         *JobRepository
+	jobQueue              *JobQueue
+	tokenGeneratorFactory *generator.TokenGeneratorFactory
 
 	logger *common.Logger
 }
@@ -22,10 +22,10 @@ type JobManager struct {
 // NewJobManager - returns new JobService instance.
 func NewJobManager(instanceManager *pitbull.InstanceManager) *JobManager {
 	return &JobManager{
-		instanceManager: instanceManager,
-		jobRepository:   NewJobRepository(),
-		jobQueue:        NewJobQueue(),
-		tokenGenerator:  generator.NewTokenGenerator(generator.TokenRulesetOne),
+		instanceManager:       instanceManager,
+		jobRepository:         NewJobRepository(),
+		jobQueue:              NewJobQueue(),
+		tokenGeneratorFactory: generator.NewTokenGeneratorFactory(),
 
 		logger: common.NewLogger("JobManager", os.Stdout, os.Stderr),
 	}
@@ -66,8 +66,20 @@ func (jm *JobManager) CreateJob(walletString string, payload *models.CrackPayloa
 	}
 
 	if job.Tokens == nil && payload.Keyword != "" {
+		generatorVersion := models.LatestTokenGeneratorVersion
+
+		if payload.TokenGeneratorVersion != 0 {
+			generatorVersion = payload.TokenGeneratorVersion
+		}
+
+		tokenGenerator, err := jm.tokenGeneratorFactory.CreateGenerator(generatorVersion)
+		if err != nil {
+			return nil, err
+		}
+
 		job.Keyword = payload.Keyword
-		job.Tokens = jm.tokenGenerator.Generate(payload.Keyword)
+		job.Tokens = tokenGenerator.Generate(payload.Keyword)
+		job.TokenGeneratorVersion = generatorVersion
 	}
 
 	if job.Tokens == nil && job.Keyword == "" {
@@ -253,8 +265,9 @@ func (jm *JobManager) RecreateJob(jobId string, scheduleRun bool) (*models.Crack
 	// Even though some of those fields may be empty,
 	// we simply want to recreate the payload used for the original job.
 	payload := &models.CrackPayload{
-		Name:        job.Name,
-		PasslistUrl: job.PasslistUrl,
+		Name:                  job.Name,
+		PasslistUrl:           job.PasslistUrl,
+		TokenGeneratorVersion: job.TokenGeneratorVersion,
 	}
 
 	// If original's job Keyword is not empty, it means it was used to create the job.
