@@ -1,20 +1,26 @@
 import { Grid } from '@mui/material';
 
-import { CrackJob as CrackJobModel } from 'models';
+import {
+  CrackJob as CrackJobModel,
+  TokenGeneratorVersionKey
+} from 'models';
 
-import { Accordion } from 'common/components';
+import { Accordion, LabeledInfo } from 'common/components';
 
-import { toDateTimeString } from 'core/utils';
-
+import {
+  getLabelForEnum,
+  toDateTimeString
+} from 'core/utils';
 import { timeForPipe } from 'core/pipes';
-
-import { LabeledInfo } from 'common/components';
+import { useGeneralContext } from 'core/contexts';
 
 export type CrackJobInfoProps = {
   job: CrackJobModel;
 };
 
 export const CrackJobInfo: React.FC<CrackJobInfoProps> = props => {
+  const { enums } = useGeneralContext();
+
   const { job } = props;
 
   const lastFinishedAt = job.acknowledgedAt || job.rejectedAt;
@@ -23,6 +29,13 @@ export const CrackJobInfo: React.FC<CrackJobInfoProps> = props => {
     <Accordion title='Job info'>
       <Grid container spacing={2}>
         <Grid container item xs={12}>
+          <Grid item xs={6} md={2}>
+            <LabeledInfo
+              title='Token generator version:'
+              value={getLabelForEnum(enums.tokenGeneratorVersion, job.tokenGeneratorVersion || 0)}
+            />
+          </Grid>
+
           <Grid item xs={6} md={2}>
             <LabeledInfo
               title='First scheduled at:'
