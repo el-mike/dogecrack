@@ -63,6 +63,7 @@ export const CrackJobsProvider: React.FC = props => {
     setRequest({
       ...request,
       ...filters,
+      page: 1,
     });
   }
 
