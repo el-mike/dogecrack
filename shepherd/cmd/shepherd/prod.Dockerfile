@@ -32,8 +32,8 @@ RUN apk add --no-cache bash \
   # it will be available in PATH.
   && wget https://raw.githubusercontent.com/vast-ai/vast-python/master/vast.py -O /usr/bin/vast; chmod +x /usr/bin/vast;
 
-COPY --from=builder /build/.env /build/shepherd ./
+COPY --from=builder /build/shepherd ./
 
-ENV APP_ENV='dev'
+ENV APP_ENV='prod'
 
 CMD ["./shepherd"]
