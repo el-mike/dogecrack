@@ -20,7 +20,9 @@ MONGO_INITDB_ROOT_PASSWORD=
 3. Run `go install`
 4. Run `docker-compose up -d`
 
-### Helpers
+### Tooling
+All tools should be run from `shepherd` root directory.
+
 - Running deps services:
 ```bash
 ./tools/run_deps.sh
@@ -29,6 +31,16 @@ MONGO_INITDB_ROOT_PASSWORD=
 - Running deps services and apps:
 ```bash
 ./tools/run_dev.sh 
+```
+
+- Building latest `shepherd` cmd image (api + runner):
+```bash
+./tools/build_shepherd_image.sh 
+```
+
+- Publishing latest `shepherd` cmd image (api + runner) to Docker Hub:
+```bash
+./tools/publish_shepherd_image.sh 
 ```
 
 ### Fake vast.ai SSH server
