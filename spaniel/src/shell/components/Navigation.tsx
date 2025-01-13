@@ -47,17 +47,6 @@ export const Navigation: React.FC = () => {
           <ListItem
             button
             component={Link}
-            to='/passchecks'
-          >
-            <ListItemIcon>
-              <ManageSearchIcon />
-            </ListItemIcon>
-            <ListItemText primary='Passchecks' />
-          </ListItem>
-
-          <ListItem
-            button
-            component={Link}
             to='/settings'
           >
             <ListItemIcon>

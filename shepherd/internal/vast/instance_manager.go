@@ -16,10 +16,21 @@ type VastManager struct {
 	sshPassword   string
 	sshDir        string
 	sshPrivateKey string
+
+	searchCriteriaProvider SearchCriteriaProvider
 }
 
 // NewVastManager - returns new VastManager instance.
-func NewVastManager(apiSecret, pitbullImage, sshUser, sshPassword, sshDir, sshPrivateKey, rootDir string) *VastManager {
+func NewVastManager(
+	apiSecret,
+	pitbullImage,
+	sshUser,
+	sshPassword,
+	sshDir,
+	sshPrivateKey,
+	rootDir string,
+	searchCriteriaProvider SearchCriteriaProvider,
+) *VastManager {
 	return &VastManager{
 		cli: NewVastCLI(apiSecret, pitbullImage),
 		// cli: NewVastCLIClientMock(rootDir),
@@ -28,6 +39,8 @@ func NewVastManager(apiSecret, pitbullImage, sshUser, sshPassword, sshDir, sshPr
 		sshPassword:   sshPassword,
 		sshDir:        sshDir,
 		sshPrivateKey: sshPrivateKey,
+
+		searchCriteriaProvider: searchCriteriaProvider,
 	}
 }
 
@@ -38,7 +51,9 @@ func (vm *VastManager) CreateInstance() host.HostInstance {
 
 // RunInstance - HostManager implementation.
 func (vm *VastManager) RunInstance() (host.HostInstance, error) {
-	offer, err := vm.cli.GetOfferByCriteria(CheapOfferFilter)
+	searchCriteria := vm.searchCriteriaProvider.GetSearchCriteria()
+
+	offer, err := vm.cli.GetOfferByCriteria(searchCriteria)
 	if err != nil {
 		return nil, err
 	}

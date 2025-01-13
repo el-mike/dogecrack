@@ -131,7 +131,14 @@ export const Settings: React.FC = () => {
               />
             </Grid>
 
-
+            <Grid item xs={4} md={2}>
+              <TextInput
+                type='text'
+                label='Vast search criteria'
+                defaultValue={settingsForm.vastSearchCriteria}
+                onChange={getChangeHandler('vastSearchCriteria', false)}
+              />
+            </Grid>
           </Grid>
         </CardContent>
 

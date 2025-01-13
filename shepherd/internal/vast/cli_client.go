@@ -12,12 +12,6 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/vast/models"
 )
 
-const (
-	// Please note that we need to drop ' signs at the beginning and end -
-	// exec.Command will add them for us.
-	CheapOfferFilter = "dph < 0.3"
-)
-
 // VastCLIClient - facade for vast CLI operations.
 type VastCLIClient struct {
 	apiSecret    string
@@ -112,7 +106,8 @@ func (vc *VastCLIClient) GetOffers(filter string) ([]*models.Offer, error) {
 	vc.Lock()
 	defer vc.Unlock()
 
-	result, err := vc.run("search", "offers", filter)
+	// With "-o dph" we order by the cheapest option.
+	result, err := vc.run("search", "offers", filter, "-o", "dph")
 	if err != nil {
 		return nil, err
 	}

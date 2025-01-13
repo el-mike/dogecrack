@@ -14,4 +14,7 @@ var DefaultAppSettings = &models.AppSettings{
 	// Below values are seconds.
 	CheckHostInterval:    15,
 	CheckPitbullInterval: 30,
+
+	// Seems to yield best result cost-wise.
+	VastInstanceSearchCriteria: "num_gpus=4 dph<2.5",
 }

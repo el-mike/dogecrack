@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/repositories"
 	"github.com/el-mike/dogecrack/shepherd/internal/crack"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 )
@@ -10,7 +11,7 @@ import (
 type GeneralService struct {
 	crackJobRepository        *crack.JobRepository
 	pitbullInstanceRepository *pitbull.InstanceRepository
-	appSettingsRepository     *AppSettingsRepository
+	appSettingsRepository     *repositories.AppSettingsRepository
 }
 
 // NewGeneralService - returns new GeneralService instance.
@@ -18,7 +19,7 @@ func NewGeneralService() *GeneralService {
 	return &GeneralService{
 		crackJobRepository:        crack.NewJobRepository(),
 		pitbullInstanceRepository: pitbull.NewInstanceRepository(),
-		appSettingsRepository:     NewAppSettingsRepository(),
+		appSettingsRepository:     repositories.NewAppSettingsRepository(),
 	}
 }
 

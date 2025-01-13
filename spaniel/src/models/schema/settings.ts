@@ -11,6 +11,7 @@ export type SettingsDto = BaseEntityDto & {
   runningInstancesLimit: number;
   checkHostInterval: number;
   checkPitbullInterval: number;
+  vastSearchCriteria: string;
 };
 
 export type Settings = BaseEntity & SettingsDto;

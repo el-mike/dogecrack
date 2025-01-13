@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"path/filepath"
 
 	"github.com/el-mike/dogecrack/shepherd/database/seeds"
@@ -36,11 +37,11 @@ func main() {
 
 	err = usersSeed.Execute()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	err = appSettingsSeed.Execute()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }

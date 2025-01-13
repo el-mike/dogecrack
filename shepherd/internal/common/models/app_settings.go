@@ -12,6 +12,8 @@ type AppSettings struct {
 
 	CheckHostInterval    int16 `bson:"checkHostInterval" json:"checkHostInterval"`
 	CheckPitbullInterval int16 `bson:"checkPitbullInterval" json:"checkPitbullInterval"`
+
+	VastInstanceSearchCriteria string `bson:"vastSearchCriteria" json:"vastSearchCriteria"`
 }
 
 // NewAppSettings - returns new AppSettings instance.
@@ -47,6 +49,10 @@ func (as *AppSettings) Merge(source *AppSettings) {
 
 	if source.CheckPitbullInterval != 0 {
 		as.CheckPitbullInterval = source.CheckPitbullInterval
+	}
+
+	if source.VastInstanceSearchCriteria != "" {
+		as.VastInstanceSearchCriteria = source.VastInstanceSearchCriteria
 	}
 }
 

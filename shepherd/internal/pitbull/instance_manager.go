@@ -20,11 +20,21 @@ type InstanceManager struct {
 // NewInstanceManager - returns new Shepherd instance.
 func NewInstanceManager() *InstanceManager {
 	appConfig := config.GetAppConfig()
+	searchCriteriaProvider := NewVastSearchCriteriaProvider()
 
 	var hostManager host.HostManager
 
 	if appConfig.HostProvider == vastmodels.ProviderName {
-		vastManager := vast.NewVastManager(appConfig.VastApiSecret, appConfig.PitbullImage, appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, appConfig.SSHPrivateKey, appConfig.RootPath)
+		vastManager := vast.NewVastManager(
+			appConfig.VastApiSecret,
+			appConfig.PitbullImage,
+			appConfig.SSHUser,
+			appConfig.SSHPassword,
+			appConfig.SSHDirPath,
+			appConfig.SSHPrivateKey,
+			appConfig.RootPath,
+			searchCriteriaProvider,
+		)
 		hostManager = host.HostManager(vastManager)
 	}
 
