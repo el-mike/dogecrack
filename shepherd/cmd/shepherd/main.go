@@ -2,15 +2,15 @@ package main
 
 import (
 	"context"
-	"os"
-	"path/filepath"
-	"time"
-
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
+	"github.com/el-mike/dogecrack/shepherd/internal/core"
 	"github.com/el-mike/dogecrack/shepherd/internal/crack"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
+	"os"
+	"path/filepath"
+	"time"
 )
 
 func main() {
@@ -66,6 +66,8 @@ func main() {
 	dispatcher := crack.NewJobDispatcher(instanceManager, runner, 10*time.Second)
 
 	go collector.Start()
+	go dispatcher.Start()
 
-	dispatcher.Start()
+	server := core.NewServer(appConfig.APIPort, appConfig.OriginAllowed)
+	server.Run()
 }

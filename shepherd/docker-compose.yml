@@ -58,5 +58,19 @@ services:
       - mongo
       - redis
 
+  shepherd:
+    container_name: shepherd
+    build:
+      context: .
+      dockerfile: ./cmd/shepherd/Dockerfile
+    ports:
+      - 8080:8080
+    # This env_file will be used, because godotenv does not override env variables by design.
+    env_file:
+      - .env.docker
+    depends_on:
+      - mongo
+      - redis
+
 volumes:
   mongodb_data_container:
