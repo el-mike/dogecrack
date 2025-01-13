@@ -45,14 +45,19 @@ type AppConfig struct {
 
 // NewAppConfig - creates new AppConfig instance and reads values from env.
 func NewAppConfig(rootPath string) (*AppConfig, error) {
-	dotenvFileName := ".env"
-	if strings.ToLower(os.Getenv("APP_ENV")) == "prod" {
-		dotenvFileName = ".prod.env"
-	}
+	// We only want to load .env outside of prod, as prod will have env variables set explicitly.
+	if strings.ToLower(os.Getenv("APP_ENV")) != "prod" {
+		dotenvFileName := ".env"
 
-	if err := godotenv.Load(rootPath + fmt.Sprintf("/%s", dotenvFileName)); err != nil {
-		log.Fatal("Error loading .env file")
-		return nil, err
+		// Allows for using tools locally against prod databases.
+		if strings.ToLower(os.Getenv("USE_PROD_CONFIG")) == "true" {
+			dotenvFileName = ".env.prod"
+		}
+
+		if err := godotenv.Load(rootPath + fmt.Sprintf("/%s", dotenvFileName)); err != nil {
+			log.Fatal("Error loading .env file")
+			return nil, err
+		}
 	}
 
 	config := &AppConfig{}
@@ -77,7 +82,7 @@ func NewAppConfig(rootPath string) (*AppConfig, error) {
 
 	config.MongoConnectionString = os.Getenv("MONGO_CONNECTION_STRING")
 	config.RedisConnectionString = os.Getenv("REDIS_CONNECTION_STRING")
-	
+
 	sessionExpirationMinutesRaw := os.Getenv("SESSION_EXPIRATION_MINUTES")
 
 	sessionExpirationMinutes, err := strconv.Atoi(sessionExpirationMinutesRaw)
