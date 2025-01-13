@@ -32,7 +32,7 @@ func main() {
 		panic(err)
 	}
 
-	mongoClient, err := persist.InitMongo(context.TODO(), appConfig.MongoUser, appConfig.MongoPassword, appConfig.MongoHost, appConfig.MongoPort)
+	mongoClient, err := persist.InitMongo(context.TODO(), appConfig.MongoConnectionString)
 	if err != nil {
 		logger.Err.Println(err)
 		panic(err)
@@ -45,7 +45,7 @@ func main() {
 		}
 	}()
 
-	persist.InitRedis(appConfig.RedisHost, appConfig.RedisPort)
+	persist.InitRedis(appConfig.RedisConnectionString)
 
 	instanceManager := pitbull.NewInstanceManager()
 	jobManager := crack.NewJobManager(instanceManager)

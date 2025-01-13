@@ -27,8 +27,8 @@ func GetDatabase() *mongo.Database {
 }
 
 // InitMongo - inits MongoDB instance connection.
-func InitMongo(ctx context.Context, username, password, host, port string) (*mongo.Client, error) {
-	opts := options.Client().ApplyURI(getURI(username, password, host, port))
+func InitMongo(ctx context.Context, connectionString string) (*mongo.Client, error) {
+	opts := options.Client().ApplyURI(connectionString)
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
@@ -42,8 +42,4 @@ func InitMongo(ctx context.Context, username, password, host, port string) (*mon
 	mongoClient = client
 
 	return client, nil
-}
-
-func getURI(username, password, host, port string) string {
-	return "mongodb://" + username + ":" + password + "@" + host + ":" + port
 }

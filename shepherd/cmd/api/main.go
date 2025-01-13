@@ -38,7 +38,7 @@ func main() {
 		setupFakeVast(appConfig)
 	}
 
-	mongoClient, err := persist.InitMongo(context.TODO(), appConfig.MongoUser, appConfig.MongoPassword, appConfig.MongoHost, appConfig.MongoPort)
+	mongoClient, err := persist.InitMongo(context.TODO(), appConfig.MongoConnectionString)
 	if err != nil {
 		panic(err)
 	}
@@ -49,7 +49,7 @@ func main() {
 		}
 	}()
 
-	persist.InitRedis(appConfig.RedisHost, appConfig.RedisPort)
+	persist.InitRedis(appConfig.RedisConnectionString)
 
 	server := core.NewServer(appConfig.APIPort, appConfig.OriginAllowed)
 	server.Run()

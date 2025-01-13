@@ -2,3 +2,4 @@
 .env.docker
 mongo_playground.mongodb
 .http
+.env.prod

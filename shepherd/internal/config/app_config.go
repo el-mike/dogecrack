@@ -1,9 +1,11 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -33,13 +35,8 @@ type AppConfig struct {
 
 	VastApiSecret string
 
-	MongoUser     string
-	MongoPassword string
-	MongoHost     string
-	MongoPort     string
-
-	RedisHost string
-	RedisPort string
+	MongoConnectionString string
+	RedisConnectionString string
 
 	WalletString string
 
@@ -48,7 +45,12 @@ type AppConfig struct {
 
 // NewAppConfig - creates new AppConfig instance and reads values from env.
 func NewAppConfig(rootPath string) (*AppConfig, error) {
-	if err := godotenv.Load(rootPath + "/.env"); err != nil {
+	dotenvFileName := ".env"
+	if strings.ToLower(os.Getenv("APP_ENV")) == "prod" {
+		dotenvFileName = ".prod.env"
+	}
+
+	if err := godotenv.Load(rootPath + fmt.Sprintf("/%s", dotenvFileName)); err != nil {
 		log.Fatal("Error loading .env file")
 		return nil, err
 	}
@@ -73,14 +75,9 @@ func NewAppConfig(rootPath string) (*AppConfig, error) {
 
 	config.WalletString = os.Getenv("WALLET_STRING")
 
-	config.MongoUser = os.Getenv("MONGO_INITDB_ROOT_USERNAME")
-	config.MongoPassword = os.Getenv("MONGO_INITDB_ROOT_PASSWORD")
-	config.MongoHost = os.Getenv("MONGO_HOST")
-	config.MongoPort = os.Getenv("MONGO_PORT")
-
-	config.RedisHost = os.Getenv("REDIS_HOST")
-	config.RedisPort = os.Getenv("REDIS_PORT")
-
+	config.MongoConnectionString = os.Getenv("MONGO_CONNECTION_STRING")
+	config.RedisConnectionString = os.Getenv("REDIS_CONNECTION_STRING")
+	
 	sessionExpirationMinutesRaw := os.Getenv("SESSION_EXPIRATION_MINUTES")
 
 	sessionExpirationMinutes, err := strconv.Atoi(sessionExpirationMinutesRaw)

@@ -18,7 +18,7 @@ func main() {
 		panic(err)
 	}
 
-	redisClient := persist.InitRedis(appConfig.RedisHost, appConfig.RedisPort)
+	redisClient := persist.InitRedis(appConfig.RedisConnectionString)
 
 	_, err = redisClient.Del(context.TODO(), "waitingQueue").Result()
 	if err != nil {

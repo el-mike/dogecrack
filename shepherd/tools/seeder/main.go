@@ -21,7 +21,7 @@ func main() {
 		panic(err)
 	}
 
-	mongoClient, err := persist.InitMongo(context.TODO(), appConfig.MongoUser, appConfig.MongoPassword, appConfig.MongoHost, appConfig.MongoPort)
+	mongoClient, err := persist.InitMongo(context.TODO(), appConfig.MongoConnectionString)
 	if err != nil {
 		panic(err)
 	}

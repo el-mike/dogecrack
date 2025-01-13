@@ -1,8 +1,6 @@
 package persist
 
 import (
-	"fmt"
-
 	"github.com/go-redis/redis/v8"
 )
 
@@ -14,17 +12,17 @@ func GetRedisClient() *redis.Client {
 }
 
 // InitRedis - inits Redis instance connection.
-func InitRedis(host, port string) *redis.Client {
+func InitRedis(connectionString string) *redis.Client {
 	if redisClient != nil {
 		return redisClient
 	}
 
-	addr := fmt.Sprintf("%s:%s", host, port)
-
-	redisClient = redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: "",
-	})
+	opt, err := redis.ParseURL(connectionString)
+	if err != nil {
+		panic(err)
+	}
+	
+	redisClient = redis.NewClient(opt)
 
 	return redisClient
 }
