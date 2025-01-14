@@ -93,6 +93,8 @@ func (ct *Controller) Login(
 		HttpOnly: true,
 		// Required for cross site.
 		SameSite: 4,
+		// Required for SameSite
+		Secure: true,
 	})
 
 	ct.responseHelper.HandleEmptyResponse(w)
