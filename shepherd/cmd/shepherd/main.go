@@ -63,7 +63,7 @@ func main() {
 	}
 
 	collector := pitbull.NewInstanceCollector(instanceManager, 20*time.Second)
-	dispatcher := crack.NewJobDispatcher(instanceManager, runner, 10*time.Second)
+	dispatcher := crack.NewJobDispatcher(instanceManager, runner, 20*time.Second)
 
 	go collector.Start()
 	go dispatcher.Start()
