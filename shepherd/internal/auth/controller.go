@@ -91,6 +91,8 @@ func (ct *Controller) Login(
 		Path:     "/",
 		Expires:  time.Now().Add(ct.expiration),
 		HttpOnly: true,
+		// Required for cross site.
+		SameSite: 4,
 	})
 
 	ct.responseHelper.HandleEmptyResponse(w)
