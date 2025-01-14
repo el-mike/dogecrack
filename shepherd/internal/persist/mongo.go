@@ -28,7 +28,8 @@ func GetDatabase() *mongo.Database {
 
 // InitMongo - inits MongoDB instance connection.
 func InitMongo(ctx context.Context, connectionString string) (*mongo.Client, error) {
-	opts := options.Client().ApplyURI(connectionString)
+	serverApi := options.ServerAPI(options.ServerAPIVersion1)
+	opts := options.Client().ApplyURI(connectionString).SetServerAPIOptions(serverApi)
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
