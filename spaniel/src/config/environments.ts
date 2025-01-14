@@ -5,5 +5,5 @@ export const localConfig = {
 } as AppConfig;
 
 export const prodConfig = {
-  apiUrl: '',
+  apiUrl: 'https://dogecrack-shepherd-prod-8mxaw.ondigitalocean.app',
 } as AppConfig;

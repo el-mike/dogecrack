@@ -68,6 +68,6 @@ func main() {
 	go collector.Start()
 	go dispatcher.Start()
 
-	server := core.NewServer(appConfig.APIPort, appConfig.OriginAllowed)
+	server := core.NewServer(appConfig.APIPort, appConfig.OriginsAllowed)
 	server.Run()
 }

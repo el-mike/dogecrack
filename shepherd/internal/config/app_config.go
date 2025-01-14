@@ -23,8 +23,8 @@ type AppConfig struct {
 	RootPath     string
 	HostProvider string
 
-	APIPort       string
-	OriginAllowed string
+	APIPort        string
+	OriginsAllowed []string
 
 	SSHUser       string
 	SSHPassword   string
@@ -67,7 +67,9 @@ func NewAppConfig(rootPath string) (*AppConfig, error) {
 	config.HostProvider = os.Getenv("HOST_PROVIDER")
 
 	config.APIPort = os.Getenv("API_PORT")
-	config.OriginAllowed = os.Getenv("ORIGIN_ALLOWED")
+
+	originsAllowedRaw := os.Getenv("ORIGINS_ALLOWED")
+	config.OriginsAllowed = strings.Split(originsAllowedRaw, ",")
 
 	config.SSHUser = os.Getenv("SSH_USER")
 	config.SSHPassword = os.Getenv("SSH_PASSWORD")

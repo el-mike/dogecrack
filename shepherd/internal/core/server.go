@@ -12,13 +12,13 @@ import (
 )
 
 type Server struct {
-	port          string
-	originAllowed string
+	port           string
+	originsAllowed []string
 
 	router *mux.Router
 }
 
-func NewServer(port, originAllowed string) *Server {
+func NewServer(port string, originsAllowed []string) *Server {
 	appController := NewController()
 
 	authController := auth.NewController()
@@ -57,9 +57,9 @@ func NewServer(port, originAllowed string) *Server {
 	http.Handle("/", baseRouter)
 
 	return &Server{
-		port:          port,
-		originAllowed: originAllowed,
-		router:        baseRouter,
+		port:           port,
+		originsAllowed: originsAllowed,
+		router:         baseRouter,
 	}
 }
 
@@ -68,7 +68,7 @@ func (s *Server) Run() {
 	credentials := handlers.AllowCredentials()
 	methods := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"})
 	ttl := handlers.MaxAge(3600)
-	origins := handlers.AllowedOrigins([]string{s.originAllowed})
+	origins := handlers.AllowedOrigins(s.originsAllowed)
 
 	router := handlers.CORS(headers, credentials, methods, origins, ttl)(s.router)
 

@@ -51,7 +51,7 @@ func main() {
 
 	persist.InitRedis(appConfig.RedisConnectionString)
 
-	server := core.NewServer(appConfig.APIPort, appConfig.OriginAllowed)
+	server := core.NewServer(appConfig.APIPort, appConfig.OriginsAllowed)
 	server.Run()
 }
 
