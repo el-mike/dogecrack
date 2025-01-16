@@ -63,7 +63,7 @@ if [[ -n $tokenList ]]; then
     --tokenlist $defaultTokenlistFile --enable-gpu --skip $skipCount" \
     $pipe
 elif [[ -n $passlistFileUrl ]]; then
-  script -f -c "./download_passlist.sh $passlistFileUrl $defaultPasslistFile \
+  script -f -c "./download_passlist.sh '$passlistFileUrl' '$defaultPasslistFile' \
     && python3 ./btcrecover/btcrecover.py --dsw --data-extract-string $walletString \
     --passwordlist $defaultPasslistFile --enable-gpu --skip $skipCount" \
     $pipe
