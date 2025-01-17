@@ -53,14 +53,26 @@ func NewVastSSHClient(user, password, sshDirPath, sshPrivateKey, ipAddress strin
 
 // RunPitbullForPasslist - runs Pitbull process for given passlistUrl and walletString.
 func (vs *VastSSHClient) RunPitbullForPasslist(passlistUrl, walletString string, skipCount int64) (string, error) {
-	// Single quotes around passlistUrl are needed, as it may contain "?" characters that bash can interpret as a part of regex.
-	return vs.run("pitbull run -u '" + passlistUrl + "' -w " + walletString + vs.getSkipArg(skipCount))
+	// Single quotes are needed, as it may contain "?" characters that bash can interpret as a part of regex.
+	passlistUrlArg := fmt.Sprintf("-u '%s'", passlistUrl)
+
+	cmd := fmt.Sprintf("pitbull run %s %s %s", passlistUrlArg, vs.getWalletStringArg(walletString), vs.getSkipArg(skipCount))
+	return vs.run(cmd)
 }
 
 // RunPitbullForTokenlist - runs Pitbull process for given tokenlist and walletString.
 func (vs *VastSSHClient) RunPitbullForTokenlist(tokenlist, walletString string, skipCount int64) (string, error) {
-	// Single quotes around tokenlist are needed, as it may contain whitespaces and characters like "?".
-	return vs.run("pitbull run -t '" + tokenlist + "' -w " + walletString + vs.getSkipArg(skipCount))
+	// Single quotes are needed, as it may contain whitespaces and characters like "?".
+	tokenlistArg := fmt.Sprintf("-t '%s'", tokenlist)
+
+	cmd := fmt.Sprintf("pitbull run %s %s %s", tokenlistArg, vs.getWalletStringArg(walletString), vs.getSkipArg(skipCount))
+	return vs.run(cmd)
+}
+
+// getWalletStringArg - returns walletString argument for Pitbull.
+func (vs *VastSSHClient) getWalletStringArg(walletString string) string {
+	// Single quotes are needed, as it may contain "?" characters that bash can interpret as a part of regex.
+	return fmt.Sprintf("-w '%s'", walletString)
 }
 
 // getSkipArg - returns skipCount argument for Pitbull.
@@ -69,7 +81,7 @@ func (vs *VastSSHClient) getSkipArg(skipCount int64) string {
 		return ""
 	}
 
-	return fmt.Sprintf(" -s %d", skipCount)
+	return fmt.Sprintf("-s %d", skipCount)
 }
 
 // GetPitbullStatus - runs Pitbull's status command and returns the output.
