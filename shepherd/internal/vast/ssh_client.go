@@ -53,7 +53,7 @@ func NewVastSSHClient(user, password, sshDirPath, sshPrivateKey, ipAddress strin
 
 // RunPitbullForPasslist - runs Pitbull process for given passlistUrl and walletString.
 func (vs *VastSSHClient) RunPitbullForPasslist(passlistUrl, walletString string, skipCount int64) (string, error) {
-	return vs.run("pitbull run -u " + passlistUrl + " -w " + walletString + vs.getSkipArg(skipCount))
+	return vs.run("pitbull run -u '" + passlistUrl + "' -w " + walletString + vs.getSkipArg(skipCount))
 }
 
 // RunPitbullForTokenlist - runs Pitbull process for given tokenlist and walletString.
@@ -114,6 +114,7 @@ func (vs *VastSSHClient) close() error {
 }
 
 func (vs *VastSSHClient) run(cmd string) (string, error) {
+
 	if err := vs.connect(); err != nil {
 		return "", err
 	}
