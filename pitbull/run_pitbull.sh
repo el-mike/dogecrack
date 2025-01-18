@@ -16,21 +16,46 @@ cd $dirname
 
 source ./variables.sh
 
-while getopts t:f:u:w:s: flag
-do
-    case "${flag}" in
-        t) tokenList=${OPTARG};;
-        f) passlistFile=${OPTARG};;
-        u) passlistFileUrl=${OPTARG};;
-        w) walletString=${OPTARG};;
-        s) skipCount=${OPTARG};;
-    esac
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -t)
+      tokenList=$2
+      # We need to shift twice for both arg name and value
+      shift
+      shift;; # end of case
+    -f)
+      passlistFile=$2
+      shift
+      shift;;
+    -u)
+      passlistFileUrl=$2
+      shift
+      shift;;
+    -w)
+      walletString=$2
+      shift
+      shift;;
+    --skip)
+      skipCount=$2
+      shift
+      shift;;
+    --length-min)
+      lengthMin=$2
+      shift
+      shift;;
+    --length-max)
+      lengthMax=$2
+      shift
+      shift;;
+    # --no-tmux is handled in the main script, but it's passed down here - it can be safely ignored.
+    # it also doesn't take a value, so we only shift once.
+    --no-tmux)
+      shift;;
+    -*|--*)
+      echo "Unknown option: $1"
+      exit 1
+  esac
 done
-
-# If not set, skipCount will be set to 0, making btcrecover ignore the argument altogether.
-if [[ -z $skipCount ]]; then
-  skipCount='0'
-fi
 
 if [[ -z $walletString ]]; then
   echo "Wallet string missing"
@@ -41,6 +66,26 @@ if [[ -z tokenList ]] && [[ -z passlistFile ]] && [[ -z passlistFileUrl ]]; then
   echo "Passlist source missing"
   exit 1
 fi
+
+skipArg=''
+lengthMinArg=''
+lengthMaxArg=''
+
+# If not empty, build an argument.
+# Note that dynamic arguments include a single space at the beginning, as to not add unnecessarily padding when absent.
+if [[ ! -z $skipCount ]]; then
+  skipArg=" --skip $skipCount"
+fi
+
+if [[ ! -z $lengthMin ]]; then
+  lengthMinArg=" --length-min $lengthMin"
+fi
+
+if [[ ! -z $lengthMax ]]; then
+  lengthMaxArg=" --length-max $lengthMax"
+fi
+
+dynamicArgs="$skipArg$lengthMinArg$lengthMaxArg"
 
 # Output capture setup.
 # If pipe exists, remove it - it ensures that no other agent is
@@ -60,16 +105,16 @@ if [[ -n $tokenList ]]; then
   echo -e "$tokenList" > "$defaultTokenlistFile"
 
   script -f -c "python3 ./btcrecover/btcrecover.py --dsw --data-extract-string $walletString \
-    --tokenlist $defaultTokenlistFile --enable-gpu --skip $skipCount" \
+    --tokenlist $defaultTokenlistFile --enable-gpu$dynamicArgs" \
     $pipe
 elif [[ -n $passlistFileUrl ]]; then
   script -f -c "./download_passlist.sh '$passlistFileUrl' '$defaultPasslistFile' \
     && python3 ./btcrecover/btcrecover.py --dsw --data-extract-string $walletString \
-    --passwordlist $defaultPasslistFile --enable-gpu --skip $skipCount" \
+    --passwordlist $defaultPasslistFile --enable-gpu$dynamicArgs" \
     $pipe
 elif [[ -n $passlistFile ]]; then
   script -f -c "python3 ./btcrecover/btcrecover.py --dsw --data-extract-string $walletString \
-    --passwordlist $passlistFile --enable-gpu --skip $skipCount" \
+    --passwordlist $passlistFile --enable-gpu$dynamicArgs" \
     $pipe
 else
   echo "Incorrect parameters"

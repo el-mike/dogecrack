@@ -57,14 +57,7 @@ elif [[ "$command" == "$runCommand"  ]]; then
   # it one place to get the optional params properly.
   shift 1
 
-  while getopts t:f:u:w:s:a flag
-  do
-      case "${flag}" in
-          a) attached='true';;
-      esac
-  done
-
-  if [[ ! -z $attached ]]; then
+  if [[ $* == *--no-tmux* ]]; then
     ./run_pitbull.sh "$@" 2>> $errLogFile
   else
     tmux new-session -d -s "pitbull" ./run_pitbull.sh "$@" 2>> $errLogFile

@@ -25,9 +25,9 @@ pitbull <command> [<args>]
 Sections below describes available commands.
 ### Running
 ```bash
-pitbull run [-t <token-list>] [-f <passlist-file-path>] [-u <passlist-file-url>] [-w <wallet-string>] [-s <skip-count>]
+pitbull run [-t <token-list>] [-f <passlist-file-path>] [-u <passlist-file-url>] [-w <wallet-string>] [--skip <skip-count>] [--length-min <number>] [--length-max <number>]
 # Examples:
-pitbull run -t '%a%warsaw%d\n%a%acracow%a' -w myExampleWalletExtractString -s 10000
+pitbull run -t '%a%warsaw%d\n%a%acracow%a' -w myExampleWalletExtractString --skip 10000
 pitbull run -f ./my-passlist.txt -w myExampleWalletExtractString
 pitbull run -u https://my-file-storage.com/myFileId -w myExampleWalletExtractString
 ```
@@ -36,7 +36,9 @@ When used with `-f` flag, runs btcrecover for `myExampleWalletExtractString` wit
 
 When used with `-u` flag, downloads given file (in directory that holds `pitbull.sh` file, under `passlist.txt` name), and runs btcrecover for `myExampleWalletExtractString`.
 
-Using `-s` provides an option to skip certain amount of passwords (helpful when a run was interrupted, and we don't want to start from scratch and loose progress on already tested passwords).
+Using `--skip` provides an option to skip certain amount of passwords (helpful when a run was interrupted, and we don't want to start from scratch and loose progress on already tested passwords).
+
+Using `--length-min` and `--length-max` allows to skip passwords that are shorter or longer than provided values. Please note that the passwords will still be counted, they will be simply skipped from testing.
 
 Pitbull runs a new terminal session with tmux, under the name "pitbull". Because of that, you can safely close the terminal session you started the Pitbull in (including logging out from SSH), and the process will continue to run without interruption. 
 You can easily re-attach to pitbull session with:
@@ -45,7 +47,7 @@ tmux a -t "pitbull"
 ```
 To see the live progress. You can also use [Attach](#attach) command described below.
 
-You can also use `-a` flag, to run it in your current terminal directly - this should be used for debugging only.
+You can also use `--no-tmux` flag, to run it in your current terminal directly - this should be used for debugging only.
 
 Btcrecover's output is continuously written to `progress_view.txt` file (including loading indicators). Refer to [Output](#output) to see how you can access it.
 
