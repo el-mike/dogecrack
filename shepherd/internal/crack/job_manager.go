@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/repositories"
 	"github.com/el-mike/dogecrack/shepherd/internal/generator"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 	"os"
@@ -11,8 +12,9 @@ import (
 
 // JobManager - simple facade for operations on PitbullJobs.
 type JobManager struct {
-	instanceManager       *pitbull.InstanceManager
+	appSettingsRepository *repositories.AppSettingsRepository
 	jobRepository         *JobRepository
+	instanceManager       *pitbull.InstanceManager
 	jobQueue              *JobQueue
 	tokenGeneratorFactory *generator.TokenGeneratorFactory
 
@@ -22,8 +24,9 @@ type JobManager struct {
 // NewJobManager - returns new JobService instance.
 func NewJobManager(instanceManager *pitbull.InstanceManager) *JobManager {
 	return &JobManager{
-		instanceManager:       instanceManager,
+		appSettingsRepository: repositories.NewAppSettingsRepository(),
 		jobRepository:         NewJobRepository(),
+		instanceManager:       instanceManager,
 		jobQueue:              NewJobQueue(),
 		tokenGeneratorFactory: generator.NewTokenGeneratorFactory(),
 
@@ -101,10 +104,23 @@ func (jm *JobManager) CreateJob(walletString string, payload *models.CrackPayloa
 
 // AssignInstance - creates a PitbullInstance and assigns it to passed CrackJob.
 func (jm *JobManager) AssignInstance(job *models.CrackJob, previousInstance *models.PitbullInstance) (*models.CrackJob, error) {
+	appSettings, err := jm.appSettingsRepository.GetAppSettings()
+	if err != nil {
+		return nil, err
+	}
+
 	runPayload := &models.PitbullRunPayload{
 		WalletString: job.WalletString,
 		Tokenlist:    job.GetTokenlist(),
 		PasslistUrl:  job.PasslistUrl,
+	}
+
+	if appSettings.MinPasswordLength > 0 {
+		runPayload.MinLength = appSettings.MinPasswordLength
+	}
+
+	if appSettings.MaxPasswordLength > 0 {
+		runPayload.MaxLength = appSettings.MaxPasswordLength
 	}
 
 	if previousInstance != nil {

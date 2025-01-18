@@ -40,7 +40,10 @@ type PitbullRunPayload struct {
 	WalletString string `bson:"walletString" json:"walletString"`
 	Tokenlist    string `bson:"tokenlist" json:"tokenlist"`
 	PasslistUrl  string `bson:"passlistUrl" json:"passlistUrl"`
-	SkipCount    int64  `bson:"skipCount" json:"skipCount"`
+
+	SkipCount int64 `bson:"skipCount" json:"skipCount"`
+	MinLength int64 `bson:"minLength" json:"minLength"`
+	MaxLength int64 `bson:"maxLength" json:"maxLength"`
 }
 
 // PitbullInstance - an abstract representation of Pitbull process running on some host machine.

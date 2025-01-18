@@ -14,6 +14,9 @@ type AppSettings struct {
 	CheckPitbullInterval int16 `bson:"checkPitbullInterval" json:"checkPitbullInterval"`
 
 	VastInstanceSearchCriteria string `bson:"vastSearchCriteria" json:"vastSearchCriteria"`
+
+	MinPasswordLength int64 `bson:"minPasswordLength" json:"minPasswordLength"`
+	MaxPasswordLength int64 `bson:"maxPasswordLength" json:"maxPasswordLength"`
 }
 
 // NewAppSettings - returns new AppSettings instance.
@@ -53,6 +56,14 @@ func (as *AppSettings) Merge(source *AppSettings) {
 
 	if source.VastInstanceSearchCriteria != "" {
 		as.VastInstanceSearchCriteria = source.VastInstanceSearchCriteria
+	}
+
+	if source.MinPasswordLength != 0 {
+		as.MinPasswordLength = source.MinPasswordLength
+	}
+
+	if source.MaxPasswordLength != 0 {
+		as.MaxPasswordLength = source.MaxPasswordLength
 	}
 }
 

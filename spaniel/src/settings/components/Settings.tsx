@@ -139,6 +139,24 @@ export const Settings: React.FC = () => {
                 onChange={getChangeHandler('vastSearchCriteria', false)}
               />
             </Grid>
+
+            <Grid item xs={4} md={2}>
+              <TextInput
+                type='number'
+                label='Min password length'
+                defaultValue={settingsForm.minPasswordLength}
+                onChange={getChangeHandler('minPasswordLength')}
+              />
+            </Grid>
+
+            <Grid item xs={4} md={2}>
+              <TextInput
+                type='number'
+                label='Max password length'
+                defaultValue={settingsForm.maxPasswordLength}
+                onChange={getChangeHandler('maxPasswordLength')}
+              />
+            </Grid>
           </Grid>
         </CardContent>
 

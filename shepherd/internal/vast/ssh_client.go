@@ -3,6 +3,7 @@ package vast
 import (
 	"bufio"
 	"fmt"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/pitbull_helpers"
 	"os"
 	"strings"
 
@@ -52,36 +53,15 @@ func NewVastSSHClient(user, password, sshDirPath, sshPrivateKey, ipAddress strin
 }
 
 // RunPitbullForPasslist - runs Pitbull process for given passlistUrl and walletString.
-func (vs *VastSSHClient) RunPitbullForPasslist(passlistUrl, walletString string, skipCount int64) (string, error) {
-	// Single quotes are needed, as it may contain "?" characters that bash can interpret as a part of regex.
-	passlistUrlArg := fmt.Sprintf("-u '%s'", passlistUrl)
-
-	cmd := fmt.Sprintf("pitbull run %s %s %s", passlistUrlArg, vs.getWalletStringArg(walletString), vs.getSkipArg(skipCount))
+func (vs *VastSSHClient) RunPitbullForPasslist(walletString, passlistUrl string, skipCount, minLength, maxLength int64) (string, error) {
+	cmd := pitbull_helpers.BuildRunCommand(walletString, passlistUrl, "", skipCount, minLength, maxLength)
 	return vs.run(cmd)
 }
 
 // RunPitbullForTokenlist - runs Pitbull process for given tokenlist and walletString.
-func (vs *VastSSHClient) RunPitbullForTokenlist(tokenlist, walletString string, skipCount int64) (string, error) {
-	// Single quotes are needed, as it may contain whitespaces and characters like "?".
-	tokenlistArg := fmt.Sprintf("-t '%s'", tokenlist)
-
-	cmd := fmt.Sprintf("pitbull run %s %s %s", tokenlistArg, vs.getWalletStringArg(walletString), vs.getSkipArg(skipCount))
+func (vs *VastSSHClient) RunPitbullForTokenlist(walletString, tokenlist string, skipCount, minLength, maxLength int64) (string, error) {
+	cmd := pitbull_helpers.BuildRunCommand(walletString, "", tokenlist, skipCount, minLength, maxLength)
 	return vs.run(cmd)
-}
-
-// getWalletStringArg - returns walletString argument for Pitbull.
-func (vs *VastSSHClient) getWalletStringArg(walletString string) string {
-	// Single quotes are needed, as it may contain "?" characters that bash can interpret as a part of regex.
-	return fmt.Sprintf("-w '%s'", walletString)
-}
-
-// getSkipArg - returns skipCount argument for Pitbull.
-func (vs *VastSSHClient) getSkipArg(skipCount int64) string {
-	if skipCount == 0 {
-		return ""
-	}
-
-	return fmt.Sprintf("-s %d", skipCount)
 }
 
 // GetPitbullStatus - runs Pitbull's status command and returns the output.

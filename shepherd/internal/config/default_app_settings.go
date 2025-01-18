@@ -17,4 +17,7 @@ var DefaultAppSettings = &models.AppSettings{
 
 	// Seems to yield best result cost-wise.
 	VastInstanceSearchCriteria: "num_gpus=4 dph<2.5",
+
+	MinPasswordLength: 0,
+	MaxPasswordLength: 18,
 }

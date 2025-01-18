@@ -12,6 +12,8 @@ export type SettingsDto = BaseEntityDto & {
   checkHostInterval: number;
   checkPitbullInterval: number;
   vastSearchCriteria: string;
+  minPasswordLength: number;
+  maxPasswordLength: number;
 };
 
 export type Settings = BaseEntity & SettingsDto;

@@ -202,6 +202,8 @@ func (im *InstanceManager) RunPitbull(id string) (*models.PitbullInstance, error
 			instance.RunPayload.WalletString,
 			instance.RunPayload.Tokenlist,
 			instance.RunPayload.SkipCount,
+			instance.RunPayload.MinLength,
+			instance.RunPayload.MaxLength,
 		); err != nil {
 			return nil, err
 		}
@@ -213,6 +215,8 @@ func (im *InstanceManager) RunPitbull(id string) (*models.PitbullInstance, error
 			instance.RunPayload.WalletString,
 			instance.RunPayload.PasslistUrl,
 			instance.RunPayload.SkipCount,
+			instance.RunPayload.MinLength,
+			instance.RunPayload.MaxLength,
 		); err != nil {
 			return nil, err
 		}
