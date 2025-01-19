@@ -39,10 +39,10 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
   const { enums, latestTokenGeneratorVersion } = useGeneralContext();
 
   const [payload, setPayload] = useState<RunCrackJobPayload>({
-    keyword: '',
+    keywords: [],
     passlistUrl: '',
     name: '',
-    tokens: [],
+    tokenlist: '',
     tokenGeneratorVersion: latestTokenGeneratorVersion,
   });
 
@@ -50,11 +50,15 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
     ...getEnumAsInputOptions(enums.tokenGeneratorVersion),
   ];
 
-  const handleKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+  const handleKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target?.value;
+
     setPayload((prev) => ({
       ...prev,
-      keyword: event.target?.value || '',
+      keywords: value ? value.split('\n') : [],
     }));
+  };
+
 
   const handlePasslistUrlChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setPayload((prev) => ({
@@ -71,7 +75,7 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
   const handleTokenlistChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setPayload((prev) => ({
       ...prev,
-      tokens: (event.target?.value || '').split('\n') || [],
+      tokenlist: event.target?.value || '',
     }));
 
   const handleTokenGeneratorVersionChange = (event: SelectChangeEvent<unknown>) =>
@@ -83,10 +87,10 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
   const handleRun = () => {
     run(payload);
     setPayload({
-      keyword: '',
+      keywords: [],
       passlistUrl: '',
       name: '',
-      tokens: [],
+      tokenlist:'',
       tokenGeneratorVersion: latestTokenGeneratorVersion,
     });
   };
@@ -123,12 +127,13 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
               onChange={handleTokenGeneratorVersionChange}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12}>
             <TextInput
-              label='Keyword'
-              value={payload.keyword}
+              label='Keywords (newline-separated)'
+              multiline
+              value={payload.keywords?.join('\n')}
               onChange={handleKeywordChange}
-              disabled={!!payload.passlistUrl || !!payload.tokens?.length}
+              disabled={!!payload.passlistUrl || !!payload.tokenlist}
             />
           </Grid>
         </Grid>
@@ -143,7 +148,7 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
               label='Passlist URL'
               value={payload.passlistUrl}
               onChange={handlePasslistUrlChange}
-              disabled={!!payload.keyword || !!payload.tokens?.length}
+              disabled={!!payload.keywords?.length || !!payload.tokenlist}
             />
           </Grid>
         </Grid>
@@ -156,10 +161,10 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
           <Grid item xs={12}>
             <TextInput
               label='Tokenlist'
-              value={payload.tokens?.join('\n')}
+              value={payload.tokenlist}
               onChange={handleTokenlistChange}
               multiline
-              disabled={!!payload.keyword || !!payload.passlistUrl}
+              disabled={!!payload.keywords?.length || !!payload.passlistUrl}
             />
           </Grid>
         </Grid>

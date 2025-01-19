@@ -209,7 +209,7 @@ func (jr *JobRepository) GetAll(payload *models.CrackJobsListPayload) ([]*models
 	return jobs, paged.PageInfo.Total, nil
 }
 
-// Create - saves a new PitbullJob to the DB.
+// Create - saves a new CrackJob to the DB.
 func (jr *JobRepository) Create(job *models.CrackJob) error {
 	collection := jr.db.Collection(JobsCollection)
 
@@ -226,7 +226,31 @@ func (jr *JobRepository) Create(job *models.CrackJob) error {
 	return nil
 }
 
-// Update - updates given PitbullJob in the DB.
+// CreateMany - saves many CrackJob objects to the DB.
+func (jr *JobRepository) CreateMany(jobs []*models.CrackJob) error {
+	collection := jr.db.Collection(JobsCollection)
+
+	var documents []interface{}
+	for _, job := range jobs {
+		job.CreatedAt = models.NullableTimeNow()
+		job.UpdatedAt = models.NullableTimeNow()
+
+		documents = append(documents, job)
+	}
+
+	result, err := collection.InsertMany(context.TODO(), documents)
+	if err != nil {
+		return err
+	}
+
+	for i, job := range jobs {
+		job.ID = result.InsertedIDs[i].(primitive.ObjectID)
+	}
+
+	return nil
+}
+
+// Update - updates given CrackJob in the DB.
 func (jr *JobRepository) Update(job *models.CrackJob) error {
 	collection := jr.db.Collection(JobsCollection)
 

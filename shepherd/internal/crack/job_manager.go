@@ -8,6 +8,7 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/generator"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 	"os"
+	"strings"
 )
 
 // JobManager - simple facade for operations on PitbullJobs.
@@ -34,12 +35,18 @@ func NewJobManager(instanceManager *pitbull.InstanceManager) *JobManager {
 	}
 }
 
-func (jm *JobManager) ScheduleJob(job *models.CrackJob) error {
-	if err := jm.jobQueue.Enqueue(job.ID.Hex()); err != nil {
+func (jm *JobManager) ScheduleJobs(jobs []*models.CrackJob) error {
+	var jobIds []string
+
+	for _, job := range jobs {
+		jobIds = append(jobIds, job.ID.Hex())
+	}
+
+	if err := jm.jobQueue.Enqueue(jobIds...); err != nil {
 		return err
 	}
 
-	jm.logger.Info.Printf("job '%s' scheduled\n", job.ID.Hex())
+	jm.logger.Info.Printf("jobs: '%s' scheduled\n", strings.Join(jobIds, ", "))
 
 	return nil
 }
@@ -54,25 +61,35 @@ func (jm *JobManager) GetJob(jobId string) (*models.CrackJob, error) {
 	return jm.jobRepository.GetById(jobId)
 }
 
-func (jm *JobManager) CreateJob(walletString string, payload *models.CrackPayload, scheduleRun bool) (*models.CrackJob, error) {
+func (jm *JobManager) getBaseJob(walletString, name string) *models.CrackJob {
 	job := models.NewCrackJob(walletString)
 
 	job.FirstScheduledAt = models.NullableTimeNow()
 	job.LastScheduledAt = models.NullableTimeNow()
 
-	if payload.Name != "" {
-		job.Name = payload.Name
+	if name != "" {
+		job.Name = name
 	}
 
-	if len(payload.Tokens) > 0 {
-		job.Tokens = payload.Tokens
-	}
+	return job
+}
 
-	if job.Tokens == nil && payload.Keyword != "" {
+func (jm *JobManager) CreateJobsForKeywords(
+	walletString,
+	name string,
+	keywords []string,
+	tokenGeneratorVersion models.TokenGeneratorVersionEnum,
+	scheduleRun bool,
+) ([]*models.CrackJob, error) {
+	var jobs []*models.CrackJob
+
+	for _, keyword := range keywords {
+		job := jm.getBaseJob(walletString, name)
+
 		generatorVersion := models.LatestTokenGeneratorVersion
 
-		if payload.TokenGeneratorVersion != 0 {
-			generatorVersion = payload.TokenGeneratorVersion
+		if tokenGeneratorVersion != 0 {
+			generatorVersion = tokenGeneratorVersion
 		}
 
 		tokenGenerator, err := jm.tokenGeneratorFactory.CreateGenerator(generatorVersion)
@@ -80,26 +97,87 @@ func (jm *JobManager) CreateJob(walletString string, payload *models.CrackPayloa
 			return nil, err
 		}
 
-		job.Keyword = payload.Keyword
-		job.Tokens = tokenGenerator.Generate(payload.Keyword)
+		job.Keyword = keyword
+		job.Tokenlist = tokenGenerator.Generate(keyword)
 		job.TokenGeneratorVersion = generatorVersion
+
+		jobs = append(jobs, job)
 	}
 
-	if job.Tokens == nil && job.Keyword == "" {
-		job.PasslistUrl = payload.PasslistUrl
+	if err := jm.jobRepository.CreateMany(jobs); err != nil {
+		return nil, err
 	}
+
+	if scheduleRun {
+		if err := jm.ScheduleJobs(jobs); err != nil {
+			return nil, err
+		}
+	}
+
+	return jobs, nil
+}
+
+func (jm *JobManager) CreateJobForTokenlist(walletString, name, tokenlist string, scheduleRun bool) (*models.CrackJob, error) {
+	job := jm.getBaseJob(walletString, name)
+
+	job.Tokenlist = tokenlist
 
 	if err := jm.jobRepository.Create(job); err != nil {
 		return nil, err
 	}
 
 	if scheduleRun {
-		if err := jm.ScheduleJob(job); err != nil {
+		if err := jm.ScheduleJobs([]*models.CrackJob{job}); err != nil {
 			return nil, err
 		}
 	}
 
 	return job, nil
+}
+
+func (jm *JobManager) CreateJobForPasslist(walletString, name, passlistUrl string, scheduleRun bool) (*models.CrackJob, error) {
+	job := jm.getBaseJob(walletString, name)
+
+	job.PasslistUrl = passlistUrl
+
+	if err := jm.jobRepository.Create(job); err != nil {
+		return nil, err
+	}
+
+	if scheduleRun {
+		if err := jm.ScheduleJobs([]*models.CrackJob{job}); err != nil {
+			return nil, err
+		}
+	}
+
+	return job, nil
+}
+
+func (jm *JobManager) HandleJobCreation(walletString string, payload *models.CrackPayload, scheduleRun bool) ([]*models.CrackJob, error) {
+	if len(payload.Keywords) > 0 {
+		return jm.CreateJobsForKeywords(walletString, payload.Name, payload.Keywords, payload.TokenGeneratorVersion, scheduleRun)
+	}
+
+	if payload.PasslistUrl != "" {
+		job, err := jm.CreateJobForPasslist(walletString, payload.Name, payload.PasslistUrl, scheduleRun)
+		if err != nil {
+			return nil, err
+		}
+
+		return []*models.CrackJob{job}, nil
+	}
+
+	// If payload.Keywords field was empty, it means job was run with explicit tokenlist.
+	if payload.Tokenlist != "" {
+		job, err := jm.CreateJobForTokenlist(walletString, payload.Name, payload.Tokenlist, scheduleRun)
+		if err != nil {
+			return nil, err
+		}
+
+		return []*models.CrackJob{job}, nil
+	}
+
+	return nil, fmt.Errorf("no keywords, passlistUrl or tokenlist provided")
 }
 
 // AssignInstance - creates a PitbullInstance and assigns it to passed CrackJob.
@@ -111,7 +189,7 @@ func (jm *JobManager) AssignInstance(job *models.CrackJob, previousInstance *mod
 
 	runPayload := &models.PitbullRunPayload{
 		WalletString: job.WalletString,
-		Tokenlist:    job.GetTokenlist(),
+		Tokenlist:    job.Tokenlist,
 		PasslistUrl:  job.PasslistUrl,
 	}
 
@@ -287,12 +365,17 @@ func (jm *JobManager) RecreateJob(jobId string, scheduleRun bool) (*models.Crack
 	}
 
 	// If original's job Keyword is not empty, it means it was used to create the job.
-	// Otherwise, Tokens were used directly.
+	// Otherwise, Tokenlist was used explicitly.
 	if job.Keyword != "" {
-		payload.Keyword = job.Keyword
+		payload.Keywords = []string{job.Keyword}
 	} else {
-		payload.Tokens = job.Tokens
+		payload.Tokenlist = job.Tokenlist
 	}
 
-	return jm.CreateJob(job.WalletString, payload, scheduleRun)
+	result, err := jm.HandleJobCreation(job.WalletString, payload, scheduleRun)
+	if err != nil {
+		return nil, err
+	}
+
+	return result[0], nil
 }

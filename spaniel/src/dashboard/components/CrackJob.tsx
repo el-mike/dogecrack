@@ -83,7 +83,7 @@ export const CrackJob: React.FC<CrackJobProps> = props => {
       <CrackJobInfo job={job} />
       <PitbullHostInfo instance={instance} />
       <PitbullOutput output={pitbull?.lastOutput || ''} />
-      {!!job.tokens?.length && <CrackJobTokens job={job} />}
+      {!!job.tokenlist && <CrackJobTokens job={job} />}
       <CrackJobErrorLog errorLog={job?.errorLog || ''} />
     </Paper>
   );

@@ -79,7 +79,7 @@ export const CrackJobsProvider: React.FC = props => {
     crackJobService.runJob(payload)
       .then(() => {
         notify({
-          message: 'Job has been run',
+          message: 'Jobs has been run',
           variant: NotificationVariant.SUCCESS,
         });
       })

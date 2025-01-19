@@ -39,8 +39,7 @@ func NewController() *Controller {
 	}
 }
 
-// Crack - runs single cracking run, based on given basePassword and rules.
-// It runs password generation and schedules Pitbull instance spin up and monitoring.
+// Crack - runs a single CrackJob, based on given CrackPayload.
 func (ct *Controller) Crack(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -52,18 +51,18 @@ func (ct *Controller) Crack(
 		return
 	}
 
-	if payload.Keyword == "" && payload.PasslistUrl == "" && len(payload.Tokens) == 0 {
-		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("keyword, passlistUrl or tokens must be provided"))
+	if len(payload.Keywords) == 0 && payload.PasslistUrl == "" && payload.Tokenlist == "" {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("keyword, passlistUrl or tokenlist must be provided"))
 		return
 	}
 
-	job, err := ct.jobManager.CreateJob(ct.appConfig.WalletString, payload, true)
+	jobs, err := ct.jobManager.HandleJobCreation(ct.appConfig.WalletString, payload, true)
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	response, err := json.Marshal(job)
+	response, err := json.Marshal(jobs)
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return

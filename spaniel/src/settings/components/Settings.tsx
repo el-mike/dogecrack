@@ -22,6 +22,7 @@ import {
   CardHeader,
   TextInput,
   Button,
+  Spacer,
 } from 'common/components';
 
 import { useSettingsContext } from '../settings.context';
@@ -130,8 +131,14 @@ export const Settings: React.FC = () => {
                 onChange={getChangeHandler('checkPitbullInterval')}
               />
             </Grid>
+          </Grid>
 
-            <Grid item xs={4} md={2}>
+            <Spacer mb={2} />
+            <Divider />
+            <Spacer mb={2} />
+
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
               <TextInput
                 type='text'
                 label='Vast search criteria'
@@ -139,7 +146,13 @@ export const Settings: React.FC = () => {
                 onChange={getChangeHandler('vastSearchCriteria', false)}
               />
             </Grid>
+          </Grid>
 
+          <Spacer mb={2} />
+          <Divider />
+          <Spacer mb={2} />
+
+          <Grid container spacing={2}>
             <Grid item xs={4} md={2}>
               <TextInput
                 type='number'

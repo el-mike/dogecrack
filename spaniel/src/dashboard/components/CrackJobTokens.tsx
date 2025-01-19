@@ -16,11 +16,9 @@ const TerminalWindow = styled(AccordionDetails)`
 export const CrackJobTokens: React.FC<CrackJobTokensProps> = props => {
   const { job } = props;
 
-  const content = (job.tokens || []).join('\n');
-
   return (
-    <Accordion title='Tokens' detailsComponent={TerminalWindow}>
-      <Terminal content={content} />
+    <Accordion title='Tokenlist' detailsComponent={TerminalWindow}>
+      <Terminal content={job.tokenlist || ''} />
     </Accordion>
   );
 };

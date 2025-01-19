@@ -15,7 +15,7 @@ export type CrackJobDto = BaseEntityDto & {
   name?: string;
   keyword?: string;
   passlistUrl?: string;
-  tokens?: string[];
+  tokenlist?: string;
   tokenGeneratorVersion?: number;
 
   status: number;
@@ -51,8 +51,8 @@ export type CrackJobsFilters = Partial<{
 
 export type RunCrackJobPayload = Partial<{
   name: string;
-  keyword: string;
-  tokens: string[];
+  keywords: string[];
+  tokenlist: string;
   passlistUrl: string;
   tokenGeneratorVersion: number;
 }>;

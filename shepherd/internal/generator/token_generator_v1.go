@@ -49,7 +49,7 @@ func NewTokenGeneratorV1() *TokenGeneratorV1 {
 }
 
 // Generate - generates list of tokens for btcrecover to use. At least one token is created each time.
-func (tg *TokenGeneratorV1) Generate(keyword string) []string {
+func (tg *TokenGeneratorV1) Generate(keyword string) string {
 	currentToken := ""
 
 	for _, prefix := range tg.ruleset.prefixes {
@@ -71,7 +71,7 @@ func (tg *TokenGeneratorV1) Generate(keyword string) []string {
 		currentToken += wildcard
 	}
 
-	return []string{currentToken}
+	return currentToken
 }
 
 func (tg *TokenGeneratorV1) getWildCardFromRule(rule *BaseTokenRule) string {

@@ -40,8 +40,8 @@ export class CrackJobService {
     const url = this.apiClient.buildUrl(CrackJobService.URLS.crack);
 
     return this.apiClient
-      .post<CrackJobDto>(url, payload)
-      .then(response => mapCrackJob(response.data));
+      .post<CrackJobDto[]>(url, payload)
+      .then(response => response.data.map(job => mapCrackJob(job)));
   }
 
   public cancelJob(payload: CancelCrackJobPayload) {

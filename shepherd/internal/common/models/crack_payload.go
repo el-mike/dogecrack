@@ -4,8 +4,8 @@ package models
 // cracking process.
 type CrackPayload struct {
 	Name                  string                    `json:"name"`
-	Keyword               string                    `json:"keyword"`
-	Tokens                []string                  `json:"tokens"`
+	Keywords              []string                  `json:"keywords"`
+	Tokenlist             string                    `json:"tokenlist"`
 	PasslistUrl           string                    `json:"passlistUrl"`
 	TokenGeneratorVersion TokenGeneratorVersionEnum `json:"tokenGeneratorVersion"`
 }

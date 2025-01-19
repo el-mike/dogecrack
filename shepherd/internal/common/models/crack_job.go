@@ -18,7 +18,7 @@ type CrackJob struct {
 	Keyword               string                    `bson:"keyword" json:"keyword"`
 	WalletString          string                    `bson:"walletString" json:"walletString"`
 	PasslistUrl           string                    `bson:"passlistUrl" json:"passlistUrl"`
-	Tokens                []string                  `bson:"tokens" json:"tokens"`
+	Tokenlist             string                    `bson:"tokenlist" json:"tokenlist"`
 	TokenGeneratorVersion TokenGeneratorVersionEnum `bson:"tokenGeneratorVersion" json:"tokenGeneratorVersion"`
 
 	InstanceId primitive.ObjectID `bson:"instanceId" json:"instanceId"`
@@ -48,15 +48,6 @@ func (pj *CrackJob) AppendError(err error) {
 	}
 
 	pj.ErrorLog += fmt.Sprintf("%s\n", err.Error())
-}
-
-// GetTokenlist - builds tokenlist from Tokens, by joining them with newlines ('\n').
-func (pj *CrackJob) GetTokenlist() string {
-	if len(pj.Tokens) == 0 {
-		return ""
-	}
-
-	return strings.Join(pj.Tokens, "\n")
 }
 
 // CrackJobsListPayload - describes a payload for PitbullJobs list.
@@ -118,7 +109,7 @@ func (pj *CrackJobsListPayload) Populate(r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		
+
 		pj.TokenGeneratorVersion = TokenGeneratorVersionEnum(tokenGeneratorVersionInt)
 	}
 
@@ -141,6 +132,19 @@ func NewPagedCrackJobs() *PagedCrackJobs {
 			Total:    0,
 		},
 	}
+}
+
+type BaseCreateJobPayload struct {
+	WalletString string
+	Name         string
+}
+
+type CreateJobsForKeywordsPayload struct {
+	BaseCreateJobPayload
+
+	Keywords              []string
+	Tokenlist             string
+	TokenGeneratorVersion TokenGeneratorVersionEnum
 }
 
 type CancelCrackJobPayload struct {
