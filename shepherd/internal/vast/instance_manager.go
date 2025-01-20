@@ -33,8 +33,8 @@ func NewVastManager(
 	searchCriteriaProvider SearchCriteriaProvider,
 ) *VastManager {
 	return &VastManager{
-		// cli: NewVastCLI(apiSecret, pitbullImage),
-		cli: NewVastCLIClientMock(rootDir),
+		cli: NewVastCLI(apiSecret, pitbullImage),
+		// cli: NewVastCLIClientMock(rootDir),
 
 		sshUser:       sshUser,
 		sshPassword:   sshPassword,
