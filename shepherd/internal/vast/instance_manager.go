@@ -2,6 +2,7 @@ package vast
 
 import (
 	"errors"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/pitbull_client"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common/host"
 	"github.com/el-mike/dogecrack/shepherd/internal/vast/models"
@@ -32,8 +33,8 @@ func NewVastManager(
 	searchCriteriaProvider SearchCriteriaProvider,
 ) *VastManager {
 	return &VastManager{
-		cli: NewVastCLI(apiSecret, pitbullImage),
-		//cli: NewVastCLIClientMock(rootDir),
+		// cli: NewVastCLI(apiSecret, pitbullImage),
+		cli: NewVastCLIClientMock(rootDir),
 
 		sshUser:       sshUser,
 		sshPassword:   sshPassword,
@@ -161,17 +162,17 @@ func (vm *VastManager) RunDirectCommand(instance host.HostInstance, cmd string) 
 		return "", err
 	}
 
-	return sshClient.run(cmd)
+	return sshClient.Run(cmd)
 }
 
 // getSSHClient - helper function for getting sshClient instance.
-func (vm *VastManager) getSSHClient(instance host.HostInstance) (*VastSSHClient, error) {
+func (vm *VastManager) getSSHClient(instance host.HostInstance) (*pitbull_client.PitbullSSHClient, error) {
 	vastInstance, ok := instance.(*models.Instance)
 	if !ok {
 		return nil, errors.New("HostInstance is not VastInstance!")
 	}
 
-	sshClient, err := NewVastSSHClient(vm.sshUser, vm.sshPassword, vm.sshDir, vm.sshPrivateKey, vastInstance.SSHHost, vastInstance.SSHPort)
+	sshClient, err := pitbull_client.NewPitbullSSHClient(vm.sshUser, vm.sshPassword, vm.sshDir, vm.sshPrivateKey, vastInstance.SSHHost, vastInstance.SSHPort)
 	if err != nil {
 		return nil, err
 	}

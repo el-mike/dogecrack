@@ -1,7 +1,8 @@
-package vast
+package pitbull_client
 
 import (
 	"github.com/el-mike/dogecrack/shepherd/internal/config"
+	"github.com/el-mike/dogecrack/shepherd/internal/vast"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -22,14 +23,14 @@ func TestSSHConnectionFakeVast(t *testing.T) {
 		panic(err)
 	}
 
-	fakeVastOneIpAddress, err := GetFakeVastIp(rootPath, 1)
+	fakeVastOneIpAddress, err := vast.GetFakeVastIp(rootPath, 1)
 	if err != nil {
 		panic(err)
 	}
 
 	fakeVastOnePort := 22
 
-	client, err := NewVastSSHClient(appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, appConfig.SSHPrivateKey, fakeVastOneIpAddress, fakeVastOnePort)
+	client, err := NewPitbullSSHClient(appConfig.SSHUser, appConfig.SSHPassword, appConfig.SSHDirPath, appConfig.SSHPrivateKey, fakeVastOneIpAddress, fakeVastOnePort)
 	if err != nil {
 		panic(err)
 	}

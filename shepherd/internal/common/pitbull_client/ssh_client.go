@@ -1,9 +1,9 @@
-package vast
+package pitbull_client
 
 import (
 	"bufio"
 	"fmt"
-	"github.com/el-mike/dogecrack/shepherd/internal/common/pitbull_helpers"
+	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"os"
 	"strings"
 
@@ -13,9 +13,8 @@ import (
 
 const CONN_PROTOCOL = "tcp"
 
-// VastSSHClient - Vast.ai SSH connection client. Encapsulates all the operations
-// we can perform on Vast.ai instance.
-type VastSSHClient struct {
+// PitbullSSHClient - SSH connection client for running Pitbull.
+type PitbullSSHClient struct {
 	user      string
 	password  string
 	signer    ssh.Signer
@@ -25,10 +24,12 @@ type VastSSHClient struct {
 	port      int
 
 	conn *ssh.Client
+
+	logger *common.Logger
 }
 
-// NewVastSSHClient - returns new VastSSHClient instance. Does NOT start up a connection.
-func NewVastSSHClient(user, password, sshDirPath, sshPrivateKey, ipAddress string, port int) (*VastSSHClient, error) {
+// NewPitbullSSHClient - returns new PitbullSSHClient instance. Does NOT start up a connection.
+func NewPitbullSSHClient(user, password, sshDirPath, sshPrivateKey, ipAddress string, port int) (*PitbullSSHClient, error) {
 	// We store sshPrivateKey as string with '\n', but since it's coming from .env file, it treats
 	// '\n' characters as normal signs. Therefore, we use replace to insert actual new lines.
 	sshPrivateKey = strings.ReplaceAll(sshPrivateKey, `\n`, "\n")
@@ -39,7 +40,7 @@ func NewVastSSHClient(user, password, sshDirPath, sshPrivateKey, ipAddress strin
 		return nil, err
 	}
 
-	client := &VastSSHClient{
+	client := &PitbullSSHClient{
 		user:     user,
 		password: password,
 		signer:   signer,
@@ -47,40 +48,46 @@ func NewVastSSHClient(user, password, sshDirPath, sshPrivateKey, ipAddress strin
 		hostKeyCb: ssh.InsecureIgnoreHostKey(),
 		ipAddress: ipAddress,
 		port:      port,
+
+		logger: common.NewLogger("SSHClient", os.Stdout, os.Stderr),
 	}
 
 	return client, nil
 }
 
 // RunPitbullForPasslist - runs Pitbull process for given passlistUrl and walletString.
-func (vs *VastSSHClient) RunPitbullForPasslist(walletString, passlistUrl string, skipCount, minLength, maxLength int64) (string, error) {
-	cmd := pitbull_helpers.BuildRunCommand(walletString, passlistUrl, "", skipCount, minLength, maxLength)
-	return vs.run(cmd)
+func (vs *PitbullSSHClient) RunPitbullForPasslist(walletString, passlistUrl string, skipCount, minLength, maxLength int64) (string, error) {
+	cmd := BuildRunCommand(walletString, passlistUrl, "", skipCount, minLength, maxLength)
+
+	vs.logger.Info.Printf("Running Pitbull command for passlist: \"%s\"", cmd)
+	return vs.Run(cmd)
 }
 
 // RunPitbullForTokenlist - runs Pitbull process for given tokenlist and walletString.
-func (vs *VastSSHClient) RunPitbullForTokenlist(walletString, tokenlist string, skipCount, minLength, maxLength int64) (string, error) {
-	cmd := pitbull_helpers.BuildRunCommand(walletString, "", tokenlist, skipCount, minLength, maxLength)
-	return vs.run(cmd)
+func (vs *PitbullSSHClient) RunPitbullForTokenlist(walletString, tokenlist string, skipCount, minLength, maxLength int64) (string, error) {
+	cmd := BuildRunCommand(walletString, "", tokenlist, skipCount, minLength, maxLength)
+
+	vs.logger.Info.Printf("Running Pitbull command for tokenlist: \"%s\"", cmd)
+	return vs.Run(cmd)
 }
 
 // GetPitbullStatus - runs Pitbull's status command and returns the output.
-func (vs *VastSSHClient) GetPitbullStatus() (string, error) {
-	return vs.run("pitbull status")
+func (vs *PitbullSSHClient) GetPitbullStatus() (string, error) {
+	return vs.Run("pitbull status")
 }
 
 // GetPitbullStatus - runs Pitbull's progress command and returns the output.
-func (vs *VastSSHClient) GetPitbullProgress() (string, error) {
-	return vs.run("pitbull progress")
+func (vs *PitbullSSHClient) GetPitbullProgress() (string, error) {
+	return vs.Run("pitbull progress")
 }
 
 // GetPitbullOutput - runs Pitbull's output command and returns the output.
-func (vs *VastSSHClient) GetPitbullOutput() (string, error) {
-	return vs.run("pitbull output")
+func (vs *PitbullSSHClient) GetPitbullOutput() (string, error) {
+	return vs.Run("pitbull output")
 }
 
 // Connect - starts a SSH connection.
-func (vs *VastSSHClient) connect() error {
+func (vs *PitbullSSHClient) connect() error {
 	config := &ssh.ClientConfig{
 		User:            vs.user,
 		HostKeyCallback: vs.hostKeyCb,
@@ -103,11 +110,11 @@ func (vs *VastSSHClient) connect() error {
 }
 
 // Close - closes the connection.
-func (vs *VastSSHClient) close() error {
+func (vs *PitbullSSHClient) close() error {
 	return vs.conn.Close()
 }
 
-func (vs *VastSSHClient) run(cmd string) (string, error) {
+func (vs *PitbullSSHClient) Run(cmd string) (string, error) {
 	if err := vs.connect(); err != nil {
 		return "", err
 	}
@@ -151,7 +158,7 @@ func (vs *VastSSHClient) run(cmd string) (string, error) {
 // AddKnownHost - dynamically registers host as known host.
 // This method is partially working - in order to make it work properly, we would need to add
 // dynamic keyscan for the host and handle known host entry generation.
-func (vs *VastSSHClient) addKnownHost(sshDirPath, ipAddress string) (ssh.HostKeyCallback, error) {
+func (vs *PitbullSSHClient) addKnownHost(sshDirPath, ipAddress string) (ssh.HostKeyCallback, error) {
 	knownHostsPath := sshDirPath + "/known_hosts"
 	publicKeyPath := sshDirPath + "/id_rsa.pub"
 

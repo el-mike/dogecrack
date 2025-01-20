@@ -1,4 +1,4 @@
-package pitbull_helpers
+package pitbull_client
 
 import "fmt"
 
