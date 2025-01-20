@@ -81,11 +81,7 @@ func (jq *JobQueue) Reject(jobId string) error {
 
 // ClearProcessing - removes all
 func (jq *JobQueue) RescheduleAllProcessing() ([]string, error) {
-	jobsIds, err := jq.redisClient.LRange(ctx, jq.processingQueue, 0, -1).Result()
-	// If the err is redis.Nil, it just means the queue is empty.
-	if err == redis.Nil {
-		return nil, nil
-	}
+	jobsIds, err := jq.GetProcessing()
 
 	if err != nil {
 		return nil, err
@@ -100,6 +96,17 @@ func (jq *JobQueue) RescheduleAllProcessing() ([]string, error) {
 	}
 
 	_, err = jq.redisClient.Del(ctx, jq.processingQueue).Result()
+
+	return jobsIds, err
+}
+
+// GetProcessing - returns all IDs in processingQueue.
+func (jq *JobQueue) GetProcessing() ([]string, error) {
+	jobsIds, err := jq.redisClient.LRange(ctx, jq.processingQueue, 0, -1).Result()
+	// If the err is redis.Nil, it just means the queue is empty.
+	if err == redis.Nil {
+		return nil, nil
+	}
 
 	return jobsIds, err
 }

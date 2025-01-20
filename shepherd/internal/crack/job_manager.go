@@ -345,6 +345,11 @@ func (jm *JobManager) RescheduleProcessingJobs() ([]string, error) {
 	return jobIds, nil
 }
 
+// GetProcessingJobsIDs - returns  IDs of CrackJobs currently being run.
+func (jm *JobManager) GetProcessingJobsIDs() ([]string, error) {
+	return jm.jobQueue.GetProcessing()
+}
+
 // RecreateJob - recreates already finished CrackJob with given ID.
 func (jm *JobManager) RecreateJob(jobId string, scheduleRun bool) (*models.CrackJob, error) {
 	job, err := jm.GetJob(jobId)
