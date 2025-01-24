@@ -3,6 +3,7 @@ package vast
 import (
 	"errors"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/pitbull_client"
+	"os"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common/host"
 	"github.com/el-mike/dogecrack/shepherd/internal/vast/models"
@@ -32,10 +33,16 @@ func NewVastManager(
 	rootDir string,
 	searchCriteriaProvider SearchCriteriaProvider,
 ) *VastManager {
-	return &VastManager{
-		cli: NewVastCLI(apiSecret, pitbullImage),
-		// cli: NewVastCLIClientMock(rootDir),
+	var cliClient VastClient
 
+	if os.Getenv("USE_MOCK_VAST_CLI") == "true" {
+		cliClient = NewVastCLIClientMock(rootDir)
+	} else {
+		cliClient = NewVastCLI(apiSecret, pitbullImage)
+	}
+
+	return &VastManager{
+		cli:           cliClient,
 		sshUser:       sshUser,
 		sshPassword:   sshPassword,
 		sshDir:        sshDir,

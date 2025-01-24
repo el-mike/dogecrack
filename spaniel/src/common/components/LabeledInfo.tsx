@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 
 import { ContentCopy as ContentCopyIcon } from '@mui/icons-material';
+import { Spacer } from './Spacer';
 
 export type LabeledInfoProps = {
   title?: string;
@@ -17,9 +18,15 @@ export type LabeledInfoProps = {
   valueVariant?: TypographyProps['variant'];
   toCopy?: LabeledInfoProps['value'];
   useZero?: boolean;
+  endAdornment?: ReactNode;
 };
 
 const InfoContainer = styled.div``;
+
+const ValueContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
 export const LabeledInfo: React.FC<LabeledInfoProps> = props => {
   const {
@@ -29,6 +36,7 @@ export const LabeledInfo: React.FC<LabeledInfoProps> = props => {
     valueVariant,
     toCopy: valueToCopy,
     useZero,
+    endAdornment,
   } = props;
 
   const handleCopy = () => {
@@ -41,15 +49,25 @@ export const LabeledInfo: React.FC<LabeledInfoProps> = props => {
         ? titleComponent
         : <Typography variant='caption' display='flex'>{title}</Typography>
       }
-      <Typography variant={valueVariant || 'subtitle1'} fontWeight='bold' display={valueToCopy ? 'inline' : 'flex'} >
-        {props.children || value || (!!useZero ? 0 : '-')}
-      </Typography>
 
-      {!!valueToCopy && (
-        <IconButton onClick={handleCopy} size='small'>
-          <ContentCopyIcon fontSize='small' />
-      </IconButton>
-      )}
+      <ValueContainer>
+        <Typography variant={valueVariant || 'subtitle1'} fontWeight='bold' display='flex' >
+          {props.children || value || (!!useZero ? 0 : '-')}
+        </Typography>
+
+        {!!valueToCopy && (
+          <IconButton onClick={handleCopy} size='small'>
+            <ContentCopyIcon fontSize='small' />
+        </IconButton>
+        )}
+
+        {!!endAdornment && (
+          <>
+            <Spacer mr={1} />
+            {endAdornment}
+          </>
+        )}
+      </ValueContainer>
     </InfoContainer>
   );
 };

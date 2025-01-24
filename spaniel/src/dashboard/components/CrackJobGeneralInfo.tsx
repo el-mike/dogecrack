@@ -4,12 +4,12 @@ import {
   Grid,
   Box,
   Typography,
+  Tooltip,
 } from '@mui/material';
 
-import {
-  CrackJob,
-  PitbullInstance
-} from 'models';
+import { Report as ReportIcon } from '@mui/icons-material';
+
+import { CrackJob } from 'models';
 
 import {
   Spacer,
@@ -67,6 +67,13 @@ export const CrackJobGeneralInfo: React.FC<PitbullInfoProps> = props => {
                 <LabeledInfo
                   title='Keyword:'
                   value={job.keyword}
+                  endAdornment={
+                    job.customTokenlist ? (
+                      <Tooltip title='This job has been run with custom tokenlist!'>
+                        <ReportIcon fontSize='small' color='warning' />
+                      </Tooltip>
+                    ) : <></>
+                  }
                 />
               </Grid>
             )}

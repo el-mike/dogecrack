@@ -117,10 +117,22 @@ func (jm *JobManager) CreateJobsForKeywords(
 	return jobs, nil
 }
 
-func (jm *JobManager) CreateJobForTokenlist(walletString, name, tokenlist string, scheduleRun bool) (*models.CrackJob, error) {
+func (jm *JobManager) CreateJobForTokenlist(
+	walletString,
+	name,
+	tokenlist,
+	baseKeyword string,
+	scheduleRun bool,
+) (*models.CrackJob, error) {
 	job := jm.getBaseJob(walletString, name)
 
+	job.CustomTokenlist = true
 	job.Tokenlist = tokenlist
+
+	// If base keyword was provided, set it as Keyword attribute.
+	if baseKeyword != "" {
+		job.Keyword = baseKeyword
+	}
 
 	if err := jm.jobRepository.Create(job); err != nil {
 		return nil, err
@@ -154,12 +166,16 @@ func (jm *JobManager) CreateJobForPasslist(walletString, name, passlistUrl strin
 }
 
 func (jm *JobManager) HandleJobCreation(walletString string, payload *models.CrackPayload, scheduleRun bool) ([]*models.CrackJob, error) {
-	if len(payload.Keywords) > 0 {
-		return jm.CreateJobsForKeywords(walletString, payload.Name, payload.Keywords, payload.TokenGeneratorVersion, scheduleRun)
-	}
+	// If custom tokenlist was provided, we want to prioritize it.
+	if payload.Tokenlist != "" {
+		keyword := ""
 
-	if payload.PasslistUrl != "" {
-		job, err := jm.CreateJobForPasslist(walletString, payload.Name, payload.PasslistUrl, scheduleRun)
+		// If base keyword was provided, we want to save this information as well.
+		if len(payload.Keywords) > 0 {
+			keyword = payload.Keywords[0]
+		}
+
+		job, err := jm.CreateJobForTokenlist(walletString, payload.Name, payload.Tokenlist, keyword, scheduleRun)
 		if err != nil {
 			return nil, err
 		}
@@ -167,9 +183,12 @@ func (jm *JobManager) HandleJobCreation(walletString string, payload *models.Cra
 		return []*models.CrackJob{job}, nil
 	}
 
-	// If payload.Keywords field was empty, it means job was run with explicit tokenlist.
-	if payload.Tokenlist != "" {
-		job, err := jm.CreateJobForTokenlist(walletString, payload.Name, payload.Tokenlist, scheduleRun)
+	if len(payload.Keywords) > 0 {
+		return jm.CreateJobsForKeywords(walletString, payload.Name, payload.Keywords, payload.TokenGeneratorVersion, scheduleRun)
+	}
+
+	if payload.PasslistUrl != "" {
+		job, err := jm.CreateJobForPasslist(walletString, payload.Name, payload.PasslistUrl, scheduleRun)
 		if err != nil {
 			return nil, err
 		}

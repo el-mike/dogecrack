@@ -16,6 +16,7 @@ export type CrackJobDto = BaseEntityDto & {
   keyword?: string;
   passlistUrl?: string;
   tokenlist?: string;
+  customTokenlist?: boolean;
   tokenGeneratorVersion?: number;
 
   status: number;

@@ -19,6 +19,7 @@ type CrackJob struct {
 	WalletString          string                    `bson:"walletString" json:"walletString"`
 	PasslistUrl           string                    `bson:"passlistUrl" json:"passlistUrl"`
 	Tokenlist             string                    `bson:"tokenlist" json:"tokenlist"`
+	CustomTokenlist       bool                      `bson:"customTokenlist" json:"customTokenlist"`
 	TokenGeneratorVersion TokenGeneratorVersionEnum `bson:"tokenGeneratorVersion" json:"tokenGeneratorVersion"`
 
 	InstanceId primitive.ObjectID `bson:"instanceId" json:"instanceId"`

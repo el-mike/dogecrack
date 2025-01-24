@@ -30,6 +30,10 @@ import { useCrackJobsContext } from '../crack-jobs.context';
 
 export type RunCrackJobProps = {};
 
+type RunCrackJobForm = RunCrackJobPayload & {
+  tokenlistBaseKeyword: string;
+};
+
 const CardFooter = styled(CardActions)`
   justify-content: flex-end;
 `;
@@ -38,11 +42,12 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
   const { run } = useCrackJobsContext();
   const { enums, latestTokenGeneratorVersion } = useGeneralContext();
 
-  const [payload, setPayload] = useState<RunCrackJobPayload>({
+  const [payload, setPayload] = useState<RunCrackJobForm>({
     keywords: [],
     passlistUrl: '',
     name: '',
     tokenlist: '',
+    tokenlistBaseKeyword: '',
     tokenGeneratorVersion: latestTokenGeneratorVersion,
   });
 
@@ -78,6 +83,12 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
       tokenlist: event.target?.value || '',
     }));
 
+  const handleTokenlistBaseKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setPayload((prev) => ({
+      ...prev,
+      tokenlistBaseKeyword: event.target?.value || '',
+    }));
+
   const handleTokenGeneratorVersionChange = (event: SelectChangeEvent<unknown>) =>
     setPayload((prev) => ({
       ...prev,
@@ -85,12 +96,19 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
     }));
 
   const handleRun = () => {
+    /* When using custom tokenlist, set base keyword if available. */
+    if (payload.tokenlist && payload.tokenlistBaseKeyword) {
+      payload.keywords = [payload.tokenlistBaseKeyword];
+    }
+
     run(payload);
+
     setPayload({
       keywords: [],
       passlistUrl: '',
       name: '',
-      tokenlist:'',
+      tokenlist: '',
+      tokenlistBaseKeyword: '',
       tokenGeneratorVersion: latestTokenGeneratorVersion,
     });
   };
@@ -158,6 +176,15 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
         <Spacer mb={2} />
 
         <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} md={4}>
+            <TextInput
+              label='Tokenlist base keyword'
+              value={payload.tokenlistBaseKeyword}
+              onChange={handleTokenlistBaseKeywordChange}
+              multiline
+              disabled={!!payload.keywords?.length || !!payload.passlistUrl}
+            />
+          </Grid>
           <Grid item xs={12}>
             <TextInput
               label='Tokenlist'
