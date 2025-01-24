@@ -384,16 +384,21 @@ func (jm *JobManager) RecreateJob(jobId string, scheduleRun bool) (*models.Crack
 	// we simply want to recreate the payload used for the original job.
 	payload := &models.CrackPayload{
 		Name:                  job.Name,
-		PasslistUrl:           job.PasslistUrl,
 		TokenGeneratorVersion: job.TokenGeneratorVersion,
 	}
 
-	// If original's job Keyword is not empty, it means it was used to create the job.
-	// Otherwise, Tokenlist was used explicitly.
+	// If PasslistUrl is not empty, it means it was used to create the job.
+	// Otherwise, if TokenGeneratorVersion is equal to zero, we know that custom tokenlist was provided,
+	// so we set it explicitly in payload as well (which will make the JobManager skip token generation).
+	if job.PasslistUrl != "" {
+		payload.PasslistUrl = job.PasslistUrl
+	} else if job.TokenGeneratorVersion == 0 {
+		payload.Tokenlist = job.Tokenlist
+	}
+
+	// This covers both keyword and custom tokenlist usage.
 	if job.Keyword != "" {
 		payload.Keywords = []string{job.Keyword}
-	} else {
-		payload.Tokenlist = job.Tokenlist
 	}
 
 	result, err := jm.HandleJobCreation(job.WalletString, payload, scheduleRun)
