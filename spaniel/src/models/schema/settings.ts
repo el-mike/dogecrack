@@ -14,6 +14,7 @@ export type SettingsDto = BaseEntityDto & {
   vastSearchCriteria: string;
   minPasswordLength: number;
   maxPasswordLength: number;
+  keywordPresets: string[];
 };
 
 export type Settings = BaseEntity & SettingsDto;

@@ -16,8 +16,9 @@ var DefaultAppSettings = &models.AppSettings{
 	CheckPitbullInterval: 30,
 
 	// Seems to yield best result cost-wise.
-	VastInstanceSearchCriteria: "num_gpus=4 dph<2.5",
+	VastInstanceSearchCriteria: "num_gpus=4 dph<2.5 dph>0.5",
 
 	MinPasswordLength: 0,
 	MaxPasswordLength: 18,
+	KeywordPresets:    []string{},
 }

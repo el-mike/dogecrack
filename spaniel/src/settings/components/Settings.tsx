@@ -14,6 +14,8 @@ import {
   Divider,
   CircularProgress,
   CardActions,
+  Box,
+  Chip,
 } from '@mui/material';
 
 import { Settings as SettingsModel } from 'models';
@@ -31,6 +33,17 @@ const CardFooter = styled(CardActions)`
   justify-content: flex-end;
 `;
 
+const ChipsWrapper = styled(Box)`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+`;
+
+const ChipWrapper = styled(Box)`
+  display: flex;
+  padding: ${props => props.theme.spacing(0.5)};
+`;
+
 export const Settings: React.FC = () => {
   const {
     settings,
@@ -39,6 +52,7 @@ export const Settings: React.FC = () => {
   } = useSettingsContext();
 
   const [settingsForm, setSettingsForm] = useState<SettingsModel>({} as SettingsModel);
+  const [presetsToAdd, setPresetsToAdd] = useState<string>('');
 
   useEffect(() => {
     setSettingsForm(settings);
@@ -52,6 +66,46 @@ export const Settings: React.FC = () => {
       });
 
   const handleUpdate = () => update(settingsForm);
+
+  const onAddPreset = () => {
+    const currentPresets = settingsForm.keywordPresets || [];
+
+    if (!presetsToAdd) {
+      return;
+    }
+
+    const newPresets = presetsToAdd
+      .split(',')
+      .map(preset => preset.trim())
+      .filter(preset => !currentPresets.includes(preset));
+
+
+    if (!newPresets.length) {
+      return;
+    }
+
+    setSettingsForm({
+      ...settingsForm,
+      keywordPresets: [...currentPresets, ...newPresets],
+    });
+
+    setPresetsToAdd('');
+  };
+
+  const onDeletePreset = (preset: string) => {
+    const currentPresets = settingsForm.keywordPresets || [];
+
+    if (!preset || !currentPresets.includes(preset)) {
+      return;
+    }
+
+    setSettingsForm({
+      ...settingsForm,
+      keywordPresets: currentPresets.filter(p => p !== preset),
+    });
+  };
+
+  const presetsSorted = (settingsForm.keywordPresets || []).sort();
 
   return (
     <Card>
@@ -169,6 +223,35 @@ export const Settings: React.FC = () => {
                 defaultValue={settingsForm.maxPasswordLength}
                 onChange={getChangeHandler('maxPasswordLength')}
               />
+            </Grid>
+          </Grid>
+
+          <Spacer mb={2} />
+          <Divider />
+          <Spacer mb={2} />
+
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography variant='h6'>Keyword presets</Typography>
+              <Spacer mb={2} />
+
+              <TextInput
+                type='text'
+                label='Add keyword presets (comma-separated)'
+                value={presetsToAdd}
+                onChange={(event) => setPresetsToAdd(event.target?.value)}
+                onKeyPress={(event) => event.key === 'Enter' && onAddPreset()}
+              />
+
+              <Spacer mb={2} />
+
+              <ChipsWrapper>
+                {presetsSorted.map(item => (
+                  <ChipWrapper>
+                    <Chip color='primary' label={item} key={item} onDelete={() => onDeletePreset(item)} />
+                  </ChipWrapper>
+                ))}
+              </ChipsWrapper>
             </Grid>
           </Grid>
         </CardContent>

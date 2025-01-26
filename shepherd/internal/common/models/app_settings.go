@@ -17,6 +17,8 @@ type AppSettings struct {
 
 	MinPasswordLength int64 `bson:"minPasswordLength" json:"minPasswordLength"`
 	MaxPasswordLength int64 `bson:"maxPasswordLength" json:"maxPasswordLength"`
+
+	KeywordPresets []string `bson:"keywordPresets" json:"keywordPresets"`
 }
 
 // NewAppSettings - returns new AppSettings instance.
@@ -64,6 +66,10 @@ func (as *AppSettings) Merge(source *AppSettings) {
 
 	if source.MaxPasswordLength != 0 {
 		as.MaxPasswordLength = source.MaxPasswordLength
+	}
+
+	if len(source.KeywordPresets) > 0 {
+		as.KeywordPresets = source.KeywordPresets
 	}
 }
 
