@@ -177,3 +177,22 @@ func (ct *Controller) RecreateJob(
 
 	ct.responseHelper.HandleJSONResponse(w, response)
 }
+
+func (ct *Controller) GetCheckedIdeas(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	checkedKeywords, err := ct.jobManager.GetCheckedIdeas()
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response, err := json.Marshal(checkedKeywords)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.responseHelper.HandleJSONResponse(w, response)
+}

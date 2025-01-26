@@ -3,9 +3,7 @@ import {
   useContext,
 } from 'react';
 
-import {
-  Settings,
-} from 'models';
+import { Settings } from 'models';
 
 export type UpdateFn = (settings: Settings) => void;
 

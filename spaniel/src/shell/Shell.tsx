@@ -32,8 +32,8 @@ import {
 } from 'auth';
 
 import { DashboardPage } from 'dashboard/pages';
-
 import { SettingsPage } from 'settings/pages';
+import { CheckedIdeasPage } from '../checked-ideas/pages';
 
 import {
   ShellLoader,
@@ -96,10 +96,10 @@ export const InnerShell: React.FC = () => {
         />
 
         <Route
-          path='/passchecks'
+          path='/checked-ideas'
           element={
             <ProtectedRoute>
-              <DashboardPage />
+              <CheckedIdeasPage />
             </ProtectedRoute>
           }
         />

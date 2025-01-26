@@ -49,7 +49,7 @@ func NewAppConfig(rootPath string) (*AppConfig, error) {
 	if strings.ToLower(os.Getenv("APP_ENV")) != "prod" {
 		dotenvFileName := ".env"
 
-		// Allows for using tools locally against prod databases.
+		// Allows for running things locally against prod databases.
 		if strings.ToLower(os.Getenv("USE_PROD_CONFIG")) == "true" {
 			dotenvFileName = ".env.prod"
 		}

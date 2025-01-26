@@ -2,7 +2,6 @@ package crack
 
 import (
 	"context"
-
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/persist"
 	"go.mongodb.org/mongo-driver/bson"
@@ -326,6 +325,116 @@ func (jr *JobRepository) GetStatistics() (*models.CrackJobsStatistics, error) {
 	}
 
 	return result[0], nil
+
+}
+
+// GetCheckedKeywords - returns information about all already tested keywords.
+func (jr *JobRepository) GetCheckedKeywords() ([]*models.CheckedKeyword, error) {
+	collection := jr.db.Collection(JobsCollection)
+
+	pipeline := mongo.Pipeline{
+		{ // Match documents where status is 4 (ACKNOWLEDGED) and keyword is not empty
+			{"$match", bson.D{
+				{"status", 4},
+				{"keyword", bson.D{{"$ne", ""}}},
+			}},
+		},
+		{ // Group by keyword and process generatorVersions and tokenlists
+			{"$group", bson.D{
+				{"_id", "$keyword"},
+				{"generatorVersions", bson.D{
+					{"$push", bson.D{
+						{"$cond", bson.D{
+							{"if", bson.D{{"$gt", bson.A{"$tokenGeneratorVersion", 0}}}},
+							{"then", "$tokenGeneratorVersion"},
+							{"else", "$$REMOVE"},
+						}},
+					}},
+				}},
+				{"tokenlists", bson.D{{"$push", "$tokenlist"}}},
+				{"runsCount", bson.D{{"$sum", 1}}},
+			}},
+		},
+		{
+			{"$project", bson.D{
+				{"_id", 0},
+				{"keyword", "$_id"},
+				{"generatorVersions", 1},
+				{"tokenlists", 1},
+				{"runsCount", 1},
+			}},
+		},
+		{
+			{"$sort", bson.D{
+				{"keyword", 1},
+			}},
+		},
+	}
+
+	cursor, err := collection.Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	result := []*models.CheckedKeyword{}
+
+	if err := cursor.All(context.TODO(), &result); err != nil {
+		return nil, err
+	}
+
+	if result == nil || len(result) == 0 {
+		return []*models.CheckedKeyword{}, nil
+	}
+
+	return result, nil
+}
+
+func (jr *JobRepository) GetCheckedPasslists() ([]*models.CheckedPasslist, error) {
+	collection := jr.db.Collection(JobsCollection)
+
+	pipeline := mongo.Pipeline{
+		{ // Match documents where status is 4 (ACKNOWLEDGED) and passlistUrl is not empty
+			{"$match", bson.D{
+				{"status", 4},
+				{"passlistUrl", bson.D{{"$ne", ""}}},
+			}},
+		},
+		{ // Group by passlistUrl with the first occurrence of name
+			{"$group", bson.D{
+				{"_id", "$passlistUrl"},
+				{"name", bson.D{{"$first", "$name"}}},
+			}},
+		},
+		{
+			{"$project", bson.D{
+				{"_id", 0},
+				{"passlistUrl", "$_id"},
+				{"name", 1},
+			}},
+		},
+		{
+			{"$sort", bson.D{
+				{"name", 1},
+			}},
+		},
+	}
+
+	cursor, err := collection.Aggregate(context.TODO(), pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	result := []*models.CheckedPasslist{}
+
+	if err := cursor.All(context.TODO(), &result); err != nil {
+		return nil, err
+	}
+
+	if result == nil || len(result) == 0 {
+		return []*models.CheckedPasslist{}, nil
+	}
+
+	return result, nil
 }
 
 func (jr *JobRepository) lookupAndUnwindInstance() (bson.D, bson.D) {

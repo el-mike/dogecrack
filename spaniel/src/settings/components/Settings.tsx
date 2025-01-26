@@ -57,7 +57,7 @@ export const Settings: React.FC = () => {
     <Card>
       <CardHeader>
       <Typography variant='h5'>Settings</Typography>
-      {!!loading && (<CircularProgress />)}
+      {loading && (<CircularProgress />)}
       </CardHeader>
 
       <Divider />

@@ -1,10 +1,7 @@
-import { useEffect } from 'react';
-
 import styled from 'styled-components';
 
 import {
   Typography,
-  Grid,
   Box,
 } from '@mui/material';
 
@@ -22,7 +19,7 @@ export const SettingsPage: React.FC = () => {
     <SettingsProvider>
       <SettingsWrapper>
         <Typography variant='h4'>
-          Settings  
+          Settings
         </Typography>
 
         <Spacer mb={4} />

@@ -9,6 +9,8 @@ import {
   RunCrackJobPayload,
   CancelCrackJobPayload,
   RecreateCrackJobPayload,
+  CheckedIdeasDto,
+  mapCheckedIdeas,
 } from 'models';
 
 import { ShepherdApiService } from './shepherd-api.service';
@@ -20,6 +22,7 @@ export class CrackJobService {
     crack: '/crack',
     cancel: '/cancelJob',
     recreate: '/recreateJob',
+    checkedIdeas: '/getCheckedIdeas',
   };
 
   public constructor(private apiClient: ShepherdApiService) {}
@@ -58,5 +61,13 @@ export class CrackJobService {
     return this.apiClient
       .post<CrackJobDto>(url, payload)
       .then(response => mapCrackJob(response.data));
+  }
+
+  public getCheckedIdeas() {
+    const url = this.apiClient.buildUrl(CrackJobService.URLS.checkedIdeas);
+
+    return this.apiClient
+      .get<CheckedIdeasDto>(url)
+      .then(response => mapCheckedIdeas(response.data));
   }
 }

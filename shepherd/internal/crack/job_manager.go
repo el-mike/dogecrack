@@ -9,6 +9,7 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 	"os"
 	"strings"
+	"sync"
 )
 
 // JobManager - simple facade for operations on PitbullJobs.
@@ -407,4 +408,46 @@ func (jm *JobManager) RecreateJob(jobId string, scheduleRun bool) (*models.Crack
 	}
 
 	return result[0], nil
+}
+
+// GetCheckedIdeas - returns CheckedKeywords and CheckedPasswords.
+func (jm *JobManager) GetCheckedIdeas() (*models.CheckedIdeas, error) {
+	checkedIdeas := &models.CheckedIdeas{}
+
+	var mainErr error
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		keywords, err := jm.jobRepository.GetCheckedKeywords()
+		if err != nil {
+			mainErr = err
+			return
+		}
+
+		checkedIdeas.CheckedKeywords = keywords
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		passlists, err := jm.jobRepository.GetCheckedPasslists()
+		if err != nil {
+			mainErr = err
+			return
+		}
+
+		checkedIdeas.CheckedPasslists = passlists
+	}()
+
+	wg.Wait()
+
+	if mainErr != nil {
+		return nil, mainErr
+	}
+
+	return checkedIdeas, nil
 }

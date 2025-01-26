@@ -47,6 +47,17 @@ export const Navigation: React.FC = () => {
           <ListItem
             button
             component={Link}
+            to='/checked-ideas'
+          >
+            <ListItemIcon>
+              <ManageSearchIcon />
+            </ListItemIcon>
+            <ListItemText primary='Checked Ideas' />
+          </ListItem>
+
+          <ListItem
+            button
+            component={Link}
             to='/settings'
           >
             <ListItemIcon>
