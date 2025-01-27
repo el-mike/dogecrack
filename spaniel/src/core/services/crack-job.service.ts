@@ -12,6 +12,7 @@ import {
   CheckedIdeasDto,
   mapCheckedIdeas,
   GetKeywordSuggestionsPayload,
+  GetUsedKeywordsPayload,
 } from 'models';
 
 import { ShepherdApiService } from './shepherd-api.service';
@@ -25,6 +26,7 @@ export class CrackJobService {
     recreate: '/recreateJob',
     checkedIdeas: '/getCheckedIdeas',
     keywordSuggestions: '/getKeywordSuggestions',
+    usedKeywords: '/getUsedKeywords',
   };
 
   public constructor(private apiClient: ShepherdApiService) {}
@@ -75,6 +77,14 @@ export class CrackJobService {
 
   public getKeywordSuggestions(payload: GetKeywordSuggestionsPayload) {
     const url = this.apiClient.buildUrl(CrackJobService.URLS.keywordSuggestions, payload);
+
+    return this.apiClient
+      .get<string[]>(url)
+      .then(response => response.data);
+  }
+
+  public getUsedKeywords(payload: GetUsedKeywordsPayload) {
+    const url = this.apiClient.buildUrl(CrackJobService.URLS.usedKeywords, payload);
 
     return this.apiClient
       .get<string[]>(url)

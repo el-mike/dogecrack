@@ -13,3 +13,4 @@ export * from './statistics';
 export * from './settings';
 export * from './checked-ideas';
 export * from './keyword-suggestions';
+export * from './used-keywords';

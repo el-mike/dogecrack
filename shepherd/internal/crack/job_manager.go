@@ -416,8 +416,8 @@ func (jm *JobManager) RecreateJob(jobId string, scheduleRun bool) (*models.Crack
 }
 
 // GetCheckedIdeas - returns CheckedKeywords and CheckedPasswords.
-func (jm *JobManager) GetCheckedIdeas() (*models.CheckedIdeas, error) {
-	checkedIdeas := &models.CheckedIdeas{}
+func (jm *JobManager) GetCheckedIdeas() (*models.UsedIdeas, error) {
+	checkedIdeas := &models.UsedIdeas{}
 
 	var mainErr error
 	var wg sync.WaitGroup
@@ -541,4 +541,30 @@ func (jm *JobManager) GetKeywordSuggestions(payload *models.KeywordSuggestionsPa
 	sort.Strings(deduplicatedKeywords)
 
 	return deduplicatedKeywords, nil
+}
+
+// GetUsedKeywordsForGeneratorVersion - returns all used keywords for given Generator version.
+func (jm *JobManager) GetUsedKeywordsForGeneratorVersion(tokenGeneratorVersion models.TokenGeneratorVersionEnum) ([]string, error) {
+	jobStatusesFilter := []models.JobStatusEnum{
+		models.JobStatus.Acknowledged,
+		models.JobStatus.Processing,
+		models.JobStatus.Scheduled,
+		models.JobStatus.Rescheduled,
+	}
+
+	usedKeywords, err := jm.jobRepository.GetUsedKeywords(
+		jobStatusesFilter,
+		[]models.TokenGeneratorVersionEnum{tokenGeneratorVersion},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	result := []string{}
+
+	for _, usedKeyword := range usedKeywords {
+		result = append(result, usedKeyword.Keyword)
+	}
+
+	return result, nil
 }

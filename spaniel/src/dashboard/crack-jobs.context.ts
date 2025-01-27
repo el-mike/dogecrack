@@ -7,6 +7,7 @@ import {
   CrackJob,
   CrackJobsFilters,
   GetKeywordSuggestionsPayload,
+  GetUsedKeywordsPayload,
   RunCrackJobPayload,
 } from 'models';
 
@@ -18,6 +19,7 @@ export type ResetFiltersFn = () => void;
 export type CancelFn = (jobId: string) => void;
 export type RecreateFn = (jobId: string) => void;
 export type GetKeywordSuggestionsFn = (payload: GetKeywordSuggestionsPayload) => Promise<string[]>;
+export type GetUsedKeywordsFn = (payload: GetUsedKeywordsPayload) => Promise<string[]>;
 
 export type CrackJobsContext = {
   filters: CrackJobsFilters;
@@ -35,6 +37,7 @@ export type CrackJobsContext = {
   recreate: RecreateFn;
   resetFilters: ResetFiltersFn;
   getKeywordSuggestions: GetKeywordSuggestionsFn;
+  getUsedKeywords: GetUsedKeywordsFn;
 }
 
 export const crackJobsContext = createContext<CrackJobsContext>(null!);

@@ -8,6 +8,7 @@ import {
   CrackJob,
   CrackJobsFilters,
   GetKeywordSuggestionsPayload,
+  GetUsedKeywordsPayload,
   JobStatusKey,
   ListRequest,
   RunCrackJobPayload,
@@ -24,6 +25,7 @@ import { useCrackJobService } from 'core/hooks';
 import {
   crackJobsContext,
   CrackJobsContext,
+  GetUsedKeywordsFn,
 } from '../crack-jobs.context';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -152,6 +154,10 @@ export const CrackJobsProvider: React.FC = props => {
     }
   };
 
+  const getUsedKeywords = (payload: GetUsedKeywordsPayload) => {
+    return crackJobService.getUsedKeywords(payload);
+  }
+
   const resetFilters = () => {
     setRequest(defaultRequest);
     setLastLoaded(new Date());
@@ -175,6 +181,7 @@ export const CrackJobsProvider: React.FC = props => {
     recreate,
     resetFilters,
     getKeywordSuggestions,
+    getUsedKeywords,
   } as CrackJobsContext;
 
   /**

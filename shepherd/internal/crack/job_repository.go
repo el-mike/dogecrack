@@ -332,7 +332,7 @@ func (jr *JobRepository) GetStatistics() (*models.CrackJobsStatistics, error) {
 func (jr *JobRepository) GetUsedKeywords(
 	statuses []models.JobStatusEnum,
 	tokenGeneratorVersions []models.TokenGeneratorVersionEnum,
-) ([]*models.CheckedKeyword, error) {
+) ([]*models.UsedKeyword, error) {
 	collection := jr.db.Collection(JobsCollection)
 
 	// By default, match documents where status is 4 (ACKNOWLEDGED)
@@ -399,20 +399,20 @@ func (jr *JobRepository) GetUsedKeywords(
 		return nil, err
 	}
 
-	result := []*models.CheckedKeyword{}
+	result := []*models.UsedKeyword{}
 
 	if err := cursor.All(context.TODO(), &result); err != nil {
 		return nil, err
 	}
 
 	if result == nil || len(result) == 0 {
-		return []*models.CheckedKeyword{}, nil
+		return []*models.UsedKeyword{}, nil
 	}
 
 	return result, nil
 }
 
-func (jr *JobRepository) GetCheckedPasslists() ([]*models.CheckedPasslist, error) {
+func (jr *JobRepository) GetCheckedPasslists() ([]*models.UsedPasslist, error) {
 	collection := jr.db.Collection(JobsCollection)
 
 	pipeline := mongo.Pipeline{
@@ -447,14 +447,14 @@ func (jr *JobRepository) GetCheckedPasslists() ([]*models.CheckedPasslist, error
 		return nil, err
 	}
 
-	result := []*models.CheckedPasslist{}
+	result := []*models.UsedPasslist{}
 
 	if err := cursor.All(context.TODO(), &result); err != nil {
 		return nil, err
 	}
 
 	if result == nil || len(result) == 0 {
-		return []*models.CheckedPasslist{}, nil
+		return []*models.UsedPasslist{}, nil
 	}
 
 	return result, nil

@@ -14,11 +14,19 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  ListItemIcon,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 
 import {
   PlayArrow as PlayArrowIcon,
   MoreVert as MoreVertIcon,
+  Rule as RuleIcon,
+  RemoveDone as RemoveDoneIcon,
 } from '@mui/icons-material';
 
 import {
@@ -56,9 +64,10 @@ const KeywordsActionsWrapper = styled(Box)`
 `;
 
 export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
-  const { run, getKeywordSuggestions } = useCrackJobsContext();
+  const { run, getKeywordSuggestions, getUsedKeywords } = useCrackJobsContext();
   const { enums, latestTokenGeneratorVersion } = useGeneralContext();
 
+  const [conflictingKeywords, setConflictingKeywords] = useState<string[]>([]);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
 
   const [payload, setPayload] = useState<RunCrackJobForm>({
@@ -136,6 +145,27 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
     });
   };
 
+  const validateAndRun = async () => {
+    if (!payload.keywords?.length || !payload.tokenGeneratorVersion) {
+      handleRun();
+    }
+
+    try {
+      const usedKeywords = await getUsedKeywords({ tokenGeneratorVersion: payload.tokenGeneratorVersion || 0});
+
+      const conflictingKeywords = (payload.keywords || [])?.filter(keyword => usedKeywords.includes(keyword));
+
+      if (!conflictingKeywords?.length) {
+        handleRun();
+        return;
+      }
+
+      setConflictingKeywords(conflictingKeywords);
+    } catch {
+      return;
+    }
+  };
+
   const handleGetKeywordSuggestions = async (payload: GetKeywordSuggestionsPayload) => {
     const suggestions = await getKeywordSuggestions(payload);
 
@@ -202,20 +232,44 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
               </IconButton>
 
               <Menu open={!!menuAnchorEl} anchorEl={menuAnchorEl} onClose={() => setMenuAnchorEl(null)}>
-                <MenuItem key='cancel' onClick={() => handleGetKeywordSuggestions({ presetsOnly: true })}>
-                  Get all preset keywords
-                </MenuItem>
-
                 <MenuItem key='cancel' onClick={() => handleGetKeywordSuggestions({ presetsOnly: true, tokenGeneratorVersion: payload.tokenGeneratorVersion })}>
-                  Get unchecked preset keywords
-                </MenuItem>
+                  <ListItemIcon>
+                    <RemoveDoneIcon />
+                  </ListItemIcon>
 
-                <MenuItem key='cancel' onClick={() => handleGetKeywordSuggestions({ presetsOnly: false })}>
-                  Get all known keywords
+                  <Typography variant='body1'>
+                    Get unchecked preset keywords
+                  </Typography>
                 </MenuItem>
 
                 <MenuItem key='cancel' onClick={() => handleGetKeywordSuggestions({ presetsOnly: false, tokenGeneratorVersion: payload.tokenGeneratorVersion })}>
-                  Get unchecked known keywords
+                  <ListItemIcon>
+                    <RemoveDoneIcon />
+                  </ListItemIcon>
+
+                  <Typography variant='body1'>
+                    Get unchecked known keywords
+                  </Typography>
+                </MenuItem>
+
+                <MenuItem key='cancel' onClick={() => handleGetKeywordSuggestions({ presetsOnly: true })}>
+                  <ListItemIcon>
+                    <RuleIcon />
+                  </ListItemIcon>
+
+                  <Typography variant='body1'>
+                    Get all preset keywords
+                  </Typography>
+                </MenuItem>
+
+                <MenuItem key='cancel' onClick={() => handleGetKeywordSuggestions({ presetsOnly: false })}>
+                  <ListItemIcon>
+                    <RuleIcon />
+                  </ListItemIcon>
+
+                  <Typography variant='body1'>
+                    Get all known keywords
+                  </Typography>
                 </MenuItem>
               </Menu>
             </KeywordsActionsWrapper>
@@ -271,11 +325,38 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
           size='large'
           variant='contained'
           endIcon={<PlayArrowIcon />}
-          onClick={handleRun}
+          onClick={validateAndRun}
         >
           Run
         </Button>
       </CardFooter>
+
+      <Dialog
+        open={!!conflictingKeywords?.length}
+        onClose={() => setConflictingKeywords([])}
+      >
+        <DialogTitle>Are you sure?</DialogTitle>
+
+        <DialogContent>
+            <Typography variant='body1'>
+              Following keywords have already been used:
+            </Typography>
+          <Typography variant='body1' fontWeight='bold'>
+            {(conflictingKeywords || [])?.join(', ')}
+          </Typography>
+          <Typography variant='body1'>
+            Do you want to continue?
+          </Typography>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setConflictingKeywords([])}>Cancel</Button>
+          <Button variant='contained' onClick={() => {
+            setConflictingKeywords([]);
+            handleRun();
+          }}>Confirm</Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };

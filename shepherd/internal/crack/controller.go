@@ -241,3 +241,35 @@ func (ct *Controller) GetKeywordSuggestions(
 
 	ct.responseHelper.HandleJSONResponse(w, response)
 }
+
+func (ct *Controller) GetUsedKeywords(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	tokenGeneratorVersionParam := r.URL.Query().Get("tokenGeneratorVersion")
+
+	if tokenGeneratorVersionParam == "" {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("tokenGeneratorVersion must be provided"))
+		return
+	}
+
+	tokenGeneratorVersion, err := strconv.Atoi(tokenGeneratorVersionParam)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("tokenGeneratorVersion must be a number"))
+		return
+	}
+
+	keywords, err := ct.jobManager.GetUsedKeywordsForGeneratorVersion(models.TokenGeneratorVersionEnum(tokenGeneratorVersion))
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response, err := json.Marshal(keywords)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.responseHelper.HandleJSONResponse(w, response)
+}

@@ -213,7 +213,17 @@ func (ru *JobRunner) runPitbull(job *models.CrackJob) {
 			logger.Err.Printf("Pitbull sync failed. Reason: %s\n", err)
 
 			retryCount += 1
+			continue
+		}
 
+		// Pitbull instance may be marked as "FAILED" if Pitbull itself failed inside the host.
+		// We want to retry the sync though just to make sure job is not stopped by some connection issues.
+		if instance.Status == models.PitbullInstanceStatus.Failed {
+			err = errors.New("Pitbull instance failed")
+
+			logger.Err.Printf("Pitbull instance seems to be failed, retrying...")
+
+			retryCount += 1
 			continue
 		}
 
@@ -252,13 +262,13 @@ func (ru *JobRunner) runPitbull(job *models.CrackJob) {
 
 		currentProgress := pitbull.Progress.Checked
 
-		// If progress did not change since the last iteration (but has been made overall), we increment
-		// the counter. Otherwise, we want to reset it, since progress has been made.
+		// If progress did not change since the last iteration (but has been made overall) or status is not RUNNING,
+		// we increment the counter. Otherwise, we want to reset it, since progress has been made.
 		// We need to check against currentProgress being greater than zero because
 		// counting passwords by btcrecover may take a long time (and at this point Pitbull is already
 		// in RUNNING state).
 		// Introducing new state for counting phase could prove useful as well.
-		if currentProgress > 0 && currentProgress == lastProgress {
+		if (pitbull.Status != models.PitbullStatus.Running) || currentProgress > 0 && currentProgress == lastProgress {
 			stalledProgressCount += 1
 		} else {
 			stalledProgressCount = 0

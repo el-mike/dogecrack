@@ -55,6 +55,7 @@ func NewServer(port string, originsAllowed []string) *Server {
 	protectedRouter.HandleFunc("/recreateJob", crackController.RecreateJob).Methods("POST")
 	protectedRouter.HandleFunc("/getCheckedIdeas", crackController.GetCheckedIdeas).Methods("GET")
 	protectedRouter.HandleFunc("/getKeywordSuggestions", crackController.GetKeywordSuggestions).Methods("GET")
+	protectedRouter.HandleFunc("/getUsedKeywords", crackController.GetUsedKeywords).Methods("GET")
 
 	http.Handle("/", baseRouter)
 
