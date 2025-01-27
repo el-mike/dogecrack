@@ -140,6 +140,10 @@ func (vc *VastCLIClientMock) GetInstances() ([]*models.Instance, error) {
 	return instances, nil
 }
 
+func (vc *VastCLIClientMock) GetAvailableCredit() (float64, error) {
+	return 10000, nil
+}
+
 func (vc *VastCLIClientMock) simulateRequest() {
 	timeout := rand.Intn(3) * int(time.Second)
 	time.Sleep(time.Duration(timeout))

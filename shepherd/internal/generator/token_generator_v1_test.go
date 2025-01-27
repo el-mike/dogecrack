@@ -6,7 +6,7 @@ import (
 )
 
 func TestTokenGeneratorV1(t *testing.T) {
-	generator := NewTokenGeneratorV1(TokenRulesetV1)
+	generator := NewTokenGeneratorV1()
 
 	token := generator.Generate("test")
 	fmt.Println(token)

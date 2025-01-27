@@ -6,6 +6,9 @@ type HostManager interface {
 	// CreateInstance - returns new host instance.
 	CreateInstance() HostInstance
 
+	// CanRunInstance - returns nil if new HostInstance can be run, error otherwise.
+	CanRunInstance() error
+
 	// RunInstance - runs single instance.
 	RunInstance() (HostInstance, error)
 

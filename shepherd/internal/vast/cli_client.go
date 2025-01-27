@@ -127,6 +127,25 @@ func (vc *VastCLIClient) GetOffers(filter string) ([]*models.Offer, error) {
 	return offers, nil
 }
 
+// GetAvailableCredit - returns remaining credit for current user.
+func (vc *VastCLIClient) GetAvailableCredit() (float64, error) {
+	vc.Lock()
+	defer vc.Unlock()
+
+	result, err := vc.run("show", "user")
+	if err != nil {
+		return 0, err
+	}
+
+	var user *models.User
+
+	if err := json.Unmarshal(result, &user); err != nil {
+		return 0, err
+	}
+
+	return user.Credit, nil
+}
+
 // run - runs single command.
 func (vc *VastCLIClient) run(cmdArgs ...string) ([]byte, error) {
 	// We append apiKey and output format args.

@@ -3,6 +3,7 @@ package crack
 import (
 	"fmt"
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
+	"github.com/el-mike/dogecrack/shepherd/internal/common/host"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/models"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/repositories"
 	"github.com/el-mike/dogecrack/shepherd/internal/generator"
@@ -370,9 +371,35 @@ func (jm *JobManager) RescheduleProcessingJobs() ([]string, error) {
 	return jobIds, nil
 }
 
-// GetProcessingJobsIDs - returns  IDs of CrackJobs currently being run.
-func (jm *JobManager) GetProcessingJobsIDs() ([]string, error) {
-	return jm.jobQueue.GetProcessing()
+// CanDispatch - checks whether a new CrackJob can be dispatched.
+func (jm *JobManager) CanDispatch() (string, error) {
+	settings, err := jm.appSettingsRepository.GetAppSettings()
+	if err != nil {
+		return "", err
+	}
+
+	processingJobs, err := jm.jobQueue.GetProcessing()
+	if err != nil {
+		return "", err
+	}
+
+	if len(processingJobs) >= int(settings.RunningInstancesLimit) {
+		return fmt.Sprintf("running instances limit (%d) reached", settings.RunningInstancesLimit), nil
+	}
+
+	if err := jm.instanceManager.CanRunHost(); err != nil {
+		if _, ok := err.(*host.NoHostMachinesAvailable); ok {
+			return fmt.Sprintf("no host machines available at the moment"), nil
+		}
+
+		if _, ok := err.(*host.NotEnoughCredit); ok {
+			return fmt.Sprintf("not enough credit to run host instances"), nil
+		}
+
+		return "", err
+	}
+
+	return "", nil
 }
 
 // RecreateJob - recreates already finished CrackJob with given ID.

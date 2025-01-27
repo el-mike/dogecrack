@@ -5,7 +5,7 @@ import "fmt"
 // NoHostMachinesAvailable - thrown when there are no machines that could be retned.
 type NoHostMachinesAvailable struct{}
 
-// NoHostMachinesAvailable - returns new NoHostMachinesAvailable instance.
+// NewNoHostMachinesAvailable - returns new NoHostMachinesAvailable instance.
 func NewNoHostMachinesAvailable() *NoHostMachinesAvailable {
 	return &NoHostMachinesAvailable{}
 }
@@ -48,4 +48,19 @@ func NewHostInstanceNotAvailable(instanceId int) *HostInstanceNotAvailable {
 
 func (e *HostInstanceNotAvailable) Error() string {
 	return fmt.Sprintf("Instance with ID %d is not available right now", e.InstanceId)
+}
+
+// NotEnoughCredit - thrown when there is too little credit available to rent new host.
+type NotEnoughCredit struct {
+	CurrentCredit float64
+}
+
+func NewNotEnoughCredit(currentCredit float64) *NotEnoughCredit {
+	return &NotEnoughCredit{
+		CurrentCredit: currentCredit,
+	}
+}
+
+func (e *NotEnoughCredit) Error() string {
+	return fmt.Sprintf("Not enough credit to rent a new host, available credit: %.2f", e.CurrentCredit)
 }

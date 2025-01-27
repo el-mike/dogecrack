@@ -17,4 +17,7 @@ type VastClient interface {
 
 	// GetOfferByCriteria - returns first offer matching the criteria.
 	GetOfferByCriteria(criteria string) (*models.Offer, error)
+
+	// GetAvailableCredit - returns account's remaining credits.
+	GetAvailableCredit() (float64, error)
 }

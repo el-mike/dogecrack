@@ -22,6 +22,10 @@ type VastManager struct {
 	searchCriteriaProvider SearchCriteriaProvider
 }
 
+// CREDIT_LIMIT - most CrackJobs cost less than 3 USD, so 10 USD seems like a safe boundary at which
+// new instances should be denied.
+const CREDIT_LIMIT = 10
+
 // NewVastManager - returns new VastManager instance.
 func NewVastManager(
 	apiSecret,
@@ -55,6 +59,26 @@ func NewVastManager(
 // CreateInstance - HostManager implementation.
 func (vm *VastManager) CreateInstance() host.HostInstance {
 	return &models.Instance{}
+}
+
+func (vm *VastManager) CanRunInstance() error {
+	searchCriteria := vm.searchCriteriaProvider.GetSearchCriteria()
+
+	_, err := vm.cli.GetOfferByCriteria(searchCriteria)
+	if err != nil {
+		return err
+	}
+
+	availableCredit, err := vm.cli.GetAvailableCredit()
+	if err != nil {
+		return err
+	}
+
+	if availableCredit < CREDIT_LIMIT {
+		return host.NewNotEnoughCredit(availableCredit)
+	}
+
+	return nil
 }
 
 // RunInstance - HostManager implementation.

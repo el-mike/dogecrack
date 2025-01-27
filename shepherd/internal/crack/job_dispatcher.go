@@ -1,7 +1,6 @@
 package crack
 
 import (
-	"github.com/el-mike/dogecrack/shepherd/internal/common/repositories"
 	"os"
 	"runtime/debug"
 	"time"
@@ -13,10 +12,9 @@ import (
 // JobDispatcher - observes redis-based PitbullQueue with BLPOP
 // and delegates Pitbull runs to worker threads.
 type JobDispatcher struct {
-	appSettings *repositories.AppSettingsRepository
-	jobRunner   *JobRunner
-	jobManager  *JobManager
-	jobQueue    *JobQueue
+	jobRunner  *JobRunner
+	jobManager *JobManager
+	jobQueue   *JobQueue
 
 	pollInterval time.Duration
 
@@ -28,9 +26,8 @@ type JobDispatcher struct {
 // NewJobDispatcher - returns new JobDispatcher.
 func NewJobDispatcher(instanceManager *pitbull.InstanceManager, jobRunner *JobRunner, pollInterval time.Duration) *JobDispatcher {
 	return &JobDispatcher{
-		appSettings: repositories.NewAppSettingsRepository(),
-		jobRunner:   jobRunner,
-		jobManager:  NewJobManager(instanceManager),
+		jobRunner:  jobRunner,
+		jobManager: NewJobManager(instanceManager),
 
 		pollInterval: pollInterval,
 
@@ -59,25 +56,14 @@ func (rd *JobDispatcher) Start() {
 	for {
 		select {
 		case <-ticker.C:
-			settings, err := rd.appSettings.GetAppSettings()
+			reason, err := rd.jobManager.CanDispatch()
 			if err != nil {
-				rd.logger.Err.Printf("Getting app settings failed. reason: %v\n", err)
-
+				rd.logger.Err.Printf("Checking if job can be dispatched failed. reason: %v\n", err)
 				continue
 			}
 
-			runningInstancesLimit := settings.RunningInstancesLimit
-
-			processingJobs, err := rd.jobManager.GetProcessingJobsIDs()
-			if err != nil {
-				rd.logger.Err.Printf("Getting processing jobs failed. reason: %v\n", err)
-
-				continue
-			}
-
-			if len(processingJobs) >= int(runningInstancesLimit) {
-				rd.logger.Info.Printf("Running instances limit (%d) reached. Waiting for job to finish...\n", runningInstancesLimit)
-
+			if reason != "" {
+				rd.logger.Info.Printf("Job dispatch skipped. Reason: %s\n", reason)
 				continue
 			}
 

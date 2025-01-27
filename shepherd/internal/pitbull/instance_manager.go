@@ -146,6 +146,11 @@ func (im *InstanceManager) CreateInstance(jobId primitive.ObjectID, runPayload *
 	return pitbullInstance, nil
 }
 
+// CanRunHost - returns nil if new Host can be started. Otherwise, error with details will be returned.
+func (im *InstanceManager) CanRunHost() error {
+	return im.hostManager.CanRunInstance()
+}
+
 // RunHostForInstance - runs host for pitbull instance.
 func (im *InstanceManager) RunHostForInstance(id string) (*models.PitbullInstance, error) {
 	instance, err := im.GetInstanceById(id)
