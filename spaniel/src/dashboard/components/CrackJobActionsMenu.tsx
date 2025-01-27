@@ -41,14 +41,15 @@ export const CrackJobActionsMenu = (props: CrackJobActionsMenuProps) => {
       <IconButton onClick={handleMenuClick} size='small'>
         <MoreVertIcon />
       </IconButton>
-    <Menu open={!!menuAnchorEl} anchorEl={menuAnchorEl} onClose={() => setMenuAnchorEl(null)}>
-      <MenuItem key='cancel' disabled={job.status !== statusEnum[JobStatusKey.PROCESSING]} onClick={handleCancel}>
-        Cancel
-      </MenuItem>
-      <MenuItem key='recreate' disabled={job.status === statusEnum[JobStatusKey.PROCESSING]} onClick={handleRecreate}>
-        Recreate
-      </MenuItem>
-    </Menu>
+
+      <Menu open={!!menuAnchorEl} anchorEl={menuAnchorEl} onClose={() => setMenuAnchorEl(null)}>
+        <MenuItem key='cancel' disabled={job.status !== statusEnum[JobStatusKey.PROCESSING]} onClick={handleCancel}>
+          Cancel
+        </MenuItem>
+        <MenuItem key='recreate' disabled={job.status === statusEnum[JobStatusKey.PROCESSING]} onClick={handleRecreate}>
+          Recreate
+        </MenuItem>
+      </Menu>
     </Box>
   );
 }

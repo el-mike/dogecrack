@@ -3,6 +3,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 
 import {
+  Box,
   Grid,
   Card,
   CardContent,
@@ -10,11 +11,20 @@ import {
   Typography,
   Divider,
   SelectChangeEvent,
+  IconButton,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 
-import { PlayArrow as PlayArrowIcon } from '@mui/icons-material';
+import {
+  PlayArrow as PlayArrowIcon,
+  MoreVert as MoreVertIcon,
+} from '@mui/icons-material';
 
-import { RunCrackJobPayload } from 'models';
+import {
+  GetKeywordSuggestionsPayload,
+  RunCrackJobPayload
+} from 'models';
 
 import {
   TextInput,
@@ -38,9 +48,18 @@ const CardFooter = styled(CardActions)`
   justify-content: flex-end;
 `;
 
+const KeywordsActionsWrapper = styled(Box)`
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  height: 100%;
+`;
+
 export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
-  const { run } = useCrackJobsContext();
+  const { run, getKeywordSuggestions } = useCrackJobsContext();
   const { enums, latestTokenGeneratorVersion } = useGeneralContext();
+
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
 
   const [payload, setPayload] = useState<RunCrackJobForm>({
     keywords: [],
@@ -54,6 +73,10 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
   const tokenGeneratorVersionOptions = [
     ...getEnumAsInputOptions(enums.tokenGeneratorVersion),
   ];
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
 
   const handleKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target?.value;
@@ -113,6 +136,17 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
     });
   };
 
+  const handleGetKeywordSuggestions = async (payload: GetKeywordSuggestionsPayload) => {
+    const suggestions = await getKeywordSuggestions(payload);
+
+    setPayload((prev) => ({
+      ...prev,
+      keywords: suggestions,
+    }));
+
+    setMenuAnchorEl(null);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -145,14 +179,46 @@ export const RunCrackJob: React.FC<RunCrackJobProps> = () => {
               onChange={handleTokenGeneratorVersionChange}
             />
           </Grid>
-          <Grid item xs={12}>
+        </Grid>
+
+        <Spacer mb={2} />
+
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
             <TextInput
               label='Keywords (newline-separated)'
               multiline
+              maxRows={10}
               value={payload.keywords?.join('\n')}
               onChange={handleKeywordChange}
               disabled={!!payload.passlistUrl || !!payload.tokenlist}
             />
+          </Grid>
+
+          <Grid item xs={6}>
+            <KeywordsActionsWrapper>
+              <IconButton onClick={handleMenuClick}>
+                <MoreVertIcon />
+              </IconButton>
+
+              <Menu open={!!menuAnchorEl} anchorEl={menuAnchorEl} onClose={() => setMenuAnchorEl(null)}>
+                <MenuItem key='cancel' onClick={() => handleGetKeywordSuggestions({ presetsOnly: true })}>
+                  Get all preset keywords
+                </MenuItem>
+
+                <MenuItem key='cancel' onClick={() => handleGetKeywordSuggestions({ presetsOnly: true, tokenGeneratorVersion: payload.tokenGeneratorVersion })}>
+                  Get unchecked preset keywords
+                </MenuItem>
+
+                <MenuItem key='cancel' onClick={() => handleGetKeywordSuggestions({ presetsOnly: false })}>
+                  Get all known keywords
+                </MenuItem>
+
+                <MenuItem key='cancel' onClick={() => handleGetKeywordSuggestions({ presetsOnly: false, tokenGeneratorVersion: payload.tokenGeneratorVersion })}>
+                  Get unchecked known keywords
+                </MenuItem>
+              </Menu>
+            </KeywordsActionsWrapper>
           </Grid>
         </Grid>
 

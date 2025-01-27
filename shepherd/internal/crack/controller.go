@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/el-mike/dogecrack/shepherd/internal/common"
 	"github.com/el-mike/dogecrack/shepherd/internal/common/api"
@@ -189,6 +190,50 @@ func (ct *Controller) GetCheckedIdeas(
 	}
 
 	response, err := json.Marshal(checkedKeywords)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ct.responseHelper.HandleJSONResponse(w, response)
+}
+
+func (ct *Controller) GetKeywordSuggestions(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	payload := &models.KeywordSuggestionsPayload{}
+
+	tokenGeneratorVersionParam := r.URL.Query().Get("tokenGeneratorVersion")
+	presetsOnlyParam := r.URL.Query().Get("presetsOnly")
+
+	if tokenGeneratorVersionParam != "" {
+		tokenGeneratorVersion, err := strconv.Atoi(tokenGeneratorVersionParam)
+		if err != nil {
+			ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("tokenGeneratorVersion must be a number"))
+			return
+		}
+
+		payload.TokenGeneratorVersion = models.TokenGeneratorVersionEnum(tokenGeneratorVersion)
+	}
+
+	if presetsOnlyParam != "" {
+		presetsOnly, err := strconv.ParseBool(presetsOnlyParam)
+		if err != nil {
+			ct.responseHelper.HandleError(w, http.StatusBadRequest, fmt.Errorf("presetsOnly must be a boolean"))
+			return
+		}
+
+		payload.PresetsOnly = presetsOnly
+	}
+
+	keywords, err := ct.jobManager.GetKeywordSuggestions(payload)
+	if err != nil {
+		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response, err := json.Marshal(keywords)
 	if err != nil {
 		ct.responseHelper.HandleError(w, http.StatusInternalServerError, err)
 		return

@@ -7,6 +7,7 @@ import {
 import {
   CrackJob,
   CrackJobsFilters,
+  GetKeywordSuggestionsPayload,
   JobStatusKey,
   ListRequest,
   RunCrackJobPayload,
@@ -125,6 +126,32 @@ export const CrackJobsProvider: React.FC = props => {
       .finally(() => reload());
   };
 
+  const getKeywordSuggestions = async (payload: GetKeywordSuggestionsPayload) => {
+    try {
+      const suggestions = await crackJobService.getKeywordSuggestions(payload);
+
+      if (payload.tokenGeneratorVersion && !suggestions?.length) {
+        const message = payload.presetsOnly
+          ? 'All preset keywords have been either scheduled or checked for this token generator version!'
+          : 'All known keywords have been either scheduled or checked for this token generator version!';
+
+        notify({
+          message,
+          variant: NotificationVariant.SUCCESS,
+        });
+      }
+
+      return suggestions;
+    } catch {
+      notify({
+        message: 'Retrieving keyword suggestions failed',
+        variant: NotificationVariant.ERROR,
+      });
+
+      return [];
+    }
+  };
+
   const resetFilters = () => {
     setRequest(defaultRequest);
     setLastLoaded(new Date());
@@ -147,6 +174,7 @@ export const CrackJobsProvider: React.FC = props => {
     cancel,
     recreate,
     resetFilters,
+    getKeywordSuggestions,
   } as CrackJobsContext;
 
   /**

@@ -20,8 +20,8 @@ export const PasslistsTab: React.FC = () => {
           <TableHead>
             <TableRow>
               <TableCell />
-              <TableCell align='left'>Keyword</TableCell>
-              <TableCell align='left'>Tested Generator Versions</TableCell>
+              <TableCell align='left'>Name</TableCell>
+              <TableCell align='left'>Passlist URL</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -78,7 +78,7 @@ func (jr *JobRepository) RescheduleProcessingJobs(jobIds []string) error {
 	return nil
 }
 
-func (jr *JobRepository) GetAll(payload *models.CrackJobsListPayload) ([]*models.CrackJob, int, error) {
+func (jr *JobRepository) GetAllPaged(payload *models.CrackJobsListPayload) ([]*models.CrackJob, int, error) {
 	collection := jr.db.Collection(JobsCollection)
 
 	statuses := payload.Statuses
@@ -328,15 +328,38 @@ func (jr *JobRepository) GetStatistics() (*models.CrackJobsStatistics, error) {
 
 }
 
-// GetCheckedKeywords - returns information about all already tested keywords.
-func (jr *JobRepository) GetCheckedKeywords() ([]*models.CheckedKeyword, error) {
+// GetUsedKeywords - returns information about all used keywords.
+func (jr *JobRepository) GetUsedKeywords(
+	statuses []models.JobStatusEnum,
+	tokenGeneratorVersions []models.TokenGeneratorVersionEnum,
+) ([]*models.CheckedKeyword, error) {
 	collection := jr.db.Collection(JobsCollection)
 
+	// By default, match documents where status is 4 (ACKNOWLEDGED)
+	if statuses == nil {
+		statuses = []models.JobStatusEnum{4}
+	}
+
+	statusesFilter := bson.D{}
+	if len(statuses) > 0 {
+		statusesFilter = bson.D{
+			{"status", bson.D{{"$in", statuses}}},
+		}
+	}
+
+	generatorVersionsFilter := bson.D{}
+	if len(tokenGeneratorVersions) > 0 {
+		generatorVersionsFilter = bson.D{
+			{"tokenGeneratorVersion", bson.D{{"$in", tokenGeneratorVersions}}},
+		}
+	}
+
+	keywordFilter := bson.D{{"keyword", bson.D{{"$ne", ""}}}}
+
 	pipeline := mongo.Pipeline{
-		{ // Match documents where status is 4 (ACKNOWLEDGED) and keyword is not empty
+		{
 			{"$match", bson.D{
-				{"status", 4},
-				{"keyword", bson.D{{"$ne", ""}}},
+				{"$and", bson.A{keywordFilter, statusesFilter, generatorVersionsFilter}},
 			}},
 		},
 		{ // Group by keyword and process generatorVersions and tokenlists

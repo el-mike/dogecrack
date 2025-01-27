@@ -8,6 +8,8 @@ import (
 	"github.com/el-mike/dogecrack/shepherd/internal/generator"
 	"github.com/el-mike/dogecrack/shepherd/internal/pitbull"
 	"os"
+	"slices"
+	"sort"
 	"strings"
 	"sync"
 )
@@ -54,7 +56,7 @@ func (jm *JobManager) ScheduleJobs(jobs []*models.CrackJob) error {
 
 // GetJobs - returns all existing jobs.
 func (jm *JobManager) GetJobs(payload *models.CrackJobsListPayload) ([]*models.CrackJob, int, error) {
-	return jm.jobRepository.GetAll(payload)
+	return jm.jobRepository.GetAllPaged(payload)
 }
 
 // GetJob - returns a single CrackJob with provided ID.
@@ -83,6 +85,9 @@ func (jm *JobManager) CreateJobsForKeywords(
 	scheduleRun bool,
 ) ([]*models.CrackJob, error) {
 	var jobs []*models.CrackJob
+
+	// Just to make sure we don't run redundant jobs, we remove possible duplicates.
+	keywords = common.RemoveStringDuplicates(keywords)
 
 	for _, keyword := range keywords {
 		job := jm.getBaseJob(walletString, name)
@@ -421,7 +426,7 @@ func (jm *JobManager) GetCheckedIdeas() (*models.CheckedIdeas, error) {
 	go func() {
 		defer wg.Done()
 
-		keywords, err := jm.jobRepository.GetCheckedKeywords()
+		keywords, err := jm.jobRepository.GetUsedKeywords([]models.JobStatusEnum{models.JobStatus.Acknowledged}, nil)
 		if err != nil {
 			mainErr = err
 			return
@@ -450,4 +455,90 @@ func (jm *JobManager) GetCheckedIdeas() (*models.CheckedIdeas, error) {
 	}
 
 	return checkedIdeas, nil
+}
+
+// GetKeywordSuggestions - returns keyword suggestions based on Keyword presets and already checked keywords.
+func (jm *JobManager) GetKeywordSuggestions(payload *models.KeywordSuggestionsPayload) ([]string, error) {
+	appSettings, err := jm.appSettingsRepository.GetAppSettings()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []string
+
+	presets := appSettings.KeywordPresets
+
+	// Only keyword presets, both used and unused.
+	if payload.PresetsOnly && payload.TokenGeneratorVersion == 0 {
+		result = presets
+	} else {
+		jobStatusesFilter := []models.JobStatusEnum{
+			models.JobStatus.Acknowledged,
+			models.JobStatus.Processing,
+			models.JobStatus.Scheduled,
+			models.JobStatus.Rescheduled,
+		}
+
+		allUsedKeywords, err := jm.jobRepository.GetUsedKeywords(jobStatusesFilter, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		// All keywords, both presets and already used keywords.
+		if !payload.PresetsOnly && payload.TokenGeneratorVersion == 0 {
+			allKeywords := presets
+
+			for _, usedKeyword := range allUsedKeywords {
+				if !slices.Contains(allKeywords, usedKeyword.Keyword) {
+					allKeywords = append(allKeywords, usedKeyword.Keyword)
+				}
+			}
+
+			result = allKeywords
+		}
+
+		// Unused keywords for given generator version.
+		if payload.TokenGeneratorVersion > 0 {
+			testedKeywords := []string{}
+			untestedPresets := []string{}
+
+			for _, usedKeyword := range allUsedKeywords {
+				if slices.Contains(usedKeyword.GeneratorVersions, payload.TokenGeneratorVersion) {
+					testedKeywords = append(testedKeywords, usedKeyword.Keyword)
+				}
+			}
+
+			for _, preset := range presets {
+				if !slices.Contains(testedKeywords, preset) {
+					untestedPresets = append(untestedPresets, preset)
+				}
+			}
+
+			// Only unused keyword presets.
+			if payload.PresetsOnly {
+				result = untestedPresets
+			}
+
+			// All unused keywords for given version.
+			if !payload.PresetsOnly {
+				allUntestedKeywords := untestedPresets
+
+				for _, usedKeyword := range allUsedKeywords {
+					if !slices.Contains(usedKeyword.GeneratorVersions, payload.TokenGeneratorVersion) &&
+						!slices.Contains(untestedPresets, usedKeyword.Keyword) &&
+						!slices.Contains(allUntestedKeywords, usedKeyword.Keyword) {
+						allUntestedKeywords = append(allUntestedKeywords, usedKeyword.Keyword)
+					}
+				}
+
+				result = allUntestedKeywords
+			}
+		}
+
+	}
+
+	deduplicatedKeywords := common.RemoveStringDuplicates(result)
+	sort.Strings(deduplicatedKeywords)
+
+	return deduplicatedKeywords, nil
 }
